@@ -25,10 +25,11 @@ classifiers = [
 odoo-openupgrade-wizard = "odoo_openupgrade_wizard.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.6"
 click = "^7.0"
 loguru = "^0.6"
 plumbum = "^1.7"
+single-source = "^0.3"
 
 [tool.poetry.dev-dependencies]
 pytest = [

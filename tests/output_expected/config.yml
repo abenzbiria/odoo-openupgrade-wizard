@@ -1,0 +1,31 @@
+migration_steps:
+
+  - name: step_1
+    complete_name: step_1__update__9.0
+    version: 9.0
+    action: update
+    python: python2.7
+
+  - name: step_2
+    complete_name: step_2__upgrade__10.0
+    version: 10.0
+    action: upgrade
+    python: python2.7
+
+  - name: step_3
+    complete_name: step_3__upgrade__11.0
+    version: 11.0
+    action: upgrade
+    python: python3.5
+
+  - name: step_4
+    complete_name: step_4__upgrade__12.0
+    version: 12.0
+    action: upgrade
+    python: python3.6
+
+  - name: step_5
+    complete_name: step_5__update__12.0
+    version: 12.0
+    action: update
+    python: python3.6

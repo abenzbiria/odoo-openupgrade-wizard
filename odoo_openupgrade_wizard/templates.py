@@ -1,8 +1,7 @@
-_CONFIG_YML_TEMPLATE = """
-migration_steps:
+_CONFIG_YML_TEMPLATE = """migration_steps:
 {% for step in steps %}
   - name: {{ step['name'] }}
-  - complete_name: {{ step['complete_name'] }}
+    complete_name: {{ step['complete_name'] }}
     version: {{ step['version'] }}
     action: {{ step['action'] }}
     python: {{ step['python'] }}

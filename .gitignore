@@ -1,2 +1,7 @@
 env
 __pycache__
+.tox
+.coverage
+.pytest_cache
+/tests/output/*
+log/
