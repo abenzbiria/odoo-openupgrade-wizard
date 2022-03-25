@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "odoo-openupgrade-wizard"
+version = "0.0.1"
+description = "CLI tool to manage Odoo Major Upgrades"
+authors = [
+    "GRAP, Groupement Régional Alimentaire de Proximité",
+    "Coop IT Easy SCRLfs",
+]
+maintainers = [
+    "Sylvain LE GAL",
+]
+license = "AGPLv3+"
+readme = "README.md"
+repository = "https://gitlab.com/odoo-openupgrade-wizard/odoo-openupgrade-wizard"
+keywords = ["cli", "odoo", "openupgrade"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Development Status :: 2 - Pre-Alpha",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3",
+    "Framework :: Odoo",
+]
+
+[tool.poetry.scripts]
+odoo-openupgrade-wizard = "odoo_openupgrade_wizard.cli:main"
+
+[tool.poetry.dependencies]
+python = "^3.5"
+click = "^7.0"
+loguru = "^0.6"
+plumbum = "^1.7"
+
+[tool.poetry.dev-dependencies]
+pytest = [
+    {version = "<=6.1.2", python = "<3.10"},
+    {version = ">=6.2.5", python = ">=3.10"}
+]
+pytest-cov = "*"
+safety = "*"
+pylint = "*"
+tox = "*"
+towncrier = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.towncrier]
+package = "ociedoo"
+package_dir = "ociedoo"
+filename = "CHANGES.rst"
+directory = "newsfragments"
+title_format = "{version} ({project_date})"
+wrap = 72
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
