@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 import yaml
 from loguru import logger
-from plumbum.cmd import mkdir
+from tools_system import ensure_folder_exists
 
 import odoo_openupgrade_wizard
 from odoo_openupgrade_wizard.cli_build import build
@@ -46,28 +46,21 @@ def main(ctx, env_folder, filestore_folder):
     if not isinstance(ctx.obj, dict):
         ctx.obj = {}
 
+    # Define all the folder required by the tools
     env_folder_path = Path(env_folder)
     src_folder_path = env_folder_path / Path("./src/")
     repo_folder_path = env_folder_path / Path("./repos/")
     requirement_folder_path = env_folder_path / Path("./requirements/")
     script_folder_path = env_folder_path / Path("./scripts/")
-
+    config_file_path = env_folder_path / Path("config.yml")
+    log_folder_path = env_folder_path / Path("./log/")
     if not filestore_folder:
         filestore_folder_path = env_folder_path / Path("./filestore/")
     else:
         filestore_folder_path = Path(filestore_folder)
 
-    config_file_path = env_folder_path / Path("config.yml")
-
-    # ###
-    # Handle log
-    # ###
-    log_folder_path = env_folder_path / Path("./log/")
-
-    # create log directory if not exists
-    if not log_folder_path.exists():
-        logger.info("Creating folder '%s' ..." % (log_folder_path))
-        mkdir(["--mode", "777", log_folder_path])
+    # ensure log folder exists
+    ensure_folder_exists(log_folder_path)
 
     # Create log file
     log_file_path = log_folder_path / Path(
@@ -76,6 +69,8 @@ def main(ctx, env_folder, filestore_folder):
         )
     )
     logger.add(log_file_path)
+
+    # Add all global values in the context
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = src_folder_path
     ctx.obj["repo_folder_path"] = repo_folder_path
@@ -84,6 +79,7 @@ def main(ctx, env_folder, filestore_folder):
     ctx.obj["config_file_path"] = config_file_path
     ctx.obj["requirement_folder_path"] = requirement_folder_path
 
+    # Load the main configuration file
     if config_file_path.exists():
         with open(config_file_path) as file:
             config = yaml.safe_load(file)

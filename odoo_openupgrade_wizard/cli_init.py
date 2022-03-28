@@ -3,7 +3,7 @@ from pathlib import Path
 import click
 from jinja2 import Template
 from loguru import logger
-from plumbum.cmd import mkdir
+from tools_system import ensure_folder_exists
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     _get_odoo_version_str_list,
@@ -47,17 +47,11 @@ def init(ctx, initial_version, final_version, extra_repository_list):
     Initialize OpenUpgrade Wizard Environment based on the initial and
     the final version of Odoo you want to migrate.
     """
-    # 1. create src directory if not exists
-    if not ctx.obj["src_folder_path"].exists():
-        logger.info("Creating folder '%s' ..." % (ctx.obj["src_folder_path"]))
-        mkdir(["--mode", "777", ctx.obj["src_folder_path"]])
+    # 1. ensure src folder exists
+    ensure_folder_exists(ctx.obj["src_folder_path"], mode="777")
 
-    # 2. create filestore directory if not exists
-    if not ctx.obj["filestore_folder_path"].exists():
-        logger.info(
-            "Creating folder '%s' ..." % (ctx.obj["filestore_folder_path"])
-        )
-        mkdir(["--mode", "777", ctx.obj["filestore_folder_path"]])
+    # 2. ensure filestore folder exists
+    ensure_folder_exists(ctx.obj["filestore_folder_path"], mode="777")
 
     # 3. Create main config file
     series = _get_odoo_versions(float(initial_version), float(final_version))
@@ -110,9 +104,7 @@ def init(ctx, initial_version, final_version, extra_repository_list):
     distinct_versions = list(set(x["version"] for x in series))
 
     # 4. Create Repo folder and files
-    if not ctx.obj["repo_folder_path"].exists():
-        logger.info("Creating folder '%s' ..." % (ctx.obj["repo_folder_path"]))
-        mkdir([ctx.obj["repo_folder_path"]])
+    ensure_folder_exists(ctx.obj["repo_folder_path"])
 
     extra_repositories = extra_repository_list.split(",")
 
@@ -131,11 +123,7 @@ def init(ctx, initial_version, final_version, extra_repository_list):
             f.close()
 
     # 5. Create Requirements folder and files
-    if not ctx.obj["requirement_folder_path"].exists():
-        logger.info(
-            "Creating folder '%s' ..." % (ctx.obj["requirement_folder_path"])
-        )
-        mkdir([ctx.obj["requirement_folder_path"]])
+    ensure_folder_exists(ctx.obj["requirement_folder_path"])
 
     for serie in series:
         template = Template(_REQUIREMENTS_TXT_TEMPLATE)
@@ -149,17 +137,11 @@ def init(ctx, initial_version, final_version, extra_repository_list):
             f.close()
 
     # 6. Create Scripts folder and files
-    if not ctx.obj["script_folder_path"].exists():
-        logger.info(
-            "Creating folder '%s' ..." % (ctx.obj["script_folder_path"])
-        )
-        mkdir([ctx.obj["script_folder_path"]])
+    ensure_folder_exists(ctx.obj["script_folder_path"])
 
     for step in steps:
         step_path = ctx.obj["script_folder_path"] / step["complete_name"]
-        if not step_path.exists():
-            logger.info("Creating folder '%s' ..." % (step_path))
-            mkdir([step_path])
+        ensure_folder_exists(step_path)
         template = Template(_PRE_MIGRATION_SQL_TEMPLATE)
         output = template.render()
         file_name = step_path / Path("pre-migration.sql")
