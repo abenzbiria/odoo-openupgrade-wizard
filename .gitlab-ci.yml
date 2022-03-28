@@ -15,6 +15,7 @@ stages:
 install_tools:
   stage: prepare
   script:
+    - pip install --user pipx
     - python -m venv .venv
     - source .venv/bin/activate
     - pip install poetry
@@ -27,6 +28,7 @@ black:
   stage: linting
   script:
     # - source .venv/bin/activate
+    - pip install --user pipx
     - pipx install black
     - black --version
     - black --check .
