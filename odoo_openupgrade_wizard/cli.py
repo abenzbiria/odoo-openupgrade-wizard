@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 import yaml
 from loguru import logger
-from tools_system import ensure_folder_exists
+from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
 import odoo_openupgrade_wizard
 from odoo_openupgrade_wizard.cli_build import build

@@ -3,7 +3,7 @@ from pathlib import Path
 import click
 from jinja2 import Template
 from loguru import logger
-from tools_system import ensure_folder_exists
+from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     _get_odoo_version_str_list,
