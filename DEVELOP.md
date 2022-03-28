@@ -38,4 +38,3 @@ tox
 Note : you should have all the python versions available in your local system.
 
 # Structure of the project
-

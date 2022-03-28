@@ -4,11 +4,11 @@ from pathlib import Path
 import click
 import yaml
 from loguru import logger
-from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
 import odoo_openupgrade_wizard
 from odoo_openupgrade_wizard.cli_build import build
 from odoo_openupgrade_wizard.cli_init import init
+from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
 
 @click.group()
