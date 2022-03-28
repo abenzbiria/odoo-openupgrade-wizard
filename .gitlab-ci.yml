@@ -36,8 +36,6 @@ pylint:
   script:
     - source .venv/bin/activate
     - pylint --version
-    # - pylint --disable fixme ociedoo
-    # - pylint --disable fixme tests
 
 pytest:
   stage: tests
