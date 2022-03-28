@@ -68,6 +68,7 @@ def main(ctx, env_folder, filestore_folder):
             date_begin.strftime("%Y_%m_%d__%H_%M_%S"), ctx.invoked_subcommand
         )
     )
+
     logger.add(log_file_path)
 
     # Add all global values in the context

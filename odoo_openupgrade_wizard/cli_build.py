@@ -1,8 +1,8 @@
 # from pathlib import Path
 
 import click
-from loguru import logger
-from plumbum.cmd import mkdir
+
+from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
 
 @click.command()
@@ -18,9 +18,7 @@ def build(ctx):
 
     for step in ctx.obj["config"]["migration_steps"]:
         # 1. Create main folder for the odoo version
-        if not step["local_path"].exists():
-            logger.info("Creating folder '%s' ..." % (step["local_path"]))
-            mkdir(["--mode", "777", step["local_path"]])
+        ensure_folder_exists(step["local_path"], mode="777")
 
         # # 2. gitaggregate source code
         # repo_file = ctx.obj["repo_folder_path"] / Path(
