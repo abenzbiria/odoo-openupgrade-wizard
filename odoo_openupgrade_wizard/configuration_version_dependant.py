@@ -1,3 +1,5 @@
+from pathlib import Path
+
 # List of the series of odoo
 # python version is defined, based on the OCA CI.
 # https://github.com/OCA/oca-addons-repo-template/blob/master/src/.github/workflows/%7B%25%20if%20ci%20%3D%3D%20'GitHub'%20%25%7Dtest.yml%7B%25%20endif%20%25%7D.jinja
@@ -75,3 +77,7 @@ def _get_odoo_versions(initial, final):
         if serie["version"] >= initial and serie["version"] <= final:
             result.append(serie)
     return result
+
+
+def _get_repo_file(ctx, step):
+    return ctx.obj["repo_folder_path"] / Path("%s.yml" % (step["version"]))

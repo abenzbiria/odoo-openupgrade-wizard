@@ -1,4 +1,8 @@
-# from pathlib import Path
+import argparse
+import os
+
+from git_aggregator import main as gitaggregate_cmd
+from git_aggregator.utils import working_directory_keeper
 from jinja2 import Template
 from loguru import logger
 from plumbum.cmd import mkdir
@@ -39,3 +43,23 @@ def ensure_file_exists_from_template(file_path, template_name, **args):
         logger.info(log_text)
         f.write(output)
         f.close()
+
+
+def git_aggregate(folder_path, config_path):
+    args = argparse.Namespace(
+        command="aggregate",
+        config=str(config_path),
+        jobs=1,
+        dirmatch=None,
+        do_push=False,
+        expand_env=False,
+        env_file=None,
+        force=False,
+    )
+    with working_directory_keeper:
+        os.chdir(folder_path)
+        logger.info(
+            "Gitaggregate source code for %s. This can take a while ..."
+            % config_path
+        )
+        gitaggregate_cmd.run(args)

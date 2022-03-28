@@ -1,8 +1,12 @@
-# from pathlib import Path
-
 import click
 
-from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
+from odoo_openupgrade_wizard.configuration_version_dependant import (
+    _get_repo_file,
+)
+from odoo_openupgrade_wizard.tools_system import (
+    ensure_folder_exists,
+    git_aggregate,
+)
 
 
 @click.command()
@@ -20,7 +24,5 @@ def build(ctx):
         # 1. Create main folder for the odoo version
         ensure_folder_exists(step["local_path"], mode="777")
 
-        # # 2. gitaggregate source code
-        # repo_file = ctx.obj["repo_folder_path"] / Path(
-        #     "%s.yml" % (step["version"])
-        # )
+        # 2. gitaggregate source code
+        git_aggregate(step["local_path"], _get_repo_file(ctx, step))

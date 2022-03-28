@@ -14,6 +14,8 @@ _REPO_YML_TEMPLATE = """
 ##############################################################################
 
 ./src/odoo:
+  defaults:
+    depth: 1
   remotes:
     odoo: https://github.com/odoo/odoo
   target: odoo {{ version }}-target
@@ -25,6 +27,8 @@ _REPO_YML_TEMPLATE = """
 ##############################################################################
 
 ./src/openupgrade:
+  defaults:
+    depth: 1
   remotes:
     OCA: https://github.com/OCA/OpenUpgrade
   target: OCA {{ version }}-target
@@ -37,6 +41,8 @@ _REPO_YML_TEMPLATE = """
 ##############################################################################
 {% for repo in repo_list %}
 ./src/{{ org_name }}/{{ repo }}:
+  defaults:
+    depth: 1
   remotes:
     {{ org_name }}: https://github.com/{{ org_name }}/{{ repo }}
   target: {{ org_name }} {{ version }}-target
