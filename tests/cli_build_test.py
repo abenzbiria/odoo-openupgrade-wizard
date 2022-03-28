@@ -6,6 +6,7 @@ from plumbum.cmd import mkdir
 
 from odoo_openupgrade_wizard.cli import main
 
+
 def test_cli_build():
     output_folder_path = Path("./tests/output")
     expected_folder_path = Path("./tests/output_expected")
