@@ -29,6 +29,7 @@ black:
   script:
     # - source .venv/bin/activate
     - pip install --user pipx
+    - python -m pipx ensurepath
     - pipx install black
     - black --version
     - black --check .
