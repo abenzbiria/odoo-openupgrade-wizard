@@ -26,8 +26,8 @@ install_tools:
 black:
   stage: linting
   script:
-    - source .venv/bin/activate
-    - pip install black
+    # - source .venv/bin/activate
+    - pipx install black
     - black --version
     - black --check .
 
