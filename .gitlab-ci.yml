@@ -30,6 +30,7 @@ black:
     # - source .venv/bin/activate
     - pip install --user pipx
     - python -m pipx ensurepath
+    - source ~/.profile
     - pipx install black
     - black --version
     - black --check .
