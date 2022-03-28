@@ -15,16 +15,6 @@ stages:
 install_tools:
   stage: prepare
   script:
-      # Install python3.6, because it is required to
-      # run virtualenv of odoo 14.0
-    - apt-get install python3.6
-      # Intall pipx to install black
-      # otherwise, it fails.
-      # TODO, check with Coop It Easy
-    - pip install --user pipx
-    - python -m pipx ensurepath
-    - source ~/.profile
-      # Classic CI
     - python -m venv .venv
     - source .venv/bin/activate
     - pip install poetry
@@ -36,6 +26,13 @@ install_tools:
 black:
   stage: linting
   script:
+      # Intall pipx to install black
+      # otherwise, it fails.
+      # TODO, check with Coop It Easy
+    - pip install --user pipx
+    - python -m pipx ensurepath
+    - source ~/.profile
+      # Classic CI
     - pipx install black
     - black --version
     - black --check .
@@ -51,6 +48,10 @@ pytest:
   image: python
   cache: {}
   script:
+      # Install python3.6, because it is required to
+      # run virtualenv of odoo 14.0
+    - apt-get install python3.6
+      # Classic CI
     - pip install poetry
     - poetry --version
     - poetry install -v
