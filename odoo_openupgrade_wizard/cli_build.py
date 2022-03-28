@@ -4,6 +4,7 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     _get_repo_file,
 )
 from odoo_openupgrade_wizard.tools_system import (
+    create_virtualenv,
     ensure_folder_exists,
     git_aggregate,
 )
@@ -24,5 +25,8 @@ def build(ctx):
         # 1. Create main folder for the odoo version
         ensure_folder_exists(step["local_path"], mode="777")
 
-        # 2. gitaggregate source code
+        # 2. Create virtual environment
+        create_virtualenv(step["local_path"], step["python"])
+
+        # 3. gitaggregate source code
         git_aggregate(step["local_path"], _get_repo_file(ctx, step))

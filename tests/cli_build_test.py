@@ -1,4 +1,3 @@
-import filecmp
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -9,10 +8,10 @@ from odoo_openupgrade_wizard.cli import main
 
 def test_cli_build():
     output_folder_path = Path("./tests/output")
-    expected_folder_path = Path("./tests/output_expected")
     mkdir([output_folder_path, "--parents"])
 
-    # We initialize an env with only one version to avoid to git clone large data
+    # We initialize an env with only one version to avoid to git clone
+    # large data
     CliRunner().invoke(
         main,
         [

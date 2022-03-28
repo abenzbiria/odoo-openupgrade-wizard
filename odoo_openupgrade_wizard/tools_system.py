@@ -1,10 +1,12 @@
 import argparse
 import os
+import subprocess
 
 from git_aggregator import main as gitaggregate_cmd
 from git_aggregator.utils import working_directory_keeper
 from jinja2 import Template
 from loguru import logger
+from plumbum import local
 from plumbum.cmd import mkdir
 
 
@@ -63,3 +65,18 @@ def git_aggregate(folder_path, config_path):
             % config_path
         )
         gitaggregate_cmd.run(args)
+
+
+def create_virtualenv(folder_path, python_version):
+    """
+    Create a virtual env named ``env`` in the ``folder_path`` folder
+    with the given ``python_version``.
+    """
+    with local.cwd(folder_path):
+        logger.info(
+            "Create Virtual Env in %s with version %s"
+            % (folder_path, python_version)
+        )
+        subprocess.check_output(
+            ["virtualenv", "env", "--python", python_version]
+        )
