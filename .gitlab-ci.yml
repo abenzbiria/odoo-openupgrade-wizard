@@ -1,5 +1,5 @@
 ---
-image: python
+image: python3.6
 
 cache:
   key: one-key-to-rule-them-all
