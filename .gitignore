@@ -1,0 +1,8 @@
+env
+__pycache__
+.tox
+.coverage
+.pytest_cache
+/tests/output_01/*
+/tests/output_02/*
+log/
