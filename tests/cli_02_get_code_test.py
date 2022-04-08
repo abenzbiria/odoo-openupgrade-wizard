@@ -17,6 +17,7 @@ def test_cli_get_code():
         [
             "--env-folder=%s" % output_folder_path,
             "init",
+            "--project-name=test-cli-get-code",
             "--initial-release=14.0",
             "--final-release=14.0",
             "--extra-repository=OCA/web",

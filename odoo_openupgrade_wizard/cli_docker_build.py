@@ -2,6 +2,10 @@ import click
 import docker
 from loguru import logger
 
+from odoo_openupgrade_wizard.cli_options import (
+    get_odoo_versions_from_options,
+    releases_options,
+)
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_docker_image_tag,
     get_odoo_env_path,
@@ -9,14 +13,14 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
 
 
 @click.command()
+@releases_options
 @click.pass_context
-def docker_build(ctx):
+def docker_build(ctx, releases):
     """Build Odoo Docker Images. (One image per release)"""
 
-    # TODO, make it modular.
-    # For exemple, possibility to aggregate only 9.0 and 11.0 release
     docker_client = docker.from_env()
-    for odoo_version in ctx.obj["config"]["odoo_versions"]:
+
+    for odoo_version in get_odoo_versions_from_options(ctx, releases):
         logger.info(
             "Building Odoo docker image for release '%s'. "
             "This can take a while..." % (odoo_version["release"])

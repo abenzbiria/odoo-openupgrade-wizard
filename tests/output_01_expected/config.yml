@@ -1,3 +1,5 @@
+project_name: test-cli-init
+
 odoo_versions:
 
   - release: 9.0

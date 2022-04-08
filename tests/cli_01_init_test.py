@@ -16,6 +16,7 @@ def test_cli_init():
         [
             "--env-folder=%s" % output_folder_path,
             "init",
+            "--project-name=test-cli-init",
             "--initial-release=9.0",
             "--final-release=12.0",
             "--extra-repository="

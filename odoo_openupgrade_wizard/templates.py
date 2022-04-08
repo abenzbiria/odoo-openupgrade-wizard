@@ -1,4 +1,6 @@
-CONFIG_YML_TEMPLATE = """odoo_versions:
+CONFIG_YML_TEMPLATE = """project_name: {{ project_name }}
+
+odoo_versions:
 {% for odoo_version in odoo_versions %}
   - release: {{ odoo_version['release'] }}
 {% endfor %}

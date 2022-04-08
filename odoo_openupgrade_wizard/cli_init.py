@@ -16,6 +16,15 @@ from odoo_openupgrade_wizard.tools_system import (
 
 @click.command()
 @click.option(
+    "--project-name",
+    required=True,
+    prompt=True,
+    type=str,
+    help="Name of your project without spaces neither special chars."
+    " exemple 'my-customer-9-12'. This will be used to tag with a friendly"
+    " name the odoo docker images.",
+)
+@click.option(
     "--initial-release",
     required=True,
     prompt=True,
@@ -35,7 +44,9 @@ from odoo_openupgrade_wizard.tools_system import (
     "Ex: 'OCA/web,OCA/server-tools,GRAP/grap-odoo-incubator'",
 )
 @click.pass_context
-def init(ctx, initial_release, final_release, extra_repository_list):
+def init(
+    ctx, project_name, initial_release, final_release, extra_repository_list
+):
     """Initialize OpenUpgrade Wizard Environment based on the initial and
     the final release of Odoo you want to migrate.
     """
@@ -105,6 +116,7 @@ def init(ctx, initial_release, final_release, extra_repository_list):
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
         templates.CONFIG_YML_TEMPLATE,
+        project_name=project_name,
         steps=steps,
         odoo_versions=odoo_versions,
     )
