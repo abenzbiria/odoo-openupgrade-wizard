@@ -36,8 +36,7 @@ from odoo_openupgrade_wizard.tools_system import (
 )
 @click.pass_context
 def init(ctx, initial_release, final_release, extra_repository_list):
-    """
-    Initialize OpenUpgrade Wizard Environment based on the initial and
+    """Initialize OpenUpgrade Wizard Environment based on the initial and
     the final release of Odoo you want to migrate.
     """
 

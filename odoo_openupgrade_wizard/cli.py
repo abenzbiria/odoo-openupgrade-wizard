@@ -6,6 +6,7 @@ import yaml
 from loguru import logger
 
 import odoo_openupgrade_wizard
+from odoo_openupgrade_wizard.cli_docker_build import docker_build
 from odoo_openupgrade_wizard.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli_init import init
 from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
@@ -82,14 +83,12 @@ def main(ctx, env_folder, filestore_folder):
     if config_file_path.exists():
         with open(config_file_path) as file:
             config = yaml.safe_load(file)
-            # for step in config["migration_steps"]:
-            #     step["local_path"] = src_folder_path / Path(
-            #         "env_%s" % step["version"]
-            #     )
             ctx.obj["config"] = config
+            file.close()
     elif ctx.invoked_subcommand != "init":
         raise
 
 
 main.add_command(init)
 main.add_command(get_code)
+main.add_command(docker_build)
