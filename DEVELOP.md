@@ -1,18 +1,37 @@
-# Requirements
+# Extra Developper Requirements
 
-TODO (poetry, etc...)
+If you want to contribute to this library without installing anything in your
+system,
+
+1. Run a docker container :
+
+``docker run -it ubuntu:focal``
+
+2. Execute the following commnands
+
+```
+
+apt-get update
+apt-get install git python3 python3-pip python3-venv
+
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+
+# re-login via su root
+
+pipx install virtualenv
+pipx install poetry
+```
 
 # Installation
 
 ```
 git clone https://gitlab.com/odoo-openupgrade-wizard/odoo-openupgrade-wizard/
 cd odoo-openupgrade-wizard
-virtualenv env --python=python3.X
+virtualenv env --python=python3
 . ./env/bin/activate
 poetry install
 ```
-Note : ``python3.X`` should be >= to ``python3.6``
-
 
 ``odoo-openupgrade-wizard`` commands are now available in your virutalenv.
 
