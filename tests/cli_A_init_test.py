@@ -8,7 +8,6 @@ from odoo_openupgrade_wizard.cli import main
 
 
 def test_cli_init():
-    return
     output_folder_path = Path("./tests/output_A")
     expected_folder_path = Path("./tests/output_A_expected")
     mkdir([output_folder_path, "--parents"])
@@ -17,7 +16,7 @@ def test_cli_init():
         [
             "--env-folder=%s" % output_folder_path,
             "init",
-            "--project-name=test-cli-A",
+            "--project-name=test-cli",
             "--initial-release=9.0",
             "--final-release=12.0",
             "--extra-repository="
