@@ -1,0 +1,39 @@
+project_name: test-cli-init
+
+odoo_versions:
+
+  - release: 9.0
+
+  - release: 10.0
+
+  - release: 11.0
+
+  - release: 12.0
+
+
+migration_steps:
+
+  - name: 1
+    release: 9.0
+    action: update
+    complete_name: step_01__update__9.0
+
+  - name: 2
+    release: 10.0
+    action: upgrade
+    complete_name: step_02__upgrade__10.0
+
+  - name: 3
+    release: 11.0
+    action: upgrade
+    complete_name: step_03__upgrade__11.0
+
+  - name: 4
+    release: 12.0
+    action: upgrade
+    complete_name: step_04__upgrade__12.0
+
+  - name: 6
+    release: 12.0
+    action: update
+    complete_name: step_06__update__12.0
