@@ -16,6 +16,7 @@ def test_cli_docker_build():
             "docker-build",
             "--releases=14.0",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0
 

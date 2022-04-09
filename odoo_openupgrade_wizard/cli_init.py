@@ -20,8 +20,9 @@ from odoo_openupgrade_wizard.tools_system import (
     required=True,
     prompt=True,
     type=str,
-    help="Name of your project without spaces neither special chars."
-    " exemple 'my-customer-9-12'. This will be used to tag with a friendly"
+    help="Name of your project without spaces neither special"
+    " chars or uppercases.  exemple 'my-customer-9-12'."
+    " This will be used to tag with a friendly"
     " name the odoo docker images.",
 )
 @click.option(
