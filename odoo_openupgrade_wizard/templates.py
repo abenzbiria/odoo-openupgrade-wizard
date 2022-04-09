@@ -65,10 +65,16 @@ PYTHON_REQUIREMENTS_TXT_TEMPLATE = """
 {% endfor %}
 """
 
-DEBIAN_REQUIREMENTS_TXT_TEMPLATE = ""
+DEBIAN_REQUIREMENTS_TXT_TEMPLATE = """
+git
+"""
 
 ODOO_CONFIG_TEMPLATE = ""
 
+
+# Technical Notes:
+# - We set apt-get update || true, because for some release (at least odoo:10)
+#   the command update fail, because of obsolete postgresql repository.
 DOCKERFILE_TEMPLATE = """
 FROM odoo:{{ odoo_version['release'] }}
 MAINTAINER GRAP, Coop It Easy
@@ -83,12 +89,12 @@ COPY debian_requirements.txt /debian_requirements.txt
 COPY python_requirements.txt /python_requirements.txt
 
 # 2. Install extra debian packages
-RUN apt-get update &&\
+RUN apt-get update || true &&\
  xargs apt-get install -y --no-install-recommends <debian_requirements.txt
 
 # 3. Install extra Python librairies
 RUN {{ odoo_version["python_major_version"] }}\
- -m pip install -e python_requirements.txt
+ -m pip install -r python_requirements.txt
 
 # Reset to odoo user to run the container
 USER odoo

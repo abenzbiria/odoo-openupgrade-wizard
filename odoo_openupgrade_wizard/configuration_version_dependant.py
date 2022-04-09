@@ -1,5 +1,13 @@
 from pathlib import Path
 
+# See : https://github.com/OCA/openupgradelib/issues/248
+# https://github.com/OCA/openupgradelib/issues/288
+_LEGACY_OPENUPGRADELIB = (
+    "git+https://github.com/OCA/openupgradelib.git"
+    "@ed01555b8ae20f66b3af178c8ecaf6edd110ce75#egg=openupgradelib"
+)
+
+
 # List of the series of odoo
 # python version is defined, based on the OCA CI.
 # https://github.com/OCA/oca-addons-repo-template/blob/master/src/.github/workflows/%7B%25%20if%20ci%20%3D%3D%20'GitHub'%20%25%7Dtest.yml%7B%25%20endif%20%25%7D.jinja
@@ -7,17 +15,17 @@ _ODOO_VERSION_TEMPLATES = [
     {
         "release": 8.0,
         "python_major_version": "python2",
-        "python_libraries": ["openupgradelib"],
+        "python_libraries": [_LEGACY_OPENUPGRADELIB],
     },
     {
         "release": 9.0,
         "python_major_version": "python2",
-        "python_libraries": ["openupgradelib"],
+        "python_libraries": [_LEGACY_OPENUPGRADELIB],
     },
     {
         "release": 10.0,
         "python_major_version": "python2",
-        "python_libraries": ["openupgradelib"],
+        "python_libraries": [_LEGACY_OPENUPGRADELIB],
     },
     {
         "release": 11.0,
