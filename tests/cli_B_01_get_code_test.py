@@ -22,6 +22,7 @@ def test_cli_get_code():
             "--final-release=14.0",
             "--extra-repository=OCA/web",
         ],
+        catch_exceptions=False,
     )
 
     result = CliRunner().invoke(
@@ -30,6 +31,7 @@ def test_cli_get_code():
             "--env-folder=%s" % output_folder_path,
             "get-code",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0
 

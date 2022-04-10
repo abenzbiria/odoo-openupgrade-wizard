@@ -22,6 +22,7 @@ def test_cli_init():
             "--extra-repository="
             "OCA/web,OCA/server-tools,GRAP/grap-odoo-incubator",
         ],
+        catch_exceptions=False,
     )
     assert result.exit_code == 0
 

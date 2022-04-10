@@ -60,12 +60,11 @@ Note : you should have all the python versions available in your local system.
 
 
 ```
+# Install tools
 pipx install gitlabci-local
-curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/rpm/gitlab-runner_amd64.rpm"
-sudo dpkg -i gitlab-runner_amd64.deb
 
-# add gitlab-runner user to docker group
-sudo usermod -a -G docker gitlab-runner
+# Run new available command
+gitlabci-local
 ```
 
 # Réferences
@@ -77,3 +76,5 @@ https://docs.gitlab.com/runner/install/linux-manually.html
 - Check your CI locally. (French)
 
 https://blog.stephane-robert.info/post/gitlab-valider-ci-yml/
+
+https://blog.callr.tech/building-docker-images-with-gitlab-ci-best-practices/

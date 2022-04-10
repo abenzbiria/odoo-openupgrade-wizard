@@ -1,71 +1,24 @@
----
-image: python
+image: docker:18.09
 
-cache:
-  key: one-key-to-rule-them-all
-  paths:
-    - .venv
+services:
+  - docker:18.09-dind
 
 stages:
-  - prepare
-  - linting
   - tests
 
-
-install_tools:
-  stage: prepare
+pytest:
+  stage: tests
   script:
-    - python -m venv .venv
-    - source .venv/bin/activate
+    - apk add python3 python3-dev
+    - apk add gcc g++ libffi-dev
+    - apk add git
+    - python3 -m venv /.gitlab-ci-venv
+    - source /.gitlab-ci-venv/bin/activate
+    - pip install --upgrade pip
     - pip install poetry
     - poetry --version
     - poetry install -v
     - echo $PATH
     - echo $PYTHONPATH
-    - apt-get update
-    - apt-get install docker-ce docker-ce-cli containerd.io
-    # - sudo apt-get install ca-certificates curl gnupg lsb-release
-    # - curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-black:
-  stage: linting
-  script:
-      # Intall pipx to install black
-      # otherwise, it fails.
-      # TODO, check with Coop It Easy
-    - pip install --user pipx
-    - python -m pipx ensurepath
-    - source ~/.profile
-    - pipx install black
-      # Classic CI
-    - black --version
-    - black --check .
-
-pylint:
-  stage: linting
-  script:
-    - source .venv/bin/activate
-    - pylint --version
-    # - pylint --disable fixme ociedoo
-    # - pylint --disable fixme tests
-
-pytest:
-  stage: tests
-  image: python
-  cache: {}
-  script:
-    - pip install poetry
-    - poetry --version
-    - poetry install -v
     - poetry run pytest --version
     - poetry run pytest --cov odoo_openupgrade_wizard -v
-
-tox:
-  stage: tests
-  image: themattrix/tox
-  cache: {}
-  script:
-    - pip install poetry tox
-    - tox --version
-    - poetry --version
-    - tox
