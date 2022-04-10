@@ -4,7 +4,22 @@ services:
   - docker:18.09-dind
 
 stages:
+  - linting
   - tests
+
+black:
+  stage: linting
+  image: python
+  script:
+      # Install pipx
+    - pip install --user pipx
+    - python -m pipx ensurepath
+    - source ~/.profile
+
+      # Black Check
+    - pipx install black
+    - black --version
+    - black --check .
 
 pytest:
   stage: tests
