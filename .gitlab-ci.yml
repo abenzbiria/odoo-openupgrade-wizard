@@ -36,4 +36,8 @@ pytest:
     - echo $PATH
     - echo $PYTHONPATH
     - poetry run pytest --version
+
+    - # Create a postgresql container
+    - docker run -v odoo-data:/var/lib/odoo -d -p 8069:8069 --name odoo --link db:db -t odoo
+
     - poetry run pytest --cov odoo_openupgrade_wizard -v

@@ -11,6 +11,26 @@ def releases_options(function):
     return function
 
 
+def step_option(function):
+    function = click.option(
+        "--step",
+        required=True,
+        prompt=True,
+        type=str,
+        help="Migration step for which you want to perform the operation.",
+    )(function)
+    return function
+
+
+def database_option(function):
+    function = click.option(
+        "--database",
+        type=str,
+        help="Odoo Database for which you want to perform the operation.",
+    )(function)
+    return function
+
+
 def get_odoo_versions_from_options(ctx, releases_arg):
 
     if not releases_arg:
@@ -22,17 +42,6 @@ def get_odoo_versions_from_options(ctx, releases_arg):
             if odoo_version["release"] in releases:
                 odoo_versions.append(odoo_version)
         return odoo_versions
-
-
-def step_options(function):
-    function = click.option(
-        "--step",
-        required=True,
-        prompt=True,
-        type=str,
-        help="Migration step for which you want to perform the operation.",
-    )(function)
-    return function
 
 
 def get_migration_step_from_options(ctx, step_arg):

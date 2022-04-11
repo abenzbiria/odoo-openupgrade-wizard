@@ -4,14 +4,16 @@ import click
 from loguru import logger
 
 from odoo_openupgrade_wizard.cli_options import (
+    database_option,
     get_migration_step_from_options,
-    step_options,
+    step_option,
 )
 from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
 
 
 @click.command()
-@step_options
+@step_option
+@database_option
 @click.option(
     "--duration",
     type=float,
@@ -21,11 +23,11 @@ from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
     " function to stop.",
 )
 @click.pass_context
-def run(ctx, step, duration):
+def run(ctx, step, database, duration):
 
     migration_step = get_migration_step_from_options(ctx, step)
     try:
-        run_odoo(ctx, migration_step)
+        run_odoo(ctx, migration_step, database=database)
         if duration:
             sleep(duration)
         else:

@@ -36,12 +36,13 @@ def get_odoo_version_from_migration_step(ctx, migration_step: dict) -> dict:
 
 
 def generate_odoo_command(
-    ctx, migration_step: dict, update_all: bool = False
+    ctx, migration_step: dict, database: str = False, update_all: bool = False
 ) -> str:
     # TODO, make it dynamic
     addons_path = (
         "/container_env/src/odoo/addons," "/container_env/src/odoo/odoo/addons"
     )
+    database_cmd = database and "--database %s" % database or ""
     update_all_cmd = update_all and "--update_all" or ""
     return (
         f"/container_env/src/odoo/odoo-bin"
@@ -50,16 +51,17 @@ def generate_odoo_command(
         f" --db_user odoo"
         f" --db_password odoo"
         f" --addons-path {addons_path}"
+        f" {database_cmd}"
         f" {update_all_cmd}"
     )
 
 
-def run_odoo(ctx, migration_step: dict):
+def run_odoo(ctx, migration_step: dict, database: str = False):
     client = docker.from_env()
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     folder_path = get_odoo_env_path(ctx, odoo_version)
 
-    command = generate_odoo_command(ctx, migration_step)
+    command = generate_odoo_command(ctx, migration_step, database=database)
 
     image_name = get_docker_image_tag(ctx, odoo_version)
     container_name = get_docker_container_name(ctx, migration_step)
