@@ -1,5 +1,3 @@
-from pathlib import Path
-
 # See : https://github.com/OCA/openupgradelib/issues/248
 # https://github.com/OCA/openupgradelib/issues/288
 _LEGACY_OPENUPGRADELIB = (
@@ -84,16 +82,3 @@ def get_odoo_versions(initial_release: float, final_release: float) -> list:
         ):
             result.append(version_template)
     return result
-
-
-def get_odoo_env_path(ctx, odoo_version: dict) -> Path:
-    folder_name = "env_%s" % str(odoo_version["release"]).rjust(4, "0")
-    return ctx.obj["src_folder_path"] / folder_name
-
-
-def get_docker_image_tag(ctx, odoo_version: dict):
-    """Return a docker image tag, based on project name and odoo release"""
-    return "odoo-openupgrade-wizard-image-%s-%s" % (
-        ctx.obj["config"]["project_name"],
-        str(odoo_version["release"]).rjust(4, "0"),
-    )

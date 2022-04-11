@@ -4,9 +4,7 @@ from odoo_openupgrade_wizard.cli_options import (
     get_odoo_versions_from_options,
     releases_options,
 )
-from odoo_openupgrade_wizard.configuration_version_dependant import (
-    get_odoo_env_path,
-)
+from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
 from odoo_openupgrade_wizard.tools_system import git_aggregate
 
 

@@ -4,10 +4,10 @@ import click
 
 from odoo_openupgrade_wizard import templates
 from odoo_openupgrade_wizard.configuration_version_dependant import (
-    get_odoo_env_path,
     get_odoo_versions,
     get_release_options,
 )
+from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
 from odoo_openupgrade_wizard.tools_system import (
     ensure_file_exists_from_template,
     ensure_folder_exists,
