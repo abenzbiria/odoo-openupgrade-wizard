@@ -1,5 +1,7 @@
 CONFIG_YML_TEMPLATE = """project_name: {{ project_name }}
 
+host_odoo_xmlrpc_port: 8069
+
 odoo_versions:
 {% for odoo_version in odoo_versions %}
   - release: {{ odoo_version['release'] }}
@@ -96,6 +98,9 @@ RUN apt-get update || true &&\
 RUN {{ odoo_version["python_major_version"] }}\
  -m pip install -r python_requirements.txt
 
+
+# VOLUME ["/var/lib/odoo2"]
+
 # Reset to odoo user to run the container
 USER odoo
 """
@@ -105,4 +110,9 @@ PRE_MIGRATION_SQL_TEMPLATE = ""
 POST_MIGRATION_PY_TEMPLATE = """
 def main(self, step):
     pass
+"""
+
+GIT_IGNORE_CONTENT = """
+*
+!.gitignore
 """

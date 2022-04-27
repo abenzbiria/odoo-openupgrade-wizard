@@ -1,7 +1,7 @@
 # Extra Developper Requirements
 
-If you want to contribute to this library without installing anything in your
-system,
+If you want to use this library without installing anything in your
+system, execute the following steps, otherwise, go to 'Installation' part.
 
 1. Run a docker container :
 
@@ -17,7 +17,7 @@ apt-get install git python3 python3-pip python3-venv
 python3 -m pip install --user pipx
 python3 -m pipx ensurepath
 
-# re-login via su root
+su root
 
 pipx install virtualenv
 pipx install poetry
@@ -55,6 +55,15 @@ tox
 ```
 
 Note : you should have all the python versions available in your local system.
+
+
+```
+sudo apt-get install python3.6  python3.6-distutils
+sudo apt-get install python3.7  python3.7-distutils
+sudo apt-get install python3.8  python3.8-distutils
+sudo apt-get install python3.9  python3.9-distutils
+sudo apt-get install python3.10 python3.10-distutils
+```
 
 ## Via Gitlab Runner locally
 

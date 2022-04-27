@@ -1,9 +1,8 @@
 from pathlib import Path
 
-from click.testing import CliRunner
 from plumbum.cmd import mkdir
 
-from odoo_openupgrade_wizard.cli import main
+from . import cli_runner_invoke
 
 
 def test_cli_get_code():
@@ -12,8 +11,7 @@ def test_cli_get_code():
 
     # We initialize an env with only one version to avoid to git clone
     # large data
-    CliRunner().invoke(
-        main,
+    cli_runner_invoke(
         [
             "--env-folder=%s" % output_folder_path,
             "init",
@@ -21,19 +19,15 @@ def test_cli_get_code():
             "--initial-release=14.0",
             "--final-release=14.0",
             "--extra-repository=OCA/web",
-        ],
-        catch_exceptions=False,
+        ]
     )
 
-    result = CliRunner().invoke(
-        main,
+    cli_runner_invoke(
         [
             "--env-folder=%s" % output_folder_path,
             "get-code",
-        ],
-        catch_exceptions=False,
+        ]
     )
-    assert result.exit_code == 0
 
     openupgrade_path = output_folder_path / Path(
         "./src/env_14.0/src/openupgrade"

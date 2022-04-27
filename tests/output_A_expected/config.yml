@@ -1,5 +1,7 @@
 project_name: test-cli
 
+host_odoo_xmlrpc_port: 8069
+
 odoo_versions:
 
   - release: 9.0
@@ -33,7 +35,7 @@ migration_steps:
     action: upgrade
     complete_name: step_04__upgrade__12.0
 
-  - name: 6
+  - name: 5
     release: 12.0
     action: update
-    complete_name: step_06__update__12.0
+    complete_name: step_05__update__12.0

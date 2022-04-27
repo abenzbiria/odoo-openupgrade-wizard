@@ -96,22 +96,24 @@ def init(
         count += 1
 
     # add final update step
-    count += 1
-    steps.append(
-        {
-            "name": count,
-            "action": "update",
-            "release": odoo_versions[-1]["release"],
-            "complete_name": "step_%s__update__%s"
-            % (str(count).rjust(2, "0"), odoo_versions[-1]["release"]),
-        }
-    )
+    if len(odoo_versions) > 1:
+        steps.append(
+            {
+                "name": count,
+                "action": "update",
+                "release": odoo_versions[-1]["release"],
+                "complete_name": "step_%s__update__%s"
+                % (str(count).rjust(2, "0"), odoo_versions[-1]["release"]),
+            }
+        )
 
     # 3. ensure src folder exists
     ensure_folder_exists(ctx.obj["src_folder_path"])
 
     # 4. ensure filestore folder exists
-    ensure_folder_exists(ctx.obj["filestore_folder_path"])
+    ensure_folder_exists(
+        ctx.obj["filestore_folder_path"], git_ignore_content=True
+    )
 
     # 5. ensure main configuration file exists
     ensure_file_exists_from_template(
@@ -160,6 +162,11 @@ def init(
             path_version / Path("Dockerfile"),
             templates.DOCKERFILE_TEMPLATE,
             odoo_version=odoo_version,
+        )
+
+        # Create 'src' folder that will contain all the odoo code
+        ensure_folder_exists(
+            path_version / Path("src"), git_ignore_content=True
         )
 
     # 6. Create one folder per step and add files

@@ -1,7 +1,6 @@
 from pathlib import Path
 
-import docker
-from loguru import logger
+from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 
 
 # WIP
@@ -42,7 +41,7 @@ def get_odoo_env_path(ctx, odoo_version: dict) -> Path:
 
 def get_docker_image_tag(ctx, odoo_version: dict) -> str:
     """Return a docker image tag, based on project name and odoo release"""
-    return "odoo-openupgrade-wizard-image-%s-%s" % (
+    return "odoo-openupgrade-wizard-image__%s__%s" % (
         ctx.obj["config"]["project_name"],
         str(odoo_version["release"]).rjust(4, "0"),
     )
@@ -51,7 +50,7 @@ def get_docker_image_tag(ctx, odoo_version: dict) -> str:
 def get_docker_container_name(ctx, migration_step: dict) -> str:
     """Return a docker container name, based on project name,
     odoo release and migration step"""
-    return "odoo-openupgrade-wizard-container-%s-%s-step-%s" % (
+    return "odoo-openupgrade-wizard-container---%s---%s---step---%s" % (
         ctx.obj["config"]["project_name"],
         str(migration_step["release"]).rjust(4, "0"),
         str(migration_step["name"]).rjust(2, "0"),
@@ -70,83 +69,84 @@ def generate_odoo_command(
     ctx,
     migration_step: dict,
     database: str,
-    update_all: bool,
+    update: str,
+    init: str,
     stop_after_init: bool,
     shell: bool,
+    demo: bool,
 ) -> str:
     # TODO, make it dynamic
-    addons_path = (
-        "/container_env/src/odoo/addons," "/container_env/src/odoo/odoo/addons"
-    )
+    addons_path = "/odoo_env/src/odoo/addons," "/odoo_env/src/odoo/odoo/addons"
     database_cmd = database and "--database %s" % database or ""
-    update_all_cmd = update_all and "--update_all" or ""
-    stop_after_init_cmd = stop_after_init and "-- stop-after-init" or ""
+    update_cmd = update and "--update_%s" % update or ""
+    init_cmd = init and "--init %s" % init or ""
+    stop_after_init_cmd = stop_after_init and "--stop-after-init" or ""
     shell_cmd = shell and "shell" or ""
-    return (
-        f"/container_env/src/odoo/odoo-bin"
+    demo_cmd = not demo and "--without-demo all" or ""
+    # TODO, FIXME
+    # log_file = "/env/log/%s" % "log.log"
+    result = (
+        f"/odoo_env/src/odoo/odoo-bin"
         f" --db_host db"
         f" --db_port 5432"
         f" --db_user odoo"
         f" --db_password odoo"
         f" --workers 0"
+        f" --config /odoo_env/odoo.cfg"
+        # f" --data-dir /env/filestore/"
+        # f" --logfile {log_file}"
         f" --addons-path {addons_path}"
         f" {database_cmd}"
-        f" {update_all_cmd}"
+        f" {update_cmd}"
+        f" {init_cmd}"
         f" {stop_after_init_cmd}"
         f" {shell_cmd}"
+        f" {demo_cmd}"
     )
+    return result
 
 
 def run_odoo(
     ctx,
     migration_step: dict,
+    detached_container: bool = False,
     database: str = False,
+    update: str = False,
+    init: str = False,
     stop_after_init: bool = False,
     shell: bool = False,
-    update_all: bool = False,
+    demo: bool = False,
 ):
-    client = docker.from_env()
+    # TODO, check if stop_after_init and detached_container are redondant.
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
-    folder_path = get_odoo_env_path(ctx, odoo_version)
+    env_path = ctx.obj["env_folder_path"]
+    odoo_env_path = get_odoo_env_path(ctx, odoo_version)
 
     command = generate_odoo_command(
         ctx,
         migration_step,
         database=database,
+        update=update,
+        init=init,
         stop_after_init=stop_after_init,
         shell=shell,
-        update_all=update_all,
+        demo=demo,
     )
 
-    image_name = get_docker_image_tag(ctx, odoo_version)
-    container_name = get_docker_container_name(ctx, migration_step)
-    logger.info(
-        "Launching Odoo Docker container named %s based on image '%s'."
-        % (container_name, image_name)
-    )
-    container = client.containers.run(
-        image_name,
-        name=container_name,
+    return run_container(
+        get_docker_image_tag(ctx, odoo_version),
+        get_docker_container_name(ctx, migration_step),
         command=command,
         ports={"8069": 8069, "5432": 5432},
-        volumes=["%s:/container_env/" % (folder_path)],
+        volumes=[
+            "%s:/env/" % (env_path),
+            "%s:/odoo_env/" % (odoo_env_path),
+        ],
         links={"db": "db"},
-        detach=True,
+        detach=detached_container,
         auto_remove=True,
     )
-    logger.info("Container Launched. Command executed : %s" % command)
-    return container
 
 
 def kill_odoo(ctx, migration_step: dict):
-    client = docker.from_env()
-    containers = client.containers.list(
-        all=True,
-        filters={"name": get_docker_container_name(ctx, migration_step)},
-    )
-    for container in containers:
-        logger.info(
-            "Stop container %s, based on image '%s'."
-            % (container.name, ",".join(container.image.tags))
-        )
-        container.stop()
+    kill_container(get_docker_container_name(ctx, migration_step))

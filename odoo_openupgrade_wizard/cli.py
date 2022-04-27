@@ -59,7 +59,7 @@ def main(ctx, env_folder, filestore_folder):
         filestore_folder_path = Path(filestore_folder)
 
     # ensure log folder exists
-    ensure_folder_exists(log_folder_path)
+    ensure_folder_exists(log_folder_path, git_ignore_content=True)
 
     # Create log file
     log_file_path = log_folder_path / Path(

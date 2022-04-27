@@ -8,8 +8,12 @@ from jinja2 import Template
 from loguru import logger
 from plumbum.cmd import mkdir
 
+from odoo_openupgrade_wizard import templates
 
-def ensure_folder_exists(folder_path: Path, mode: str = False):
+
+def ensure_folder_exists(
+    folder_path: Path, mode: str = False, git_ignore_content: bool = False
+):
     """Create a local folder.
     - directory is created if it doesn't exist.
     - mode is applied if defined.
@@ -21,6 +25,12 @@ def ensure_folder_exists(folder_path: Path, mode: str = False):
             cmd = ["--mode", "755"] + cmd
         logger.info("Creating folder '%s' ..." % (folder_path))
         mkdir(cmd)
+
+    if git_ignore_content:
+        ensure_file_exists_from_template(
+            folder_path / Path(".gitignore"),
+            templates.GIT_IGNORE_CONTENT,
+        )
 
 
 def ensure_file_exists_from_template(
