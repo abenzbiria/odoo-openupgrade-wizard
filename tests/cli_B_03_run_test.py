@@ -20,12 +20,11 @@ def test_cli_run():
         ]
     )
 
-    # # Ensure that a subfolder filestore/DB_NAME has been created
-    # db_filestore_path = output_folder_path / Path(
-    #     "./filestore/filestore/%s" % db_name
-    # )
-
-    # assert db_filestore_path.exists()
+    # Ensure that a subfolder filestore/DB_NAME has been created
+    db_filestore_path = output_folder_path / Path(
+        "./filestore/filestore/%s" % db_name
+    )
+    assert db_filestore_path.exists()
 
     # Ensure that all the containers are removed
     docker_client = get_docker_client()

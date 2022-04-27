@@ -50,7 +50,7 @@ def get_docker_image_tag(ctx, odoo_version: dict) -> str:
 def get_docker_container_name(ctx, migration_step: dict) -> str:
     """Return a docker container name, based on project name,
     odoo release and migration step"""
-    return "odoo-openupgrade-wizard-container---%s---%s---step---%s" % (
+    return "odoo-openupgrade-wizard-container__%s__%s__step-%s" % (
         ctx.obj["config"]["project_name"],
         str(migration_step["release"]).rjust(4, "0"),
         str(migration_step["name"]).rjust(2, "0"),
@@ -94,7 +94,7 @@ def generate_odoo_command(
         f" --db_password odoo"
         f" --workers 0"
         f" --config /odoo_env/odoo.cfg"
-        # f" --data-dir /env/filestore/"
+        f" --data-dir /env/filestore/"
         f" --logfile {log_file}"
         f" --addons-path {addons_path}"
         f" {database_cmd}"
