@@ -87,6 +87,7 @@ def generate_odoo_command(
     )
     result = (
         f"/odoo_env/src/odoo/odoo-bin"
+        f" {shell_cmd}"
         f" --db_host db"
         f" --db_port 5432"
         f" --db_user odoo"
@@ -96,12 +97,11 @@ def generate_odoo_command(
         f" --data-dir /env/filestore/"
         f" --logfile {log_file}"
         f" --addons-path {addons_path}"
+        f" {demo_cmd}"
         f" {database_cmd}"
         f" {update_cmd}"
         f" {init_cmd}"
         f" {stop_after_init_cmd}"
-        f" {shell_cmd}"
-        f" {demo_cmd}"
     )
     return result
 
