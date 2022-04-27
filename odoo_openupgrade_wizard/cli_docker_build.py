@@ -1,11 +1,11 @@
 import click
-import docker
 from loguru import logger
 
 from odoo_openupgrade_wizard.cli_options import (
     get_odoo_versions_from_options,
     releases_options,
 )
+from odoo_openupgrade_wizard.tools_docker import get_docker_client
 from odoo_openupgrade_wizard.tools_odoo import (
     get_docker_image_tag,
     get_odoo_env_path,
@@ -18,7 +18,7 @@ from odoo_openupgrade_wizard.tools_odoo import (
 def docker_build(ctx, releases):
     """Build Odoo Docker Images. (One image per release)"""
 
-    docker_client = docker.from_env()
+    docker_client = get_docker_client()
 
     for odoo_version in get_odoo_versions_from_options(ctx, releases):
         logger.info(

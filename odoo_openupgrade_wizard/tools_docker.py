@@ -2,6 +2,10 @@ import docker
 from loguru import logger
 
 
+def get_docker_client():
+    return docker.from_env()
+
+
 def run_container(
     image_name,
     container_name,
@@ -12,7 +16,7 @@ def run_container(
     detach=False,
     auto_remove=False,
 ):
-    client = docker.from_env()
+    client = get_docker_client()
 
     logger.info("Launching Docker container named %s ..." % (image_name))
     debug_docker_command = "docker run --name %s\\\n" % (container_name)
@@ -61,7 +65,7 @@ def run_container(
 
 
 def kill_container(container_name):
-    client = docker.from_env()
+    client = get_docker_client()
     containers = client.containers.list(
         all=True,
         filters={"name": container_name},

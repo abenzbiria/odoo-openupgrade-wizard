@@ -2,7 +2,7 @@ from pathlib import Path
 
 from . import cli_runner_invoke
 
-# import docker
+# from odoo_openupgrade_wizard.tools_docker import get_docker_client
 
 
 def test_cli_run():
@@ -28,7 +28,7 @@ def test_cli_run():
     # assert db_filestore_path.exists()
 
     # # Ensure that all the containers are removed
-    # docker_client = docker.from_env()
+    # docker_client = get_docker_client()
     # assert not docker_client.containers.list(
     #     all=True, filters={"name": "odoo-openupgrade-wizard"}
     # )

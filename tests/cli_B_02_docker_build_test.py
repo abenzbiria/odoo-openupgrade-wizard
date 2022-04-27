@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import docker
+from odoo_openupgrade_wizard.tools_docker import get_docker_client
 
 from . import cli_runner_invoke
 
@@ -16,7 +16,7 @@ def test_cli_docker_build():
         ]
     )
 
-    docker_client = docker.from_env()
+    docker_client = get_docker_client()
 
     assert docker_client.images.get(
         "odoo-openupgrade-wizard-image__test-cli__14.0"
