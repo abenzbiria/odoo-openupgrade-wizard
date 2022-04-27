@@ -12,7 +12,7 @@ from odoo_openupgrade_wizard import templates
 
 
 def ensure_folder_exists(
-    folder_path: Path, mode: str = False, git_ignore_content: bool = False
+    folder_path: Path, mode: str = "755", git_ignore_content: bool = False
 ):
     """Create a local folder.
     - directory is created if it doesn't exist.
@@ -21,8 +21,7 @@ def ensure_folder_exists(
     """
     if not folder_path.exists():
         cmd = ["--parents", folder_path]
-        if mode:
-            cmd = ["--mode", "755"] + cmd
+        cmd = ["--mode", mode] + cmd
         logger.info("Creating folder '%s' ..." % (folder_path))
         mkdir(cmd)
 

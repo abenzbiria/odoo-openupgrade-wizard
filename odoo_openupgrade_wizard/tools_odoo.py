@@ -1,21 +1,19 @@
 from pathlib import Path
 
+import yaml
+
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 
 
 # WIP
-def get_odoo_addons_path(ctx, odoo_version: dict, migration_step: dict) -> str:
-    pass
-    # repo_file = Path(
-    #     self._current_directory,
-    #     CUSTOMER_CONFIG_FOLDER,
-    #     "repo_files",
-    #     "%s.yml" % step["version"],
-    # )
+def get_odoo_addons_path(ctx, migration_step: dict) -> str:
+    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
+    repo_file = get_odoo_env_path(ctx, odoo_version) / Path("repos.yml")
     # folder = Path(self._current_directory, step["local_path"])
     # base_module_folder = get_base_module_folder(step)
-    # stream = open(repo_file, "r")
-    # data = yaml.safe_load(stream)
+    stream = open(repo_file, "r")
+    data = yaml.safe_load(stream)
+    data = data
 
     # addons_path = []
     # for key in data.keys():
@@ -76,6 +74,7 @@ def generate_odoo_command(
     demo: bool,
 ) -> str:
     # TODO, make it dynamic
+    # addons_path = get_odoo_addons_path(ctx, migration_step)
     addons_path = "/odoo_env/src/odoo/addons," "/odoo_env/src/odoo/odoo/addons"
     database_cmd = database and "--database %s" % database or ""
     update_cmd = update and "--update_%s" % update or ""
