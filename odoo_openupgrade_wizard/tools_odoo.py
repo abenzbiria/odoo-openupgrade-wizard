@@ -2,6 +2,10 @@ from pathlib import Path
 
 import yaml
 
+from odoo_openupgrade_wizard.configuration_version_dependant import (
+    get_odoo_folder,
+    get_odoo_run_command,
+)
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 
 
@@ -85,8 +89,13 @@ def generate_odoo_command(
     log_file = "/env/log/{}____{}.log".format(
         ctx.obj["log_prefix"], migration_step["complete_name"]
     )
+    command = (
+        Path("/odoo_env")
+        / Path(get_odoo_folder(migration_step))
+        / Path(get_odoo_run_command(migration_step))
+    )
     result = (
-        f"/odoo_env/src/odoo/odoo-bin"
+        f" {command}"
         f" {shell_cmd}"
         f" --db_host db"
         f" --db_port 5432"

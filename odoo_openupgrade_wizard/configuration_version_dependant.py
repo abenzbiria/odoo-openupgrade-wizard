@@ -82,3 +82,25 @@ def get_odoo_versions(initial_release: float, final_release: float) -> list:
         ):
             result.append(version_template)
     return result
+
+
+def get_odoo_run_command(migration_step: dict) -> str:
+    """Return the name of the command to execute, depending on the migration
+    step. (odoo-bin, odoo.py, etc...)"""
+    if migration_step["release"] >= 9.0:
+        return "odoo-bin"
+
+    return "odoo.py"
+
+
+def get_odoo_folder(migration_step: dict) -> str:
+    """return the main odoo folder, depending on the migration step.
+    (./src/odoo, ./src/openupgrade, ...)"""
+
+    if migration_step["action"] == "update":
+        return "./src/odoo"
+
+    if migration_step["release"] >= 14.0:
+        return "./src/odoo"
+
+    return "./src/openupgrade"
