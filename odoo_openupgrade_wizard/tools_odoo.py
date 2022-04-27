@@ -83,8 +83,9 @@ def generate_odoo_command(
     stop_after_init_cmd = stop_after_init and "--stop-after-init" or ""
     shell_cmd = shell and "shell" or ""
     demo_cmd = not demo and "--without-demo all" or ""
-    # TODO, FIXME
-    # log_file = "/env/log/%s" % "log.log"
+    log_file = "/env/log/{}____{}.log".format(
+        ctx.obj["log_prefix"], migration_step["complete_name"]
+    )
     result = (
         f"/odoo_env/src/odoo/odoo-bin"
         f" --db_host db"
@@ -94,7 +95,7 @@ def generate_odoo_command(
         f" --workers 0"
         f" --config /odoo_env/odoo.cfg"
         # f" --data-dir /env/filestore/"
-        # f" --logfile {log_file}"
+        f" --logfile {log_file}"
         f" --addons-path {addons_path}"
         f" {database_cmd}"
         f" {update_cmd}"

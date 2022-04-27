@@ -98,9 +98,6 @@ RUN apt-get update || true &&\
 RUN {{ odoo_version["python_major_version"] }}\
  -m pip install -r python_requirements.txt
 
-
-# VOLUME ["/var/lib/odoo2"]
-
 # Reset to odoo user to run the container
 USER odoo
 """

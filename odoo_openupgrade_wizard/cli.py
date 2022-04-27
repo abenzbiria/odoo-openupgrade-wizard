@@ -59,14 +59,13 @@ def main(ctx, env_folder, filestore_folder):
         filestore_folder_path = Path(filestore_folder)
 
     # ensure log folder exists
-    ensure_folder_exists(log_folder_path, git_ignore_content=True)
+    ensure_folder_exists(log_folder_path, mode="777", git_ignore_content=True)
 
     # Create log file
-    log_file_path = log_folder_path / Path(
-        "{}__{}.log".format(
-            date_begin.strftime("%Y_%m_%d__%H_%M_%S"), ctx.invoked_subcommand
-        )
+    log_prefix = "{}__{}".format(
+        date_begin.strftime("%Y_%m_%d__%H_%M_%S"), ctx.invoked_subcommand
     )
+    log_file_path = log_folder_path / Path(log_prefix + ".log")
     logger.add(log_file_path)
 
     config_file_path = env_folder_path / Path("config.yml")
@@ -76,6 +75,7 @@ def main(ctx, env_folder, filestore_folder):
     ctx.obj["src_folder_path"] = src_folder_path
     ctx.obj["script_folder_path"] = script_folder_path
     ctx.obj["log_folder_path"] = log_folder_path
+    ctx.obj["log_prefix"] = log_prefix
     ctx.obj["filestore_folder_path"] = filestore_folder_path
 
     ctx.obj["config_file_path"] = config_file_path

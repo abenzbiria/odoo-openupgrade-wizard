@@ -39,6 +39,8 @@ def run(ctx, step, database, stop_after_init, init_modules):
             stop_after_init=stop_after_init,
         )
         if not stop_after_init:
+            # todo, WRITE A TEXT TO SAY : the service is available on
+            # http://localhost:xxxx
             input("Press 'Enter' to kill the odoo container and exit ...")
     except (KeyboardInterrupt, SystemExit):
         logger.info("Received Keyboard Interrupt or System Exiting...")

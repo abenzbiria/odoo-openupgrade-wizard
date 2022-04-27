@@ -142,3 +142,6 @@ if you want to build an image for some given releases, you can provide an extra 
 ```
 odoo-openupgrade-wizard docker-build --releases 10.0,12.0
 ```
+
+
+## ``odoo-openupgrade-wizard run``
