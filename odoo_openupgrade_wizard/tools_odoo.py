@@ -6,12 +6,12 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_base_module_folder,
     get_odoo_folder,
     get_odoo_run_command,
+    get_server_wide_modules_upgrade,
     skip_addon_path,
 )
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 
 
-# WIP
 def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     repo_file = get_odoo_env_path(ctx, odoo_version) / Path("repos.yml")
@@ -69,6 +69,13 @@ def get_odoo_version_from_migration_step(ctx, migration_step: dict) -> dict:
     raise Exception
 
 
+def get_server_wide_modules(ctx, migration_step: dict) -> str:
+    # TODO, read from odoo.cfg file, the key server_wide_modules
+    modules = []
+    modules += get_server_wide_modules_upgrade(migration_step)
+    return modules
+
+
 def generate_odoo_command(
     ctx,
     migration_step: dict,
@@ -81,6 +88,12 @@ def generate_odoo_command(
 ) -> str:
     # TODO, make it dynamic
     addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
+    server_wide_modules = get_server_wide_modules(ctx, migration_step)
+    server_wide_modules_cmd = (
+        server_wide_modules
+        and "--load %s" % ",".join(server_wide_modules)
+        or ""
+    )
     database_cmd = database and "--database %s" % database or ""
     update_cmd = update and "--update %s" % update or ""
     init_cmd = init and "--init %s" % init or ""
@@ -107,6 +120,7 @@ def generate_odoo_command(
         f" --data-dir /env/filestore/"
         f" --logfile {log_file}"
         f" --addons-path {addons_path}"
+        f" {server_wide_modules_cmd}"
         f" {demo_cmd}"
         f" {database_cmd}"
         f" {update_cmd}"

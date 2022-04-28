@@ -116,3 +116,13 @@ def skip_addon_path(migration_step: dict, path: Path) -> bool:
         str(path).endswith("/src/odoo")
         or str(path).endswith("src/openupgrade")
     ) and migration_step["release"] < 14.0
+
+
+def get_server_wide_modules_upgrade(migration_step: dict) -> str:
+    """return a list of modules to load, depending on the migration step."""
+    if (
+        migration_step["release"] >= 14.0
+        and migration_step["action"] == "upgrade"
+    ):
+        return ["openupgrade_framework"]
+    return []
