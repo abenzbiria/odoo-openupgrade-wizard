@@ -6,6 +6,16 @@ def get_docker_client():
     return docker.from_env()
 
 
+def build_image(path, tag):
+    logger.info("Building image named %s with file %s..." % (tag, path))
+
+    docker_client = get_docker_client()
+    return docker_client.images.build(
+        path=path,
+        tag=tag,
+    )
+
+
 def run_container(
     image_name,
     container_name,

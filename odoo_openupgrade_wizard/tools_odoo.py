@@ -82,7 +82,7 @@ def generate_odoo_command(
     # TODO, make it dynamic
     addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
     database_cmd = database and "--database %s" % database or ""
-    update_cmd = update and "--update_%s" % update or ""
+    update_cmd = update and "--update %s" % update or ""
     init_cmd = init and "--init %s" % init or ""
     stop_after_init_cmd = stop_after_init and "--stop-after-init" or ""
     shell_cmd = shell and "shell" or ""
