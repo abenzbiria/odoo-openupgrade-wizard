@@ -89,11 +89,11 @@ def get_migration_step_from_options(ctx, step_arg):
 def get_migration_steps_from_options(ctx, first_step_arg, last_step_arg):
     result = []
     if first_step_arg:
-        first_step = float(first_step_arg)
+        first_step = int(first_step_arg)
     else:
         first_step = ctx.obj["config"]["migration_steps"][0]["name"]
     if last_step_arg:
-        last_step = float(last_step_arg)
+        last_step = int(last_step_arg)
     else:
         last_step = ctx.obj["config"]["migration_steps"][-1]["name"]
     for migration_step in ctx.obj["config"]["migration_steps"]:

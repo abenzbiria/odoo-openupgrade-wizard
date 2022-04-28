@@ -16,7 +16,7 @@ def test_cli_get_code():
             "--env-folder=%s" % output_folder_path,
             "init",
             "--project-name=test-cli",
-            "--initial-release=14.0",
+            "--initial-release=13.0",
             "--final-release=14.0",
             "--extra-repository=OCA/web",
         ]
@@ -29,6 +29,15 @@ def test_cli_get_code():
         ]
     )
 
+    # Check V13
+    openupgrade_path = output_folder_path / Path(
+        "./src/env_13.0/src/openupgrade"
+    )
+    assert openupgrade_path.exists()
+
+    assert (openupgrade_path / Path("odoo")).exists()
+
+    # check V14
     openupgrade_path = output_folder_path / Path(
         "./src/env_14.0/src/openupgrade"
     )
