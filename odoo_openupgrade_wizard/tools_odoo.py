@@ -3,37 +3,39 @@ from pathlib import Path
 import yaml
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
+    get_base_module_folder,
     get_odoo_folder,
     get_odoo_run_command,
+    skip_addon_path,
 )
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 
 
 # WIP
-def get_odoo_addons_path(ctx, migration_step: dict) -> str:
+def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     repo_file = get_odoo_env_path(ctx, odoo_version) / Path("repos.yml")
-    # folder = Path(self._current_directory, step["local_path"])
-    # base_module_folder = get_base_module_folder(step)
+    base_module_folder = get_base_module_folder(migration_step)
     stream = open(repo_file, "r")
     data = yaml.safe_load(stream)
     data = data
 
-    # addons_path = []
-    # for key in data.keys():
-    #     path = os.path.join(folder, key)
-    #     if path.endswith(get_odoo_folder(step)):
-    #         # Add two folder for odoo folder
-    #         addons_path.append(os.path.join(path, "addons"))
-    #         addons_path.append(
-    #             os.path.join(path, base_module_folder, "addons")
-    #         )
-    #     elif skip_path(step, path):
-    #         pass
-    #     else:
-    #         addons_path.append(path)
+    addons_path = []
+    for key in data.keys():
+        path = root_path / Path(key)
+        print(path)
+        if str(path).endswith(get_odoo_folder(migration_step)):
+            # Add two folder for odoo folder
+            addons_path.append(path / Path("addons"))
+            addons_path.append(
+                path / Path(base_module_folder) / Path("addons")
+            )
+        elif skip_addon_path(migration_step, path):
+            pass
+        else:
+            addons_path.append(path)
 
-    # return ",".join(addons_path)
+    return ",".join([str(x) for x in addons_path])
 
 
 def get_odoo_env_path(ctx, odoo_version: dict) -> Path:
@@ -78,8 +80,7 @@ def generate_odoo_command(
     demo: bool,
 ) -> str:
     # TODO, make it dynamic
-    # addons_path = get_odoo_addons_path(ctx, migration_step)
-    addons_path = "/odoo_env/src/odoo/addons," "/odoo_env/src/odoo/odoo/addons"
+    addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
     database_cmd = database and "--database %s" % database or ""
     update_cmd = update and "--update_%s" % update or ""
     init_cmd = init and "--init %s" % init or ""

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 # See : https://github.com/OCA/openupgradelib/issues/248
 # https://github.com/OCA/openupgradelib/issues/288
 _LEGACY_OPENUPGRADELIB = (
@@ -98,9 +100,27 @@ def get_odoo_folder(migration_step: dict) -> str:
     (./src/odoo, ./src/openupgrade, ...)"""
 
     if migration_step["action"] == "update":
-        return "./src/odoo"
+        return "src/odoo"
 
     if migration_step["release"] >= 14.0:
-        return "./src/odoo"
+        return "src/odoo"
 
-    return "./src/openupgrade"
+    return "src/openupgrade"
+
+
+def get_base_module_folder(migration_step: dict) -> str:
+    """return the name of the folder (odoo, openerp, etc...)
+    where the 'base' module is, depending on the migration_step"""
+    if migration_step["release"] >= 10.0:
+        return "odoo"
+
+    return "openerp"
+
+
+def skip_addon_path(migration_step: dict, path: Path) -> bool:
+    # if repo.yml contains both odoo and openupgrade repo
+    # we skip one of them (before the refactoring)
+    return (
+        str(path).endswith("/src/odoo")
+        or str(path).endswith("src/openupgrade")
+    ) and migration_step["release"] < 14.0
