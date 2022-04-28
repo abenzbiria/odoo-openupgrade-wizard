@@ -3,6 +3,7 @@ import click
 
 def releases_options(function):
     function = click.option(
+        "-r",
         "--releases",
         type=str,
         help="Coma-separated values of odoo releases for which"

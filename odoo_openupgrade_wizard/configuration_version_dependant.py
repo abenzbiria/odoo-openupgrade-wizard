@@ -1,41 +1,33 @@
 from pathlib import Path
 
-# See : https://github.com/OCA/openupgradelib/issues/248
-# https://github.com/OCA/openupgradelib/issues/288
-_LEGACY_OPENUPGRADELIB = (
-    "git+https://github.com/OCA/openupgradelib.git"
-    "@ed01555b8ae20f66b3af178c8ecaf6edd110ce75#egg=openupgradelib"
-)
-
-
-# List of the series of odoo
-# python version is defined, based on the OCA CI.
-# https://github.com/OCA/oca-addons-repo-template/blob/master/src/.github/workflows/%7B%25%20if%20ci%20%3D%3D%20'GitHub'%20%25%7Dtest.yml%7B%25%20endif%20%25%7D.jinja
 _ODOO_VERSION_TEMPLATES = [
     {
         "release": 8.0,
         "python_major_version": "python2",
-        "python_libraries": [_LEGACY_OPENUPGRADELIB],
+        "python_libraries": [],
     },
     {
         "release": 9.0,
         "python_major_version": "python2",
-        "python_libraries": [_LEGACY_OPENUPGRADELIB],
+        "python_libraries": ["openupgradelib==2.0.0"],
     },
     {
         "release": 10.0,
         "python_major_version": "python2",
-        "python_libraries": [_LEGACY_OPENUPGRADELIB],
+        "python_libraries": ["openupgradelib==2.0.0"],
     },
     {
         "release": 11.0,
         "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
+        "python_libraries": ["openupgradelib==2.0.0"],
     },
     {
         "release": 12.0,
         "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
+        "python_libraries": [
+            "git+https://github.com/grap/openupgradelib.git"
+            "@2.0.1#egg=openupgradelib"
+        ],
     },
     {
         "release": 13.0,
@@ -89,7 +81,7 @@ def get_odoo_versions(initial_release: float, final_release: float) -> list:
 def get_odoo_run_command(migration_step: dict) -> str:
     """Return the name of the command to execute, depending on the migration
     step. (odoo-bin, odoo.py, etc...)"""
-    if migration_step["release"] >= 9.0:
+    if migration_step["release"] >= 10.0:
         return "odoo-bin"
 
     return "odoo.py"
