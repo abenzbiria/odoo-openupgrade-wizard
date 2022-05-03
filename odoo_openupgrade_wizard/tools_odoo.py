@@ -161,7 +161,10 @@ def run_odoo(
         get_docker_image_tag(ctx, odoo_version),
         get_docker_container_name(ctx, migration_step),
         command=command,
-        ports={"8069": 8069, "5432": 5432},
+        ports={
+            "8069": ctx.obj["config"]["host_odoo_xmlrpc_port"],
+            "5432": ctx.obj["config"]["host_postgres_port"],
+        },
         volumes=[
             "%s:/env/" % (env_path),
             "%s:/odoo_env/" % (odoo_env_path),

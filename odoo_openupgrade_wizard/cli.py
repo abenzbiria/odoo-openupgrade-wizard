@@ -10,6 +10,7 @@ from odoo_openupgrade_wizard.cli_docker_build import docker_build
 from odoo_openupgrade_wizard.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli_init import init
 from odoo_openupgrade_wizard.cli_run import run
+from odoo_openupgrade_wizard.cli_test import test
 from odoo_openupgrade_wizard.cli_upgrade import upgrade
 from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
@@ -96,3 +97,4 @@ main.add_command(get_code)
 main.add_command(docker_build)
 main.add_command(run)
 main.add_command(upgrade)
+main.add_command(test)

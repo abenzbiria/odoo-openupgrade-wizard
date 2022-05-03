@@ -1,6 +1,7 @@
 CONFIG_YML_TEMPLATE = """project_name: {{ project_name }}
 
-host_odoo_xmlrpc_port: 8069
+host_odoo_xmlrpc_port: 9069
+host_postgres_port: 9432
 
 odoo_versions:
 {% for odoo_version in odoo_versions %}
