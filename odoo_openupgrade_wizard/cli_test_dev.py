@@ -6,7 +6,7 @@ import docker
 
 @click.command()
 @click.pass_context
-def test(ctx):
+def test_dev(ctx):
     client = docker.Client()
     container = client.create_container(
         image="busybox:latest",
