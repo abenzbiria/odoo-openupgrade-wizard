@@ -31,6 +31,8 @@ odoo-openupgrade-wizard = "odoo_openupgrade_wizard.cli:main"
 [tool.poetry.dependencies]
 python = "^3.6"
 click = "^7.0"
+click-loglevel = "^0.4"
+odoorpc = "^0.8"
 loguru = "^0.6"
 plumbum = "^1.7"
 single-source = "^0.3"

@@ -106,7 +106,7 @@ USER odoo
 PRE_MIGRATION_SQL_TEMPLATE = ""
 
 POST_MIGRATION_PY_TEMPLATE = """
-def main(self, step):
+def main(self):
     pass
 """
 

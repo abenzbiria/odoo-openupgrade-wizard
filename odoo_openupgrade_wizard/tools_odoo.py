@@ -1,6 +1,11 @@
+import importlib.util
+import os
+import sys
+import traceback
 from pathlib import Path
 
 import yaml
+from loguru import logger
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_base_module_folder,
@@ -10,6 +15,7 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     skip_addon_path,
 )
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
+from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
 
 
 def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
@@ -35,6 +41,10 @@ def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
             addons_path.append(path)
 
     return ",".join([str(x) for x in addons_path])
+
+
+def get_script_folder(ctx, migration_step: dict) -> Path:
+    return ctx.obj["script_folder_path"] / migration_step["complete_name"]
 
 
 def get_odoo_env_path(ctx, odoo_version: dict) -> Path:
@@ -85,7 +95,6 @@ def generate_odoo_command(
     shell: bool,
     demo: bool,
 ) -> str:
-    # TODO, make it dynamic
     addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
     server_wide_modules = get_server_wide_modules(ctx, migration_step)
     server_wide_modules_cmd = (
@@ -176,3 +185,51 @@ def run_odoo(
 
 def kill_odoo(ctx, migration_step: dict):
     kill_container(get_docker_container_name(ctx, migration_step))
+
+
+def execute_python_files_post_migration(
+    ctx, database: str, migration_step: dict
+):
+    script_folder = get_script_folder(ctx, migration_step)
+
+    python_files = [
+        f
+        for f in os.listdir(script_folder)
+        if os.path.isfile(os.path.join(script_folder, f)) and f[-3:] == ".py"
+    ]
+    python_files = sorted(python_files)
+
+    try:
+        # Launch Odoo
+        run_odoo(
+            ctx,
+            migration_step,
+            detached_container=True,
+            database=database,
+        )
+
+        # Create Odoo instance via Odoo RPC
+        odoo_instance = OdooInstance(ctx, database)
+
+        for python_file in python_files:
+            # Generate Python Script
+            logger.info("Running Script Post (Python) %s" % python_file)
+            package_name = "script.%s.%s" % (
+                migration_step["complete_name"],
+                python_file[:-3],
+            )
+            module_spec = importlib.util.spec_from_file_location(
+                package_name, Path(script_folder, python_file)
+            )
+            module = importlib.util.module_from_spec(module_spec)
+            module_spec.loader.exec_module(module)
+
+            module.main(odoo_instance)
+    except Exception as e:
+        logger.error(
+            "An error occured. Exiting. %s\n%s"
+            % (e, traceback.print_exception(*sys.exc_info()))
+        )
+        raise e
+    finally:
+        kill_odoo(ctx, migration_step)

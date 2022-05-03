@@ -7,7 +7,11 @@ from odoo_openupgrade_wizard.cli_options import (
     get_migration_steps_from_options,
     last_step_option,
 )
-from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
+from odoo_openupgrade_wizard.tools_odoo import (
+    execute_python_files_post_migration,
+    kill_odoo,
+    run_odoo,
+)
 
 
 @click.command()
@@ -20,8 +24,8 @@ def upgrade(ctx, first_step, last_step, database):
     migration_steps = get_migration_steps_from_options(
         ctx, first_step, last_step
     )
-    try:
-        for migration_step in migration_steps:
+    for migration_step in migration_steps:
+        try:
             run_odoo(
                 ctx,
                 migration_step,
@@ -30,7 +34,8 @@ def upgrade(ctx, first_step, last_step, database):
                 update="all",
                 stop_after_init=True,
             )
-    except (KeyboardInterrupt, SystemExit):
-        logger.info("Received Keyboard Interrupt or System Exiting...")
-    finally:
-        kill_odoo(ctx, migration_step)
+        except (KeyboardInterrupt, SystemExit):
+            logger.info("Received Keyboard Interrupt or System Exiting...")
+        finally:
+            kill_odoo(ctx, migration_step)
+        execute_python_files_post_migration(ctx, database, migration_step)

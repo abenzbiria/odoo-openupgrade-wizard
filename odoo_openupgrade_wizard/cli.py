@@ -1,12 +1,16 @@
 import datetime
+import logging
+import sys
 from pathlib import Path
 
 import click
 import yaml
+from click_loglevel import LogLevel
 from loguru import logger
 
 import odoo_openupgrade_wizard
 from odoo_openupgrade_wizard.cli_docker_build import docker_build
+from odoo_openupgrade_wizard.cli_execute_script import execute_script
 from odoo_openupgrade_wizard.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli_init import init
 from odoo_openupgrade_wizard.cli_run import run
@@ -18,7 +22,6 @@ from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 @click.group()
 @click.version_option(version=odoo_openupgrade_wizard.__version__)
 @click.option(
-    "-ef",
     "--env-folder",
     default="./",
     type=click.Path(
@@ -33,19 +36,21 @@ from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
     " use current folder (./).",
 )
 @click.option(
-    "-fs",
     "--filestore-folder",
     type=click.Path(dir_okay=True, file_okay=False, resolve_path=True),
     help="Folder that contains the Odoo filestore of the database(s)"
     " to migrate. Let empty to use the subfolder 'filestore' of the"
     " environment folder.",
 )
+@click.option("-l", "--log-level", type=LogLevel(), default=logging.INFO)
 @click.pass_context
-def main(ctx, env_folder, filestore_folder):
+def main(ctx, env_folder, filestore_folder, log_level):
     """
     Provides a command set to perform odoo Community Edition migrations.
     """
     date_begin = datetime.datetime.now()
+    logger.remove()
+    logger.add(sys.stderr, level=log_level)
     logger.debug("Beginning script '%s' ..." % (ctx.invoked_subcommand))
     if not isinstance(ctx.obj, dict):
         ctx.obj = {}
@@ -97,4 +102,5 @@ main.add_command(get_code)
 main.add_command(docker_build)
 main.add_command(run)
 main.add_command(upgrade)
+main.add_command(execute_script)
 main.add_command(test_dev)
