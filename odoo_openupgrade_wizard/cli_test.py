@@ -1,6 +1,7 @@
 import click
 import docker
-import dockerpty
+
+# import dockerpty
 
 
 @click.command()
@@ -13,5 +14,5 @@ def test(ctx):
         tty=True,
         command="/bin/sh",
     )
-
-    dockerpty.start(client, container)
+    container = container
+    # dockerpty.start(client, container)
