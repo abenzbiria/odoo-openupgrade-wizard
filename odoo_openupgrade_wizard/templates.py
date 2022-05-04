@@ -114,3 +114,8 @@ GIT_IGNORE_CONTENT = """
 *
 !.gitignore
 """
+
+MODULES_CSV_TEMPLATE = """base,Base
+product,Product
+web_responsive,Web Responsive Module
+"""

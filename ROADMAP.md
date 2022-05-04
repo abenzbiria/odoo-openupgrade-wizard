@@ -38,3 +38,10 @@ _LEGACY_OPENUPGRADELIB = (
 py310 is not available, due to dependencies to ``odoorpc``
 that raise an error :
 ``ERROR tests/cli_A_init_test.py - AttributeError: module 'collections' has no attribute 'MutableMapping'``
+
+
+# tips
+```
+# execute sql request in postgres docker
+docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set ""email"" = 'bib@bqsdfqsdf.txt';"
+```

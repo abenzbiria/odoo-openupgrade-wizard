@@ -77,6 +77,7 @@ def main(ctx, env_folder, filestore_folder, log_level):
     logger.add(log_file_path)
 
     config_file_path = env_folder_path / Path("config.yml")
+    module_file_path = env_folder_path / Path("modules.csv")
 
     # Add all global values in the context
     ctx.obj["env_folder_path"] = env_folder_path
@@ -87,6 +88,7 @@ def main(ctx, env_folder, filestore_folder, log_level):
     ctx.obj["filestore_folder_path"] = filestore_folder_path
 
     ctx.obj["config_file_path"] = config_file_path
+    ctx.obj["module_file_path"] = module_file_path
 
     # Load the main configuration file
     if config_file_path.exists():

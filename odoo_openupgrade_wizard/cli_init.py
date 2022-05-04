@@ -124,7 +124,16 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 6. Create one folder per version and add files
+    # 6. Ensure module list file exists
+    ensure_file_exists_from_template(
+        ctx.obj["module_file_path"],
+        templates.MODULES_CSV_TEMPLATE,
+        project_name=project_name,
+        steps=steps,
+        odoo_versions=odoo_versions,
+    )
+
+    # 7. Create one folder per version and add files
     for odoo_version in odoo_versions:
         # Create main path for each version
         path_version = get_odoo_env_path(ctx, odoo_version)
@@ -169,7 +178,7 @@ def init(
             path_version / Path("src"), git_ignore_content=True
         )
 
-    # 6. Create one folder per step and add files
+    # 8. Create one folder per step and add files
     ensure_folder_exists(ctx.obj["script_folder_path"])
 
     for step in steps:

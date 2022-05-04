@@ -1,18 +1,10 @@
 import click
-import docker
 
-# import dockerpty
+from odoo_openupgrade_wizard.tools_docker import get_docker_client
 
 
 @click.command()
 @click.pass_context
 def test_dev(ctx):
-    client = docker.Client()
-    container = client.create_container(
-        image="busybox:latest",
-        stdin_open=True,
-        tty=True,
-        command="/bin/sh",
-    )
-    container = container
-    # dockerpty.start(client, container)
+    client = get_docker_client()
+    client.containers.list(filters={"name": "db"})[0]
