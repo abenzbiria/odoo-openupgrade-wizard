@@ -2,6 +2,7 @@ CONFIG_YML_TEMPLATE = """project_name: {{ project_name }}
 
 host_odoo_xmlrpc_port: 9069
 host_postgres_port: 9432
+default_country_code: FR
 
 odoo_versions:
 {% for odoo_version in odoo_versions %}
@@ -116,6 +117,7 @@ GIT_IGNORE_CONTENT = """
 """
 
 MODULES_CSV_TEMPLATE = """base,Base
+account,Account Module
 product,Product
 web_responsive,Web Responsive Module
 """
