@@ -8,7 +8,7 @@ from . import cli_runner_invoke
 def test_cli_run():
     output_folder_path = Path("./tests/output_B")
 
-    db_name = "database_test_cli_run__step_1"
+    db_name = "database_test_cli_run"
     cli_runner_invoke(
         [
             "--env-folder=%s" % output_folder_path,

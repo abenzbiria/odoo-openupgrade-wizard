@@ -6,15 +6,29 @@ from . import cli_runner_invoke
 def test_cli_execute_script():
     output_folder_path = Path("./tests/output_B")
 
+    extra_script_path = Path("./tests/extra_script_B/post-migration-custom.py")
+
     db_name = "database_test_cli_execute_script"
+
+    # Install Odoo on V13 with product installed
     cli_runner_invoke(
         [
             "--env-folder=%s" % output_folder_path,
             "run",
             "--step=1",
             "--database=%s" % db_name,
-            "--init-modules=base,product",
+            "--init-modules=product",
             "--stop-after-init",
+        ]
+    )
+
+    cli_runner_invoke(
+        [
+            "--env-folder=%s" % output_folder_path,
+            "execute-script",
+            "--step=1",
+            "--database=%s" % db_name,
+            "--script-file-path=%s" % extra_script_path,
         ]
     )
     # TODO, add manually script

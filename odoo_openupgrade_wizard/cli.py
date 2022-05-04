@@ -26,7 +26,6 @@ from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
     default="./",
     type=click.Path(
         exists=True,
-        dir_okay=True,
         file_okay=False,
         writable=True,
         resolve_path=True,
@@ -37,7 +36,9 @@ from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 )
 @click.option(
     "--filestore-folder",
-    type=click.Path(dir_okay=True, file_okay=False, resolve_path=True),
+    type=click.Path(
+        exists=True, file_okay=False, writable=True, resolve_path=True
+    ),
     help="Folder that contains the Odoo filestore of the database(s)"
     " to migrate. Let empty to use the subfolder 'filestore' of the"
     " environment folder.",

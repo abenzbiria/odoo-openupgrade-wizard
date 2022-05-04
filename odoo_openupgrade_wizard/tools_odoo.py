@@ -188,16 +188,18 @@ def kill_odoo(ctx, migration_step: dict):
 
 
 def execute_python_files_post_migration(
-    ctx, database: str, migration_step: dict
+    ctx, database: str, migration_step: dict, python_files: list = []
 ):
-    script_folder = get_script_folder(ctx, migration_step)
+    if not python_files:
+        script_folder = get_script_folder(ctx, migration_step)
 
-    python_files = [
-        f
-        for f in os.listdir(script_folder)
-        if os.path.isfile(os.path.join(script_folder, f)) and f[-3:] == ".py"
-    ]
-    python_files = sorted(python_files)
+        python_files = [
+            script_folder / Path(f)
+            for f in os.listdir(script_folder)
+            if os.path.isfile(os.path.join(script_folder, f))
+            and f[-3:] == ".py"
+        ]
+        python_files = sorted(python_files)
 
     try:
         # Launch Odoo
@@ -213,13 +215,14 @@ def execute_python_files_post_migration(
 
         for python_file in python_files:
             # Generate Python Script
+
             logger.info("Running Script Post (Python) %s" % python_file)
             package_name = "script.%s.%s" % (
                 migration_step["complete_name"],
-                python_file[:-3],
+                python_file.name[:-3],
             )
             module_spec = importlib.util.spec_from_file_location(
-                package_name, Path(script_folder, python_file)
+                package_name, python_file
             )
             module = importlib.util.module_from_spec(module_spec)
             module_spec.loader.exec_module(module)

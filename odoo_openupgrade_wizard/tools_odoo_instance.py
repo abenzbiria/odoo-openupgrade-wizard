@@ -9,6 +9,10 @@ def get_odoo_url(ctx) -> str:
     return "http://localhost:%d" % (ctx.obj["config"]["host_odoo_xmlrpc_port"])
 
 
+_ODOO_RPC_MAX_TRY = 10
+_ODOO_RPC_TIMEOUT = 60
+
+
 class OdooInstance:
 
     env = False
@@ -16,22 +20,35 @@ class OdooInstance:
 
     # constructeur de la classe
     def __init__(self, ctx, database):
-        # TODO, improve me waith for response on http://localhost:port
-        # with a time out
-        # the docker container take a little time to be up.
-        time.sleep(2)
+        # # TODO, improve me waith for response on http://localhost:port
+        # # with a time out
+        # # the docker container take a little time to be up.
+        # time.sleep(2)
 
-        # Connection
-        try:
-            rpc_connexion = odoorpc.ODOO(
-                "localhost",
-                "jsonrpc",
-                port=ctx.obj["config"]["host_odoo_xmlrpc_port"],
-                timeout=60,
-            )
-        except (socket.gaierror, socket.error) as e:
-            logger.critical("Unable to connect to the server.")
-            raise e
+        for x in range(1, _ODOO_RPC_MAX_TRY + 1):
+            # Connection
+            try:
+                rpc_connexion = odoorpc.ODOO(
+                    "localhost",
+                    "jsonrpc",
+                    port=ctx.obj["config"]["host_odoo_xmlrpc_port"],
+                    timeout=_ODOO_RPC_TIMEOUT,
+                )
+                # connexion is OK
+                break
+            except (socket.gaierror, socket.error) as e:
+                if x < _ODOO_RPC_MAX_TRY:
+                    logger.info(
+                        "%d/%d Unable to connect to the server."
+                        " Retrying in 1 second ..." % (x, _ODOO_RPC_MAX_TRY)
+                    )
+                    time.sleep(1)
+                else:
+                    logger.critical(
+                        "%d/%d Unable to connect to the server."
+                        % (x, _ODOO_RPC_MAX_TRY)
+                    )
+                    raise e
 
         # Login
         try:
