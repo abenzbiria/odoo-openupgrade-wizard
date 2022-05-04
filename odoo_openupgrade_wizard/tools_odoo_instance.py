@@ -6,7 +6,7 @@ from loguru import logger
 
 
 def get_odoo_url(ctx) -> str:
-    return "http://localhost:%d" % (ctx.obj["config"]["host_odoo_xmlrpc_port"])
+    return "http://0.0.0.0:%d" % (ctx.obj["config"]["host_odoo_xmlrpc_port"])
 
 
 _ODOO_RPC_MAX_TRY = 10
@@ -28,7 +28,7 @@ class OdooInstance:
             # Connection
             try:
                 rpc_connexion = odoorpc.ODOO(
-                    "localhost",
+                    "0.0.0.0",
                     "jsonrpc",
                     port=ctx.obj["config"]["host_odoo_xmlrpc_port"],
                     timeout=_ODOO_RPC_TIMEOUT,
