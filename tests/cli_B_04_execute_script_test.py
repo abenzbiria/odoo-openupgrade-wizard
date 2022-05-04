@@ -6,7 +6,9 @@ from . import cli_runner_invoke
 def test_cli_execute_script():
     output_folder_path = Path("./tests/output_B")
 
-    extra_script_path = Path("./tests/extra_script_B/post-migration-custom.py")
+    extra_script_path = Path(
+        "./tests/extra_script_B/post-migration-custom_test.py"
+    )
 
     db_name = "database_test_cli_execute_script"
 

@@ -18,7 +18,6 @@ class OdooInstance:
     env = False
     version = False
 
-    # constructeur de la classe
     def __init__(self, ctx, database):
         # # TODO, improve me waith for response on http://localhost:port
         # # with a time out
