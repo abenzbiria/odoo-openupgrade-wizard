@@ -35,6 +35,14 @@ poetry install
 
 ``odoo-openupgrade-wizard`` commands are now available in your virutalenv.
 
+# Add python dependencies
+
+If you add new dependencies, you have to:
+
+- add the reference in the file ``pyproject.toml``
+
+- run the following command in your virtualenv : ``poetry update``
+
 # Run tests
 
 ## Via pytest

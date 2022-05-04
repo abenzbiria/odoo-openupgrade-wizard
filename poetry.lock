@@ -360,6 +360,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "odoorpc"
+version = "0.8.0"
+description = "OdooRPC is a Python package providing an easy way to pilot your Odoo servers through RPC."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -742,7 +750,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "5337fb24cba5bdf35d6307ba0b418a0e2ee2415fac89df2563249157df1b256a"
+content-hash = "126762024024c25cf869fbd4a2c4e2dd5b58a9d1a198586f5071ab65a68e1f17"
 
 [metadata.files]
 aiocontextvars = [
@@ -1059,6 +1067,10 @@ markupsafe = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+odoorpc = [
+    {file = "OdooRPC-0.8.0-py2.py3-none-any.whl", hash = "sha256:abd8fa8385da635ac4848e9a8944c01929c0606cb99743d7b8f2e887800e84e3"},
+    {file = "OdooRPC-0.8.0.tar.gz", hash = "sha256:e90b6315805070fadbe6ced5c3891558216a02a475f0d8882700d219c3f34188"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
