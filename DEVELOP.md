@@ -3,7 +3,7 @@
 If you want to use this library without installing anything in your
 system, execute the following steps, otherwise, go to 'Installation' part.
 
-1. Run a docker container :
+1. Run a docker container:
 
 ``docker run -it ubuntu:focal``
 
