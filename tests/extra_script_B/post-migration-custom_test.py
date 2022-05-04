@@ -1,5 +1,4 @@
-def main(self):
-
+def _check_orm_usage(self):
     # Classic ORM usage Checks
     partners = self.browse_by_search("res.partner")
 
@@ -10,7 +9,8 @@ def main(self):
     if len(partners) + 1 != len(new_partners):
         raise Exception("Creation of partner failed.")
 
-    # Install / uninstall modules checks
+
+def _check_modules(self):
     if self.check_modules_installed("sale"):
         self.uninstall_modules("sale")
 
@@ -27,7 +27,8 @@ def main(self):
             " after uninstallation of product"
         )
 
-    # models checks
+
+def _check_models(self):
     if not self.check_models_present("res.partner"):
         raise Exception("'res.partner' model should be present.")
 
@@ -36,4 +37,8 @@ def main(self):
             "'res.partner.unexisting.model' model" " should not be present."
         )
 
-    #
+
+def main(self):
+    _check_orm_usage(self)
+    _check_modules(self)
+    _check_models(self)

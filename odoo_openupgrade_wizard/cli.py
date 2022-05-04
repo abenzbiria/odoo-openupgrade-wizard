@@ -97,6 +97,8 @@ def main(ctx, env_folder, filestore_folder, log_level):
     elif ctx.invoked_subcommand != "init":
         raise
 
+    logger.debug("context %s: " % ctx.obj)
+
 
 main.add_command(init)
 main.add_command(get_code)

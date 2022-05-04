@@ -6,13 +6,14 @@ from . import cli_runner_invoke
 
 
 def test_cli_get_code():
-    output_folder_path = Path("./tests/output_B")
+    output_folder_path = Path("./tests/output_B").absolute()
     mkdir([output_folder_path, "--parents"])
 
-    # We initialize an env with only one version to avoid to git clone
+    # We initialize an env with only two releases to avoid to git clone
     # large data
     cli_runner_invoke(
         [
+            "--log-level=DEBUG",
             "--env-folder=%s" % output_folder_path,
             "init",
             "--project-name=test-cli",
@@ -24,6 +25,7 @@ def test_cli_get_code():
 
     cli_runner_invoke(
         [
+            "--log-level=DEBUG",
             "--env-folder=%s" % output_folder_path,
             "get-code",
         ]

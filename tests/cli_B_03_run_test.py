@@ -6,11 +6,12 @@ from . import cli_runner_invoke
 
 
 def test_cli_run():
-    output_folder_path = Path("./tests/output_B")
+    output_folder_path = Path("./tests/output_B").absolute()
 
     db_name = "database_test_cli_run"
     cli_runner_invoke(
         [
+            "--log-level=DEBUG",
             "--env-folder=%s" % output_folder_path,
             "run",
             "--step=1",

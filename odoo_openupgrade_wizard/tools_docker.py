@@ -7,13 +7,19 @@ def get_docker_client():
 
 
 def build_image(path, tag):
-    logger.info("Building image named %s with file %s..." % (tag, path))
-
+    logger.debug(
+        "Building image named based on %s/Dockerfile."
+        " This can take a big while ..." % (path)
+    )
+    debug_docker_command = "docker build %s --tag %s" % (path, tag)
+    logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
     docker_client = get_docker_client()
-    return docker_client.images.build(
-        path=path,
+    image = docker_client.images.build(
+        path=str(path),
         tag=tag,
     )
+    logger.debug("Image build.")
+    return image
 
 
 def run_container(
@@ -28,7 +34,7 @@ def run_container(
 ):
     client = get_docker_client()
 
-    logger.info("Launching Docker container named %s ..." % (image_name))
+    logger.debug("Launching Docker container named %s ..." % (image_name))
     debug_docker_command = "docker run --name %s\\\n" % (container_name)
     if ports:
         for internal_port, host_port in ports.items():
@@ -54,7 +60,7 @@ def run_container(
         debug_docker_command += " --detach"
     debug_docker_command += " %s\\\n" % (image_name)
     debug_docker_command += " %s" % (command)
-    logger.debug(debug_docker_command)
+    logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
 
     container = client.containers.run(
         image_name,
@@ -67,9 +73,9 @@ def run_container(
         auto_remove=auto_remove,
     )
     if detach:
-        logger.info("Container launched.")
+        logger.debug("Container %s launched." % image_name)
     elif auto_remove:
-        logger.info("Container closed.")
+        logger.debug("Container closed.")
 
     return container
 
@@ -81,7 +87,7 @@ def kill_container(container_name):
         filters={"name": container_name},
     )
     for container in containers:
-        logger.info(
+        logger.debug(
             "Stop container %s, based on image '%s'."
             % (container.name, ",".join(container.image.tags))
         )

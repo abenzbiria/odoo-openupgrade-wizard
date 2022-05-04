@@ -34,3 +34,7 @@ _LEGACY_OPENUPGRADELIB = (
 # https://github.com/OCA/oca-addons-repo-template/blob/master/src/.github/workflows/%7B%25%20if%20ci%20%3D%3D%20'GitHub'%20%25%7Dtest.yml%7B%25%20endif%20%25%7D.jinja
 
 ```
+
+py310 is not available, due to dependencies to ``odoorpc``
+that raise an error :
+``ERROR tests/cli_A_init_test.py - AttributeError: module 'collections' has no attribute 'MutableMapping'``

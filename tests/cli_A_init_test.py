@@ -7,12 +7,13 @@ from . import cli_runner_invoke
 
 
 def test_cli_init():
-    output_folder_path = Path("./tests/output_A")
-    expected_folder_path = Path("./tests/output_A_expected")
+    output_folder_path = Path("./tests/output_A").absolute()
+    expected_folder_path = Path("./tests/output_A_expected").absolute()
     mkdir([output_folder_path, "--parents"])
 
     cli_runner_invoke(
         [
+            "--log-level=DEBUG",
             "--env-folder=%s" % output_folder_path,
             "init",
             "--project-name=test-cli",

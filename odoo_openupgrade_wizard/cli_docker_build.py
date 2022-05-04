@@ -24,7 +24,7 @@ def docker_build(ctx, releases):
             "This can take a while..." % (odoo_version["release"])
         )
         image = build_image(
-            str(get_odoo_env_path(ctx, odoo_version)),
+            get_odoo_env_path(ctx, odoo_version),
             get_docker_image_tag(ctx, odoo_version),
         )
         logger.info("Docker Image build. '%s'" % image[0].tags[0])
