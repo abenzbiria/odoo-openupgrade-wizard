@@ -4,7 +4,6 @@ from . import cli_runner_invoke
 
 
 def test_cli_execute_script():
-    return
     output_folder_path = Path("./tests/output_B").absolute()
 
     extra_script_path = Path(
