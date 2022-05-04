@@ -7,6 +7,9 @@ variables:
 services:
   - docker:18.09-dind
 
+before_script:
+  - docker info
+
 stages:
   - linting
   - tests
