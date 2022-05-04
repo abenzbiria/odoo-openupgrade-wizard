@@ -22,7 +22,7 @@ class OdooInstance:
         # # TODO, improve me waith for response on http://localhost:port
         # # with a time out
         # # the docker container take a little time to be up.
-        # time.sleep(2)
+        time.sleep(60)
 
         for x in range(1, _ODOO_RPC_MAX_TRY + 1):
             # Connection
