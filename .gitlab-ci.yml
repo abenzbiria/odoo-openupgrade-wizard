@@ -44,5 +44,4 @@ pytest:
       # Create a postgresql container
     - docker run -d -e POSTGRES_USER=odoo -e POSTGRES_PASSWORD=odoo -e POSTGRES_DB=postgres --publish 9542:5432 --name db postgres:13
 
-    - poetry run pytest --cov odoo_openupgrade_wizard -v\
-      tests/cli_A_init_test.py
+    - poetry run pytest --cov odoo_openupgrade_wizard -v tests/cli_A_init_test.py

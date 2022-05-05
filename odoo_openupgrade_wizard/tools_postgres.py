@@ -18,9 +18,12 @@ def get_postgres_container():
 def execute_sql_request(request, database="postgres"):
     container = get_postgres_container()
     docker_command = (
-        "psql --username=odoo --dbname={database} -t"
-        ' -c "{request}"'.format(database=database, request=request)
-    )
+        "psql"
+        " --username=odoo"
+        " --dbname={database}"
+        " --tuples-only"
+        ' --command "{request}"'
+    ).format(database=database, request=request)
     logger.debug(
         "Executing the following command in postgres container"
         " on database %s \n %s" % (database, request)
