@@ -16,6 +16,7 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
 )
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
+from odoo_openupgrade_wizard.tools_system import get_script_folder
 
 
 def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
@@ -41,10 +42,6 @@ def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
             addons_path.append(path)
 
     return ",".join([str(x) for x in addons_path])
-
-
-def get_script_folder(ctx, migration_step: dict) -> Path:
-    return ctx.obj["script_folder_path"] / migration_step["complete_name"]
 
 
 def get_odoo_env_path(ctx, odoo_version: dict) -> Path:

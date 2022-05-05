@@ -9,6 +9,9 @@ from . import cli_runner_invoke
 
 
 def test_cli_upgrade():
+    # TODO: FIXME
+    # This test works locally, but doesn't work on gitlabci
+
     output_folder_path = Path("./tests/output_B").absolute()
 
     db_name = "database_test_cli_upgrade"

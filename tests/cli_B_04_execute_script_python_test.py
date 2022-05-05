@@ -32,7 +32,7 @@ def test_cli_execute_script():
         [
             "--log-level=DEBUG",
             "--env-folder=%s" % output_folder_path,
-            "execute-script",
+            "execute-script-python",
             "--step=1",
             "--database=%s" % db_name,
             "--script-file-path=%s" % extra_script_path,

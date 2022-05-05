@@ -1,6 +1,10 @@
+import os
+from pathlib import Path
+
 from loguru import logger
 
 from odoo_openupgrade_wizard.tools_docker import get_docker_client
+from odoo_openupgrade_wizard.tools_system import get_script_folder
 
 
 def get_postgres_container():
@@ -63,3 +67,18 @@ def ensure_database(database: str, state="present"):
         logger.info("Drop database '%s' ..." % database)
         request = "DROP DATABASE {database};".format(database=database)
         execute_sql_request(request)
+
+
+def execute_sql_files_pre_migration(
+    ctx, database: str, migration_step: dict, sql_files: list = []
+):
+    if not sql_files:
+        script_folder = get_script_folder(ctx, migration_step)
+
+        sql_files = [
+            script_folder / Path(f)
+            for f in os.listdir(script_folder)
+            if os.path.isfile(os.path.join(script_folder, f))
+            and f[-3:] == ".sql"
+        ]
+        sql_files = sorted(sql_files)

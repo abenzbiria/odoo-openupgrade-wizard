@@ -11,6 +11,10 @@ from plumbum.cmd import mkdir
 from odoo_openupgrade_wizard import templates
 
 
+def get_script_folder(ctx, migration_step: dict) -> Path:
+    return ctx.obj["script_folder_path"] / migration_step["complete_name"]
+
+
 def ensure_folder_exists(
     folder_path: Path, mode: str = "755", git_ignore_content: bool = False
 ):

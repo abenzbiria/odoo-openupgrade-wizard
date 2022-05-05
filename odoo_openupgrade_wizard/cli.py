@@ -10,7 +10,10 @@ from loguru import logger
 
 import odoo_openupgrade_wizard
 from odoo_openupgrade_wizard.cli_docker_build import docker_build
-from odoo_openupgrade_wizard.cli_execute_script import execute_script
+from odoo_openupgrade_wizard.cli_execute_script_python import (
+    execute_script_python,
+)
+from odoo_openupgrade_wizard.cli_execute_script_sql import execute_script_sql
 from odoo_openupgrade_wizard.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli_init import init
 from odoo_openupgrade_wizard.cli_install_from_csv import install_from_csv
@@ -109,5 +112,6 @@ main.add_command(docker_build)
 main.add_command(run)
 main.add_command(install_from_csv)
 main.add_command(upgrade)
-main.add_command(execute_script)
+main.add_command(execute_script_python)
+main.add_command(execute_script_sql)
 main.add_command(test_dev)

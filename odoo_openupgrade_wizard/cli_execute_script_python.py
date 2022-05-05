@@ -27,7 +27,7 @@ from odoo_openupgrade_wizard.tools_odoo import (
     " scripts placed in the migration step folder.",
 )
 @click.pass_context
-def execute_script(ctx, step, database, script_file_path):
+def execute_script_python(ctx, step, database, script_file_path):
     migration_step = get_migration_step_from_options(ctx, step)
 
     execute_python_files_post_migration(
