@@ -3,10 +3,7 @@ from pathlib import Path
 from . import cli_runner_invoke
 
 
-def test_cli_execute_script():
-    # TODO: FIXME
-    # This test works locally, but doesn't work on gitlabci
-
+def test_cli_execute_script_python():
     output_folder_path = Path("./tests/output_B").absolute()
 
     extra_script_path = Path(

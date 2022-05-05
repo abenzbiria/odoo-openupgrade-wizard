@@ -15,6 +15,10 @@ def get_postgres_container():
     return containers[0]
 
 
+def execute_sql_file(request):
+    pass
+
+
 def execute_sql_request(request, database="postgres"):
     container = get_postgres_container()
     docker_command = (
