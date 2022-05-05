@@ -10,7 +10,7 @@ def test_cli_execute_script_python():
         "./tests/extra_script_B/post-migration-custom_test.py"
     ).absolute()
 
-    db_name = "database_test_cli_execute_script"
+    db_name = "database_test_cli_execute_script_python"
 
     # Install Odoo on V13 with product installed
     cli_runner_invoke(

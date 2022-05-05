@@ -40,15 +40,43 @@ def get_postgres_container(ctx):
         detach=True,
     )
     # TODO, improve me.
+    # Postgres container doesn't seems available immediately.
+    # check in odoo container, i remember that there is
+    # some script to do the job
     time.sleep(3)
     return container
 
 
-def execute_sql_file(ctx, request, sql_file):
-    # TODO.
-    # Note : work on path in a docker context.
-    # container = get_postgres_container(ctx)
-    pass
+def execute_sql_file(ctx, database, sql_file):
+    container = get_postgres_container(ctx)
+
+    # Recreate relative path to make posible to
+    # call psql in the container
+    if str(ctx.obj["env_folder_path"]) not in str(sql_file):
+        raise Exception(
+            "The SQL file %s is not in the"
+            " main folder %s available"
+            " in the postgres container."
+            % (sql_file, ctx.obj["env_folder_path"])
+        )
+    relative_path = Path(
+        str(sql_file).replace(str(ctx.obj["env_folder_path"]), ".")
+    )
+
+    container_path = Path("/env/") / relative_path
+    docker_command = (
+        "psql" " --username=odoo" " --dbname={database}" " --file {file_path}"
+    ).format(database=database, file_path=container_path)
+    logger.info(
+        "Executing the script '%s' in postgres container"
+        " on database %s" % (relative_path, database)
+    )
+    docker_result = container.exec_run(docker_command)
+    if docker_result.exit_code != 0:
+        raise Exception(
+            "The script '%s' failed on database %s. Exit Code : %d"
+            % (relative_path, database, docker_result.exit_code)
+        )
 
 
 def execute_sql_request(ctx, request, database="postgres"):
@@ -111,9 +139,9 @@ def ensure_database(ctx, database: str, state="present"):
 def execute_sql_files_pre_migration(
     ctx, database: str, migration_step: dict, sql_files: list = []
 ):
+    ensure_database(ctx, database, state="present")
     if not sql_files:
         script_folder = get_script_folder(ctx, migration_step)
-
         sql_files = [
             script_folder / Path(f)
             for f in os.listdir(script_folder)
