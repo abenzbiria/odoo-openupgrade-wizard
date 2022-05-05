@@ -47,6 +47,7 @@ pytest:
     - |
       poetry run pytest
         --cov odoo_openupgrade_wizard
-        -v
+        --verbose --verbose
+        --exitfirst
         tests/cli_A_init_test.py
         tests/cli_B_01_get_code_test.py
