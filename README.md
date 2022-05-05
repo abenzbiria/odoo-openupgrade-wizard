@@ -34,6 +34,7 @@ This will generate the following structure :
 
 ```
 config.yml
+modules.csv
 log/
     2022_03_25__23_12_41__init.log
     ...
@@ -66,6 +67,12 @@ src/
         ...
 
 ```
+
+* ``config.xml`` is the main configuration file of your project.
+
+* ``modules.csv`` file is an optional file. You can fill it with the list
+  of your modules installed on your production. The first column of this
+  file should contain the technical name of the module.
 
 * ``log`` folder will contains all the log of the ``odoo-openupgrade-wizard``
   and the logs of the odoo instance that will be executed.
@@ -103,10 +110,13 @@ extra repositories, or dependencies...
 odoo-openupgrade-wizard get-code
 ```
 
-This command will simply get all the Odoo code required to run all the steps for your migration.
+This command will simply get all the Odoo code required to run all the steps for your migration with the ``gitaggregate`` tools.
+
 The code is defined in the ``repos.yml`` of each sub folders.
 
-Note : This step could take a big while !
+**Note**
+
+* This step could take a big while !
 
 **Optional arguments**
 
@@ -124,11 +134,12 @@ This script will pull official odoo docker images, defined in the ``Dockerfile``
 each folder, and build a custom images on top the official one, installing inside
 custom librairies defined in ``debian_requirements.txt``, ``python_requirements.txt``.
 
-At this end of this step executing the following command
-``docker images --filter "reference=odoo-openupgrade-wizard-*"`` should show a docker image per version.
+At this end of this step executing the following command should show a docker image per version.
 
 
 ```
+$ docker images --filter "reference=odoo-openupgrade-wizard-*"
+
 REPOSITORY                                                 TAG       IMAGE ID       CREATED       SIZE
 odoo-openupgrade-wizard-image---my-customer-10-12---12.0   latest    ef664c366208   2 weeks ago   1.39GB
 odoo-openupgrade-wizard-image---my-customer-10-12---11.0   latest    24e283fe4ae4   2 weeks ago   1.16GB
@@ -137,11 +148,67 @@ odoo-openupgrade-wizard-image---my-customer-10-12---10.0   latest    9d94dce2bd4
 
 **Optional arguments**
 
-if you want to build an image for some given releases, you can provide an extra parameter:
+* if you want to (re)build an image for some given releases, you can provide
+  an extra parameter: ``--releases 10.0,12.0``
 
-```
-odoo-openupgrade-wizard docker-build --releases 10.0,12.0
-```
+**Note**
 
+* This step could take a big while also !
 
 ## ``odoo-openupgrade-wizard run``
+
+```
+odoo-openupgrade-wizard run\
+    --step 1\
+    --database DB_NAME
+```
+
+Run an Odoo instance with the environment defined by the step argument.
+
+The database will be created, if it doesn't exists.
+
+if ``stop-after-init`` is disabled, the odoo instance will be available
+at your host, at the following url : http://localhost:9069
+(Port depends on your ``host_odoo_xmlrpc_port`` setting of your ``config.yml`` file)
+
+**Optional arguments**
+
+* You can add ``--init-modules=purchase,sale`` to install modules.
+
+* You can add ``stop-after-init`` flag to turn off the process at the end
+  of the installation.
+
+## ``odoo-openupgrade-wizard install-from-csv``
+
+```
+odoo-openupgrade-wizard install-from-csv\
+    --database DB_NAME
+```
+
+Install the list of the modules defined in your ``modules.csv`` files on the
+given database.
+
+The database will be created, if it doesn't exists.
+
+## ``odoo-openupgrade-wizard upgrade``
+
+```
+odoo-openupgrade-wizard upgrade\
+    --database DB_NAME
+```
+
+Realize an upgrade of the database from the initial release to
+the final release, following the different steps.
+
+For each step, it will :
+
+1. Execute the ``pre-migration.sql`` of the step.
+2. Realize an "update all" (in an upgrade or update context)
+3. Execute the scripts via XML-RPC (via ``odoorpc``) defined in
+   the ``post-migration.py`` file.
+
+**Optional arguments**
+
+* You can add ``--first-step=2`` to start at the second step.
+
+* You can add ``--last-step=3`` to end at the third step.

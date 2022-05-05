@@ -45,3 +45,30 @@ that raise an error :
 # execute sql request in postgres docker
 docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set ""email"" = 'bib@bqsdfqsdf.txt';"
 ```
+
+
+# TODO Must Have
+
+- Fix via another way the problem of old ``openupgradelib``.
+  (it makes the upgrade failing for old revision (V8, etc...))
+
+- Fix gitlab CI. tests are working locally but there is a network problem
+  to use ``odoorpc`` on gitlab-ci.
+
+# TODO Features
+
+- select ``without-demo all`` depending on if the database
+  is created or not (, and if current database contains demo data ?!?)
+
+- add a tools to analyze workload.
+
+- execute ``pre-migration.sql`` files.
+
+# TODO Nice To have
+
+- Fix gitlabci-local. For the time being, it is not possible to debug
+  locally. (there are extra bugs locally that doesn't occures on gitlab,
+  in ``cli_B_03_run_test.py``...
+
+- ``.absolute()`` has been added in test to try to fix some things,
+  but maybe it's not necessary.

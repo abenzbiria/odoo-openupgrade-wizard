@@ -5,7 +5,10 @@ from odoo_openupgrade_wizard.tools_docker import get_docker_client
 
 def get_postgres_container():
     client = get_docker_client()
-    return client.containers.list(filters={"name": "db"})[0]
+    containers = client.containers.list(filters={"name": "db"})
+    if not containers:
+        raise Exception("Postgresql container not found with name 'db'.")
+    return containers[0]
 
 
 def execute_sql_request(request, database="postgres"):
@@ -33,20 +36,30 @@ def execute_sql_request(request, database="postgres"):
     return result
 
 
-def ensure_database_exists(database: str):
+def ensure_database(database: str, state="present"):
     """
     - Connect to postgres container.
     - Check if the database exist.
-    - if not, create it.
+    - if doesn't exists and state == 'present', create it.
+    - if exists and state == 'absent', drop it.
     """
     request = "select datname FROM pg_database WHERE datistemplate = false;"
 
     result = execute_sql_request(request)
-    if [database] in result:
-        return
 
-    logger.info("Create database '%s' ..." % database)
-    request = "CREATE DATABASE {database} owner odoo;".format(
-        database=database
-    )
-    execute_sql_request(request)
+    if state == "present":
+        if [database] in result:
+            return
+
+        logger.info("Create database '%s' ..." % database)
+        request = "CREATE DATABASE {database} owner odoo;".format(
+            database=database
+        )
+        execute_sql_request(request)
+    else:
+        if [database] not in result:
+            return
+
+        logger.info("Drop database '%s' ..." % database)
+        request = "DROP DATABASE {database};".format(database=database)
+        execute_sql_request(request)

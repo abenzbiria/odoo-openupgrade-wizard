@@ -9,7 +9,7 @@ from odoo_openupgrade_wizard.cli_options import (
 )
 from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
 from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
-from odoo_openupgrade_wizard.tools_postgres import ensure_database_exists
+from odoo_openupgrade_wizard.tools_postgres import ensure_database
 
 
 @click.command()
@@ -17,7 +17,7 @@ from odoo_openupgrade_wizard.tools_postgres import ensure_database_exists
 @click.pass_context
 def install_from_csv(ctx, database):
     migration_step = get_migration_step_from_options(ctx, 1)
-    ensure_database_exists(database)
+    ensure_database(database, state="present")
 
     # Get modules list from the CSV file
     csv_path = ctx.obj["module_file_path"]

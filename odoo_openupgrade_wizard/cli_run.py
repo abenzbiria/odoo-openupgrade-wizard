@@ -8,7 +8,7 @@ from odoo_openupgrade_wizard.cli_options import (
 )
 from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
 from odoo_openupgrade_wizard.tools_odoo_instance import get_odoo_url
-from odoo_openupgrade_wizard.tools_postgres import ensure_database_exists
+from odoo_openupgrade_wizard.tools_postgres import ensure_database
 
 
 @click.command()
@@ -31,7 +31,7 @@ from odoo_openupgrade_wizard.tools_postgres import ensure_database_exists
 def run(ctx, step, database, stop_after_init, init_modules):
 
     migration_step = get_migration_step_from_options(ctx, step)
-    ensure_database_exists(database)
+    ensure_database(database, state="present")
     try:
         run_odoo(
             ctx,

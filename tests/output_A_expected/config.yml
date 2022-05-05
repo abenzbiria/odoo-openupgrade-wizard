@@ -1,7 +1,11 @@
+
 project_name: test-cli
 
 host_odoo_xmlrpc_port: 9069
+
 host_postgres_port: 9432
+
+default_country_code: FR
 
 odoo_versions:
 

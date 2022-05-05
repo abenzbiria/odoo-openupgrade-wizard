@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from odoo_openupgrade_wizard.tools_docker import get_docker_client
+from odoo_openupgrade_wizard.tools_postgres import execute_sql_request
 
 from . import cli_runner_invoke
 
@@ -26,6 +27,24 @@ def test_cli_run():
         "./filestore/filestore/%s" % db_name
     )
     assert db_filestore_path.exists()
+
+    # Ensure that 'base' module is installed
+    request = (
+        "SELECT id"
+        " FROM ir_module_module"
+        " WHERE state ='installed'"
+        " AND name='base';"
+    )
+    assert execute_sql_request(request, database=db_name)
+
+    # Ensure that 'point_of_sale' module is not installed
+    request = (
+        "SELECT id"
+        " FROM ir_module_module"
+        " WHERE state ='installed'"
+        " AND name='point_of_sale';"
+    )
+    assert not execute_sql_request(request, database=db_name)
 
     # Ensure that all the containers are removed
     docker_client = get_docker_client()
