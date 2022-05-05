@@ -71,6 +71,7 @@ PYTHON_REQUIREMENTS_TXT_TEMPLATE = """
 {%- for python_librairy in python_libraries -%}
 {{ python_librairy }}
 {% endfor %}
+odoorpc
 """
 
 DEBIAN_REQUIREMENTS_TXT_TEMPLATE = """

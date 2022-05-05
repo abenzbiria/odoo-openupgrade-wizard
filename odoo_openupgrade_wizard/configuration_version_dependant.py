@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from loguru import logger
+
 _ODOO_VERSION_TEMPLATES = [
     {
         "release": 8.0,
@@ -126,3 +128,30 @@ def get_server_wide_modules_upgrade(migration_step: dict) -> str:
     ):
         return ["openupgrade_framework"]
     return []
+
+
+def get_upgrade_analysis_module(migration_step: dict) -> str:
+    """ return the upgrade_analysis module name"""
+
+    if migration_step["release"] >= 14.0:
+        # (Module in OCA/server-tools)
+        return "upgrade_analysis"
+
+    # (module in OCA/OpenUpgrade/odoo/addons/)
+    return "openupgrade_records"
+
+
+def generate_records(odoo_instance, migration_step: dict):
+    logger.info(
+        "Generate Records in release %s ..."
+        " (It can take a while)" % (migration_step["release"])
+    )
+    if migration_step["release"] < 14.0:
+        wizard = odoo_instance.browse_by_create(
+            "openupgrade.generate.records.wizard", {}
+        )
+    else:
+        wizard = odoo_instance.browse_by_create(
+            "upgrade.generate.record.wizard", {}
+        )
+    wizard.generate()

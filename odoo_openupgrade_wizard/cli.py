@@ -14,6 +14,9 @@ from odoo_openupgrade_wizard.cli_execute_script_python import (
     execute_script_python,
 )
 from odoo_openupgrade_wizard.cli_execute_script_sql import execute_script_sql
+from odoo_openupgrade_wizard.cli_generate_module_analysis import (
+    generate_module_analysis,
+)
 from odoo_openupgrade_wizard.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli_init import init
 from odoo_openupgrade_wizard.cli_install_from_csv import install_from_csv
@@ -110,11 +113,12 @@ def main(ctx, env_folder, filestore_folder, log_level):
     logger.debug("context %s: " % ctx.obj)
 
 
-main.add_command(init)
-main.add_command(get_code)
 main.add_command(docker_build)
-main.add_command(run)
-main.add_command(install_from_csv)
-main.add_command(upgrade)
 main.add_command(execute_script_python)
 main.add_command(execute_script_sql)
+main.add_command(generate_module_analysis)
+main.add_command(get_code)
+main.add_command(init)
+main.add_command(install_from_csv)
+main.add_command(run)
+main.add_command(upgrade)

@@ -18,7 +18,7 @@ def step_option(function):
         "--step",
         required=True,
         prompt=True,
-        type=str,
+        type=int,
         help="Migration step for which you want to perform the operation.",
     )(function)
     return function
@@ -27,7 +27,7 @@ def step_option(function):
 def first_step_option(function):
     function = click.option(
         "--first-step",
-        type=str,
+        type=int,
         help="First step for which to perform the operation",
     )(function)
     return function
@@ -36,7 +36,7 @@ def first_step_option(function):
 def last_step_option(function):
     function = click.option(
         "--last-step",
-        type=str,
+        type=int,
         help="Last step for which to perform the operation",
     )(function)
     return function

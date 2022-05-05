@@ -9,7 +9,7 @@ def get_odoo_url(ctx) -> str:
     return "http://0.0.0.0:%d" % (ctx.obj["config"]["odoo_host_xmlrpc_port"])
 
 
-_ODOO_RPC_MAX_TRY = 10
+_ODOO_RPC_MAX_TRY = 60
 _ODOO_RPC_TIMEOUT = 60
 
 
@@ -22,7 +22,11 @@ class OdooInstance:
         # # TODO, improve me waith for response on http://localhost:port
         # # with a time out
         # # the docker container take a little time to be up.
-        time.sleep(60)
+        # time.sleep(60)
+        port = ctx.obj["config"]["odoo_host_xmlrpc_port"]
+        logger.info(
+            "Connect to Odoo instance via odoorpc (Port %s)... " % port
+        )
 
         for x in range(1, _ODOO_RPC_MAX_TRY + 1):
             # Connection
@@ -30,14 +34,14 @@ class OdooInstance:
                 rpc_connexion = odoorpc.ODOO(
                     "0.0.0.0",
                     "jsonrpc",
-                    port=ctx.obj["config"]["odoo_host_xmlrpc_port"],
+                    port=port,
                     timeout=_ODOO_RPC_TIMEOUT,
                 )
                 # connexion is OK
                 break
             except (socket.gaierror, socket.error) as e:
                 if x < _ODOO_RPC_MAX_TRY:
-                    logger.info(
+                    logger.debug(
                         "%d/%d Unable to connect to the server."
                         " Retrying in 1 second ..." % (x, _ODOO_RPC_MAX_TRY)
                     )
