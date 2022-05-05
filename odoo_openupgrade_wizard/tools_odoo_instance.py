@@ -24,7 +24,8 @@ class OdooInstance:
             or ctx.obj["config"]["odoo_host_xmlrpc_port"]
         )
         logger.info(
-            "Connect to Odoo instance via odoorpc (Port %s)... " % port
+            "Connect to Odoo database %s via odoorpc (Port %s)... "
+            % (database, port)
         )
 
         for x in range(1, _ODOO_RPC_MAX_TRY + 1):

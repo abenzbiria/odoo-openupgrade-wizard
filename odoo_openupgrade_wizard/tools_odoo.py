@@ -149,17 +149,17 @@ def run_odoo(
 ):
     logger.info(
         "Launching Odoo Container (Release {release}) for {db_text}"
-        " in {action} mode. Demo Data is {demo_text}."
-        " {stop_text}. (Init : {init} ; Update : {update}".format(
+        " in {action} mode. Demo Data is {demo_text}"
+        " {stop_text} {init_text} {update_text}".format(
             release=migration_step["release"],
             db_text=database and "database '%s'" % database or "any databases",
             action=migration_step["action"] == "update"
             and "regular"
             or "OpenUpgrade",
             demo_text=demo and "enabled" or "disabled",
-            stop_text=stop_after_init and "(stop-after-init)" or "",
-            init=init,
-            update=update,
+            stop_text=stop_after_init and " (stop-after-init)" or "",
+            init_text=init and " (Init : %s)" % init or "",
+            update_text=update and " (Update : %s)" % update or "",
         )
     )
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)

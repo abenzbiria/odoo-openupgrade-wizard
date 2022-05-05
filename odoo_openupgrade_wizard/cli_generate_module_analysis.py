@@ -38,6 +38,8 @@ def generate_module_analysis(ctx, last_step, database, modules):
     initial_step = migration_steps[0].copy()
     final_step = migration_steps[1].copy()
 
+    alternative_xml_rpc_port = ctx.obj["config"]["odoo_host_xmlrpc_port"] + 10
+
     if not database:
         database = "%s__analysis__" % (
             ctx.obj["config"]["project_name"].replace("-", "_"),
@@ -52,31 +54,61 @@ def generate_module_analysis(ctx, last_step, database, modules):
         str(final_step["release"]).replace(".", ""),
     )
 
-    if not modules:
-        modules = "base"
+    modules = (modules or "").split(",")
 
     # Force to be in openupgrade mode
     initial_step["action"] = final_step["action"] = "upgrade"
 
     try:
+        # INITIAL : Run odoo and install analysis module
         run_odoo(
             ctx,
             initial_step,
             database=initial_database,
             detached_container=False,
             stop_after_init=True,
-            init=modules + "," + get_upgrade_analysis_module(initial_step),
+            init=get_upgrade_analysis_module(initial_step),
         )
 
+        # INITIAL : Run odoo for odoorpc
         run_odoo(
             ctx,
             initial_step,
             database=initial_database,
             detached_container=True,
         )
-
         initial_instance = OdooInstance(ctx, initial_database)
+
+        # INITIAL : install modules to analyse and generate records
+
+        initial_instance.install_modules(modules)
         generate_records(initial_instance, initial_step)
+
+        # FINAL : Run odoo and install analysis module
+        run_odoo(
+            ctx,
+            final_step,
+            database=final_database,
+            detached_container=False,
+            stop_after_init=True,
+            init=get_upgrade_analysis_module(final_step),
+            alternative_xml_rpc_port=alternative_xml_rpc_port,
+        )
+
+        # FINAL : Run odoo for odoorpc and install modules to analyse
+        run_odoo(
+            ctx,
+            final_step,
+            database=final_database,
+            detached_container=True,
+            alternative_xml_rpc_port=alternative_xml_rpc_port,
+        )
+        final_instance = OdooInstance(ctx, final_database)
+
+        # FINAL : install modules to analyse and generate records
+
+        final_instance.install_modules(modules)
+        generate_records(final_instance, initial_step)
 
         final_database = final_database
     except (KeyboardInterrupt, SystemExit):

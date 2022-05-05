@@ -131,7 +131,7 @@ def get_server_wide_modules_upgrade(migration_step: dict) -> str:
 
 
 def get_upgrade_analysis_module(migration_step: dict) -> str:
-    """ return the upgrade_analysis module name"""
+    """return the upgrade_analysis module name"""
 
     if migration_step["release"] >= 14.0:
         # (Module in OCA/server-tools)
