@@ -145,6 +145,7 @@ def run_odoo(
     stop_after_init: bool = False,
     shell: bool = False,
     demo: bool = False,
+    alternative_xml_rpc_port: int = False,
 ):
     logger.info(
         "Launching Odoo Container (Release {release}) for {db_text}"
@@ -181,8 +182,9 @@ def run_odoo(
         get_docker_container_name(ctx, migration_step),
         command=command,
         ports={
-            "8069": ctx.obj["config"]["odoo_host_xmlrpc_port"],
-            # "5432": ctx.obj["config"]["postgres_host_port"],
+            "8069": alternative_xml_rpc_port
+            and alternative_xml_rpc_port
+            or ctx.obj["config"]["odoo_host_xmlrpc_port"],
         },
         volumes=[
             "%s:/env/" % (env_path),

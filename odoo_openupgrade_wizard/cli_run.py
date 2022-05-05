@@ -7,7 +7,6 @@ from odoo_openupgrade_wizard.cli_options import (
     step_option,
 )
 from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
-from odoo_openupgrade_wizard.tools_odoo_instance import get_odoo_url
 from odoo_openupgrade_wizard.tools_postgres import ensure_database
 
 
@@ -43,7 +42,9 @@ def run(ctx, step, database, stop_after_init, init_modules):
         )
         if not stop_after_init:
             logger.info(
-                "Odoo is available on your host at %s" % get_odoo_url(ctx)
+                "Odoo is available on your host at"
+                " http://localhost:%s"
+                % ctx.obj["config"]["odoo_host_xmlrpc_port"]
             )
             input("Press 'Enter' to kill the odoo container and exit ...")
     except (KeyboardInterrupt, SystemExit):

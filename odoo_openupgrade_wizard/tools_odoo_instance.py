@@ -4,11 +4,6 @@ import time
 import odoorpc
 from loguru import logger
 
-
-def get_odoo_url(ctx) -> str:
-    return "http://0.0.0.0:%d" % (ctx.obj["config"]["odoo_host_xmlrpc_port"])
-
-
 _ODOO_RPC_MAX_TRY = 60
 _ODOO_RPC_TIMEOUT = 60
 
@@ -18,12 +13,16 @@ class OdooInstance:
     env = False
     version = False
 
-    def __init__(self, ctx, database):
+    def __init__(self, ctx, database, alternative_xml_rpc_port=False):
         # # TODO, improve me waith for response on http://localhost:port
         # # with a time out
         # # the docker container take a little time to be up.
         # time.sleep(60)
-        port = ctx.obj["config"]["odoo_host_xmlrpc_port"]
+        port = (
+            alternative_xml_rpc_port
+            and alternative_xml_rpc_port
+            or ctx.obj["config"]["odoo_host_xmlrpc_port"]
+        )
         logger.info(
             "Connect to Odoo instance via odoorpc (Port %s)... " % port
         )
@@ -62,9 +61,10 @@ class OdooInstance:
             )
         except Exception as e:
             logger.error(
-                "Unable to connect to %s with login %s and password %s"
+                "Unable to connect to http://localhost:%s"
+                " with login %s and password %s"
                 % (
-                    get_odoo_url(ctx),
+                    port,
                     "admin",
                     "admin",
                 )
