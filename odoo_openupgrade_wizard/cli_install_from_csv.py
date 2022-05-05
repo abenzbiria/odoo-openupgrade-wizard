@@ -51,9 +51,9 @@ def install_from_csv(ctx, database):
         odoo_instance = OdooInstance(ctx, database)
 
         default_country_code = ctx.obj["config"].get(
-            "default_country_code", False
+            "odoo_default_country_code", False
         )
-        if "account" in module_names:
+        if "account" in module_names and default_country_code:
             # Then, set correct country to the company of the current user
             # Otherwise, due to poor design of Odoo, when installing account
             # the US localization will be installed.

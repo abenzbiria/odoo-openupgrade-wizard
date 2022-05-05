@@ -18,7 +18,6 @@ from odoo_openupgrade_wizard.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli_init import init
 from odoo_openupgrade_wizard.cli_install_from_csv import install_from_csv
 from odoo_openupgrade_wizard.cli_run import run
-from odoo_openupgrade_wizard.cli_test_dev import test_dev
 from odoo_openupgrade_wizard.cli_upgrade import upgrade
 from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
 
@@ -63,6 +62,10 @@ def main(ctx, env_folder, filestore_folder, log_level):
     # Define all the folder required by the tools
     env_folder_path = Path(env_folder)
     src_folder_path = env_folder_path / Path("./src/")
+    # Note: postgres folder should be a subfolder, because
+    # the parent folder will contain a .gitignore file
+    # that the postgres docker image doesn't like
+    postgres_folder_path = env_folder_path / Path("./postgres_data/data")
     script_folder_path = env_folder_path / Path("./scripts/")
     log_folder_path = env_folder_path / Path("./log/")
     if not filestore_folder:
@@ -86,6 +89,7 @@ def main(ctx, env_folder, filestore_folder, log_level):
     # Add all global values in the context
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = src_folder_path
+    ctx.obj["postgres_folder_path"] = postgres_folder_path
     ctx.obj["script_folder_path"] = script_folder_path
     ctx.obj["log_folder_path"] = log_folder_path
     ctx.obj["log_prefix"] = log_prefix
@@ -114,4 +118,3 @@ main.add_command(install_from_csv)
 main.add_command(upgrade)
 main.add_command(execute_script_python)
 main.add_command(execute_script_sql)
-main.add_command(test_dev)

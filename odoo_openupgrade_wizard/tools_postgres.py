@@ -1,26 +1,58 @@
 import os
+import time
 from pathlib import Path
 
 from loguru import logger
 
-from odoo_openupgrade_wizard.tools_docker import get_docker_client
+from odoo_openupgrade_wizard.tools_docker import (
+    get_docker_client,
+    run_container,
+)
 from odoo_openupgrade_wizard.tools_system import get_script_folder
 
 
-def get_postgres_container():
+def get_postgres_container(ctx):
     client = get_docker_client()
-    containers = client.containers.list(filters={"name": "db"})
-    if not containers:
-        raise Exception("Postgresql container not found with name 'db'.")
-    return containers[0]
+    image_name = ctx.obj["config"]["postgres_image_name"]
+    container_name = ctx.obj["config"]["postgres_container_name"]
+    containers = client.containers.list(filters={"name": container_name})
+    if containers:
+        return containers[0]
+
+    logger.info("Launching Postgres Container. (Image %s)" % image_name)
+    container = run_container(
+        image_name,
+        container_name,
+        ports={
+            "5432": ctx.obj["config"]["postgres_host_port"],
+        },
+        environments={
+            "POSTGRES_USER": "odoo",
+            "POSTGRES_PASSWORD": "odoo",
+            "POSTGRES_DB": "postgres",
+            "PGDATA": "/var/lib/postgresql/data/pgdata",
+        },
+        volumes=[
+            "%s:/env/" % ctx.obj["env_folder_path"],
+            "%s:/var/lib/postgresql/data/pgdata/"
+            % ctx.obj["postgres_folder_path"],
+        ],
+        detach=True,
+    )
+    # TODO, improve me.
+    time.sleep(3)
+    return container
 
 
-def execute_sql_file(request):
+def execute_sql_file(ctx, request, sql_file):
+    # TODO.
+    # Note : work on path in a docker context.
+    # container = get_postgres_container(ctx)
     pass
 
 
-def execute_sql_request(request, database="postgres"):
-    container = get_postgres_container()
+def execute_sql_request(ctx, request, database="postgres"):
+    container = get_postgres_container(ctx)
     docker_command = (
         "psql"
         " --username=odoo"
@@ -47,7 +79,7 @@ def execute_sql_request(request, database="postgres"):
     return result
 
 
-def ensure_database(database: str, state="present"):
+def ensure_database(ctx, database: str, state="present"):
     """
     - Connect to postgres container.
     - Check if the database exist.
@@ -56,7 +88,7 @@ def ensure_database(database: str, state="present"):
     """
     request = "select datname FROM pg_database WHERE datistemplate = false;"
 
-    result = execute_sql_request(request)
+    result = execute_sql_request(ctx, request)
 
     if state == "present":
         if [database] in result:
@@ -66,14 +98,14 @@ def ensure_database(database: str, state="present"):
         request = "CREATE DATABASE {database} owner odoo;".format(
             database=database
         )
-        execute_sql_request(request)
+        execute_sql_request(ctx, request)
     else:
         if [database] not in result:
             return
 
         logger.info("Drop database '%s' ..." % database)
         request = "DROP DATABASE {database};".format(database=database)
-        execute_sql_request(request)
+        execute_sql_request(ctx, request)
 
 
 def execute_sql_files_pre_migration(
@@ -86,6 +118,9 @@ def execute_sql_files_pre_migration(
             script_folder / Path(f)
             for f in os.listdir(script_folder)
             if os.path.isfile(os.path.join(script_folder, f))
-            and f[-3:] == ".sql"
+            and f[-4:] == ".sql"
         ]
         sql_files = sorted(sql_files)
+
+    for sql_file in sql_files:
+        execute_sql_file(ctx, database, sql_file)

@@ -115,7 +115,18 @@ def init(
         ctx.obj["filestore_folder_path"], mode="777", git_ignore_content=True
     )
 
-    # 5. ensure main configuration file exists
+    # 5. ensure postgres data folder exists
+    ensure_folder_exists(
+        ctx.obj["postgres_folder_path"].parent,
+        mode="777",
+        git_ignore_content=True,
+    )
+    ensure_folder_exists(
+        ctx.obj["postgres_folder_path"],
+        mode="777",
+    )
+
+    # 6. ensure main configuration file exists
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
         templates.CONFIG_YML_TEMPLATE,
@@ -124,7 +135,7 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 6. Ensure module list file exists
+    # 7. Ensure module list file exists
     ensure_file_exists_from_template(
         ctx.obj["module_file_path"],
         templates.MODULES_CSV_TEMPLATE,
@@ -133,7 +144,7 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 7. Create one folder per version and add files
+    # 8. Create one folder per version and add files
     for odoo_version in odoo_versions:
         # Create main path for each version
         path_version = get_odoo_env_path(ctx, odoo_version)
@@ -178,7 +189,7 @@ def init(
             path_version / Path("src"), git_ignore_content=True
         )
 
-    # 8. Create one folder per step and add files
+    # 9. Create one folder per step and add files
     ensure_folder_exists(ctx.obj["script_folder_path"])
 
     for step in steps:

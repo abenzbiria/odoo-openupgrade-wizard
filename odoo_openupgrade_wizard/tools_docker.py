@@ -25,10 +25,11 @@ def build_image(path, tag):
 def run_container(
     image_name,
     container_name,
-    command=False,
+    command=None,
     ports=False,
     volumes=False,
-    links=False,
+    environments={},
+    links={},
     detach=False,
     auto_remove=False,
 ):
@@ -54,12 +55,16 @@ def run_container(
     if links:
         for k, v in links.items():
             debug_docker_command += " --link {k}:{v}\\\n".format(k=k, v=v)
+    if environments:
+        for k, v in environments.items():
+            debug_docker_command += " --env {k}={v}\\\n".format(k=k, v=v)
     if auto_remove:
         debug_docker_command += " --rm"
     if detach:
         debug_docker_command += " --detach"
-    debug_docker_command += " %s\\\n" % (image_name)
-    debug_docker_command += " %s" % (command)
+    debug_docker_command += " %s" % (image_name)
+    if command:
+        debug_docker_command += " \\\n%s" % (command)
     logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
 
     container = client.containers.run(
@@ -68,6 +73,12 @@ def run_container(
         command=command,
         ports=ports,
         volumes=volumes,
+        environment=environments,
+        # environment=[
+        #     "POSTGRES_USER=odoo",
+        #     "POSTGRES_PASSWORD=odoo",
+        #     "POSTGRES_DB=postgres",
+        # ],
         links=links,
         detach=detach,
         auto_remove=auto_remove,

@@ -1,11 +1,12 @@
 
 project_name: test-cli
 
-host_odoo_xmlrpc_port: 9069
+postgres_image_name: postgres:13
+postgres_container_name: test-cli-db
+postgres_host_port: 9432
 
-host_postgres_port: 9432
-
-default_country_code: FR
+odoo_host_xmlrpc_port: 9069
+odoo_default_country_code: FR
 
 odoo_versions:
 

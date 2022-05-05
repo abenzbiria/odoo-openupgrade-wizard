@@ -31,7 +31,7 @@ from odoo_openupgrade_wizard.tools_postgres import ensure_database
 def run(ctx, step, database, stop_after_init, init_modules):
 
     migration_step = get_migration_step_from_options(ctx, step)
-    ensure_database(database, state="present")
+    ensure_database(ctx, database, state="present")
     try:
         run_odoo(
             ctx,

@@ -1,11 +1,12 @@
 CONFIG_YML_TEMPLATE = """
 project_name: {{ project_name }}
 
-host_odoo_xmlrpc_port: 9069
+postgres_image_name: postgres:13
+postgres_container_name: {{project_name}}-db
+postgres_host_port: 9432
 
-host_postgres_port: 9432
-
-default_country_code: FR
+odoo_host_xmlrpc_port: 9069
+odoo_default_country_code: FR
 
 odoo_versions:
 {% for odoo_version in odoo_versions %}

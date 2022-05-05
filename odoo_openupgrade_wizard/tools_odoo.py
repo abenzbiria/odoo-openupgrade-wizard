@@ -146,7 +146,17 @@ def run_odoo(
     shell: bool = False,
     demo: bool = False,
 ):
-    # TODO, check if stop_after_init and detached_container are redondant.
+    logger.info(
+        "Launching Odoo Container (Release {release}) for {db_text}"
+        " in {action} mode. Demo Data is {demo_text}.".format(
+            release=migration_step["release"],
+            db_text=database and "database '%s'" % database or "any databases",
+            action=migration_step["action"] == "update"
+            and "regular"
+            or "OpenUpgrade",
+            demo_text=demo and "enabled" or "disabled",
+        )
+    )
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     env_path = ctx.obj["env_folder_path"]
     odoo_env_path = get_odoo_env_path(ctx, odoo_version)
@@ -167,14 +177,14 @@ def run_odoo(
         get_docker_container_name(ctx, migration_step),
         command=command,
         ports={
-            "8069": ctx.obj["config"]["host_odoo_xmlrpc_port"],
-            "5432": ctx.obj["config"]["host_postgres_port"],
+            "8069": ctx.obj["config"]["odoo_host_xmlrpc_port"],
+            # "5432": ctx.obj["config"]["postgres_host_port"],
         },
         volumes=[
             "%s:/env/" % (env_path),
             "%s:/odoo_env/" % (odoo_env_path),
         ],
-        links={"db": "db"},
+        links={ctx.obj["config"]["postgres_container_name"]: "db"},
         detach=detached_container,
         auto_remove=True,
     )
