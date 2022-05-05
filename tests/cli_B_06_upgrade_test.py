@@ -5,7 +5,7 @@ from odoo_openupgrade_wizard.tools_postgres import (
     execute_sql_request,
 )
 
-from . import cli_runner_invoke
+from . import build_ctx_from_config_file, cli_runner_invoke
 
 
 def test_cli_upgrade():
@@ -13,7 +13,8 @@ def test_cli_upgrade():
 
     db_name = "database_test_cli_upgrade"
 
-    ensure_database(db_name, state="absent")
+    ctx = build_ctx_from_config_file(output_folder_path)
+    ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
         [
@@ -34,7 +35,7 @@ def test_cli_upgrade():
         " WHERE state ='installed'"
         " AND name='base';"
     )
-    latest_version = execute_sql_request(request, database=db_name)
+    latest_version = execute_sql_request(ctx, request, database=db_name)
 
     assert latest_version[0][0].startswith("13.")
 
@@ -56,6 +57,6 @@ def test_cli_upgrade():
         " WHERE state ='installed'"
         " AND name='base';"
     )
-    latest_version = execute_sql_request(request, database=db_name)
+    latest_version = execute_sql_request(ctx, request, database=db_name)
 
     assert latest_version[0][0].startswith("14.")
