@@ -177,14 +177,17 @@ def run_odoo(
         demo=demo,
     )
 
+    host_xmlrpc_port = (
+        alternative_xml_rpc_port
+        and alternative_xml_rpc_port
+        or ctx.obj["config"]["odoo_host_xmlrpc_port"]
+    )
     return run_container(
         get_docker_image_tag(ctx, odoo_version),
         get_docker_container_name(ctx, migration_step),
         command=command,
         ports={
-            "8069": alternative_xml_rpc_port
-            and alternative_xml_rpc_port
-            or ctx.obj["config"]["odoo_host_xmlrpc_port"],
+            host_xmlrpc_port: 8069,
         },
         volumes={
             env_path: "/env/",

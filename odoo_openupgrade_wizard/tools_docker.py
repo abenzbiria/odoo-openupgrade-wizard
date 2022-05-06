@@ -26,7 +26,7 @@ def run_container(
     image_name,
     container_name,
     command=None,
-    ports=False,
+    ports={},
     volumes={},
     environments={},
     links={},
@@ -37,13 +37,9 @@ def run_container(
 
     logger.debug("Launching Docker container named %s ..." % (image_name))
     debug_docker_command = "docker run --name %s\\\n" % (container_name)
-    if ports:
-        for internal_port, host_port in ports.items():
-            debug_docker_command += (
-                " --publish {host_port}:{internal_port}\\\n".format(
-                    internal_port=internal_port, host_port=host_port
-                )
-            )
+
+    for k, v in ports.items():
+        debug_docker_command += " --publish {k}={v}\\\n".format(k=k, v=v)
     for k, v in volumes.items():
         debug_docker_command += " --volume {k}:{v}\\\n".format(
             k=str(k), v=str(v)
@@ -65,7 +61,7 @@ def run_container(
         image_name,
         name=container_name,
         command=command,
-        ports=ports,
+        ports={x: y for y, x in ports.items()},
         volumes=[str(k) + ":" + str(v) for k, v in volumes.items()],
         environment=environments,
         links=links,
