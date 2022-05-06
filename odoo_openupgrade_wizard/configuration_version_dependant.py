@@ -200,7 +200,6 @@ def generate_analysis_files(
         )
 
         logger.info("> Create wizard ...")
-
         wizard = final_odoo_instance.browse_by_create(
             "openupgrade.analysis.wizard",
             {
@@ -216,6 +215,7 @@ def generate_analysis_files(
         proxy = final_odoo_instance.browse_by_create(
             "upgrade.comparison.config", proxy_vals
         )
+
         logger.info("> Create wizard ...")
         analysis = final_odoo_instance.browse_by_create(
             "upgrade.analysis",
@@ -223,5 +223,6 @@ def generate_analysis_files(
                 "config_id": proxy.id,
             },
         )
+
         logger.info("> Launch analysis. This can take a while ...")
         analysis.analyze()

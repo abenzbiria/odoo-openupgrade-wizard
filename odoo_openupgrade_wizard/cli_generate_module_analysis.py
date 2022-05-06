@@ -12,8 +12,13 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_installable_odoo_modules,
     get_upgrade_analysis_module,
 )
-from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
+from odoo_openupgrade_wizard.tools_odoo import (
+    get_odoo_env_path,
+    kill_odoo,
+    run_odoo,
+)
 from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
+from odoo_openupgrade_wizard.tools_system import ensure_folder_writable
 
 
 @click.command()
@@ -120,6 +125,13 @@ def generate_module_analysis(ctx, step, database, modules):
         )
         final_instance.install_modules(final_modules)
         generate_records(final_instance, final_step)
+
+        # Make writable files and directories for "other"
+        # group to make possible to write analysis files
+        # for docker container user
+        ensure_folder_writable(
+            get_odoo_env_path(ctx, {"release": final_step["release"]}) / "src"
+        )
 
         generate_analysis_files(
             final_instance,

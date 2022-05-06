@@ -6,13 +6,22 @@ from git_aggregator import main as gitaggregate_cmd
 from git_aggregator.utils import working_directory_keeper
 from jinja2 import Template
 from loguru import logger
-from plumbum.cmd import mkdir
+from plumbum.cmd import chmod, mkdir
+from plumbum.commands.processes import ProcessExecutionError
 
 from odoo_openupgrade_wizard import templates
 
 
 def get_script_folder(ctx, migration_step: dict) -> Path:
     return ctx.obj["script_folder_path"] / migration_step["complete_name"]
+
+
+def ensure_folder_writable(folder_path: Path):
+    logger.info("Make writable the folder '%s'" % folder_path)
+    try:
+        chmod(["--silent", "--recursive", "o+w", str(folder_path)])
+    except ProcessExecutionError:
+        pass
 
 
 def ensure_folder_exists(
