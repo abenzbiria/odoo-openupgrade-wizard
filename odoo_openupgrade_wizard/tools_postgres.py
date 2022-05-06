@@ -32,11 +32,12 @@ def get_postgres_container(ctx):
             "POSTGRES_DB": "postgres",
             "PGDATA": "/var/lib/postgresql/data/pgdata",
         },
-        volumes=[
-            "%s:/env/" % ctx.obj["env_folder_path"],
-            "%s:/var/lib/postgresql/data/pgdata/"
-            % ctx.obj["postgres_folder_path"],
-        ],
+        volumes={
+            ctx.obj["env_folder_path"]: "/env/",
+            ctx.obj[
+                "postgres_folder_path"
+            ]: "/var/lib/postgresql/data/pgdata/",
+        },
         detach=True,
     )
     # TODO, improve me.

@@ -186,10 +186,10 @@ def run_odoo(
             and alternative_xml_rpc_port
             or ctx.obj["config"]["odoo_host_xmlrpc_port"],
         },
-        volumes=[
-            "%s:/env/" % (env_path),
-            "%s:/odoo_env/" % (odoo_env_path),
-        ],
+        volumes={
+            env_path: "/env/",
+            odoo_env_path: "/odoo_env/",
+        },
         links={ctx.obj["config"]["postgres_container_name"]: "db"},
         detach=detached_container,
         auto_remove=True,

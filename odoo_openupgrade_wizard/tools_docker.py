@@ -27,7 +27,7 @@ def run_container(
     container_name,
     command=None,
     ports=False,
-    volumes=False,
+    volumes={},
     environments={},
     links={},
     detach=False,
@@ -44,20 +44,14 @@ def run_container(
                     internal_port=internal_port, host_port=host_port
                 )
             )
-    if volumes:
-        for volume in volumes:
-            external_path, internal_path = volume.split(":")
-            debug_docker_command += (
-                " --volume {external_path}:{internal_path}\\\n".format(
-                    external_path=external_path, internal_path=internal_path
-                )
-            )
-    if links:
-        for k, v in links.items():
-            debug_docker_command += " --link {k}:{v}\\\n".format(k=k, v=v)
-    if environments:
-        for k, v in environments.items():
-            debug_docker_command += " --env {k}={v}\\\n".format(k=k, v=v)
+    for k, v in volumes.items():
+        debug_docker_command += " --volume {k}:{v}\\\n".format(
+            k=str(k), v=str(v)
+        )
+    for k, v in environments.items():
+        debug_docker_command += " --env {k}={v}\\\n".format(k=k, v=v)
+    for k, v in links.items():
+        debug_docker_command += " --link {k}:{v}\\\n".format(k=k, v=v)
     if auto_remove:
         debug_docker_command += " --rm"
     if detach:
@@ -72,13 +66,8 @@ def run_container(
         name=container_name,
         command=command,
         ports=ports,
-        volumes=volumes,
+        volumes=[str(k) + ":" + str(v) for k, v in volumes.items()],
         environment=environments,
-        # environment=[
-        #     "POSTGRES_USER=odoo",
-        #     "POSTGRES_PASSWORD=odoo",
-        #     "POSTGRES_DB=postgres",
-        # ],
         links=links,
         detach=detach,
         auto_remove=auto_remove,
