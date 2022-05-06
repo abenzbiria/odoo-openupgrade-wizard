@@ -146,6 +146,7 @@ def run_odoo(
     shell: bool = False,
     demo: bool = False,
     alternative_xml_rpc_port: int = False,
+    links: dict = {},
 ):
     logger.info(
         "Launching Odoo Container (Release {release}) for {db_text}"
@@ -182,6 +183,7 @@ def run_odoo(
         and alternative_xml_rpc_port
         or ctx.obj["config"]["odoo_host_xmlrpc_port"]
     )
+    links.update({ctx.obj["config"]["postgres_container_name"]: "db"})
     return run_container(
         get_docker_image_tag(ctx, odoo_version),
         get_docker_container_name(ctx, migration_step),
@@ -193,7 +195,7 @@ def run_odoo(
             env_path: "/env/",
             odoo_env_path: "/odoo_env/",
         },
-        links={ctx.obj["config"]["postgres_container_name"]: "db"},
+        links=links,
         detach=detached_container,
         auto_remove=True,
     )

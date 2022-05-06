@@ -67,13 +67,12 @@ def generate_module_analysis(ctx, step, database, modules):
         )
 
         # INITIAL : Run odoo for odoorpc
-        run_odoo(
+        initial_container = run_odoo(
             ctx,
             initial_step,
             database=initial_database,
             detached_container=True,
         )
-
         # # INITIAL : install modules to analyse and generate records
         initial_instance = OdooInstance(ctx, initial_database)
         initial_modules = (
@@ -95,6 +94,9 @@ def generate_module_analysis(ctx, step, database, modules):
             alternative_xml_rpc_port=alternative_xml_rpc_port,
         )
 
+        # name of the first odoo instance inside the second odoo instance
+        odoo_initial_host_name = "odoo_initial_instance"
+
         # FINAL : Run odoo for odoorpc and install modules to analyse
         run_odoo(
             ctx,
@@ -102,6 +104,7 @@ def generate_module_analysis(ctx, step, database, modules):
             database=final_database,
             detached_container=True,
             alternative_xml_rpc_port=alternative_xml_rpc_port,
+            links={initial_container.name: odoo_initial_host_name},
         )
 
         # # FINAL : install modules to analyse and generate records
@@ -121,8 +124,8 @@ def generate_module_analysis(ctx, step, database, modules):
         generate_analysis_files(
             final_instance,
             final_step,
+            odoo_initial_host_name,
             initial_database,
-            ctx.obj["config"]["odoo_host_xmlrpc_port"],
         )
 
     except (KeyboardInterrupt, SystemExit):

@@ -179,7 +179,7 @@ def get_installable_odoo_modules(odoo_instance, migraton_step):
 
 
 def generate_analysis_files(
-    final_odoo_instance, final_step, initial_database, initial_xmlrpc_port
+    final_odoo_instance, final_step, initial_odoo_host, initial_database
 ):
     logger.info(
         "Generate analysis files for"
@@ -187,8 +187,8 @@ def generate_analysis_files(
     )
     proxy_vals = {
         "name": "Proxy to Previous Release",
-        "server": "localhost",
-        "port": initial_xmlrpc_port,
+        "server": initial_odoo_host,
+        "port": "8069",
         "database": initial_database,
         "username": "admin",
         "password": "admin",
