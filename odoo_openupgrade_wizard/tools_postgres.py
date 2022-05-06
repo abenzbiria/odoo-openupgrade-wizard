@@ -23,9 +23,6 @@ def get_postgres_container(ctx):
     container = run_container(
         image_name,
         container_name,
-        ports={
-            ctx.obj["config"]["postgres_host_port"]: 5432,
-        },
         environments={
             "POSTGRES_USER": "odoo",
             "POSTGRES_PASSWORD": "odoo",

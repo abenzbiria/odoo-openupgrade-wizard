@@ -3,7 +3,6 @@ project_name: {{ project_name }}
 
 postgres_image_name: postgres:13
 postgres_container_name: {{project_name}}-db
-postgres_host_port: 9432
 
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
