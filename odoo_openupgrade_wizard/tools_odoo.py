@@ -16,6 +16,7 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
 )
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
 from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
+from odoo_openupgrade_wizard.tools_postgres import get_postgres_container
 from odoo_openupgrade_wizard.tools_system import get_script_folder
 
 
@@ -148,6 +149,8 @@ def run_odoo(
     alternative_xml_rpc_port: int = False,
     links: dict = {},
 ):
+    # Ensure that Postgres container exist
+    get_postgres_container(ctx)
     logger.info(
         "Launching Odoo Container (Release {release}) for {db_text}"
         " in {action} mode. Demo Data is {demo_text}"
