@@ -4,8 +4,11 @@ import time
 import odoorpc
 from loguru import logger
 
+# Wait for the launch of odoo instance 60 seconds
 _ODOO_RPC_MAX_TRY = 60
-_ODOO_RPC_TIMEOUT = 60
+
+# Timeout for odoorpc call is 24 hours
+_ODOO_RPC_TIMEOUT = 86400
 
 
 class OdooInstance:
@@ -14,10 +17,6 @@ class OdooInstance:
     version = False
 
     def __init__(self, ctx, database, alternative_xml_rpc_port=False):
-        # # TODO, improve me waith for response on http://localhost:port
-        # # with a time out
-        # # the docker container take a little time to be up.
-        # time.sleep(60)
         port = (
             alternative_xml_rpc_port
             and alternative_xml_rpc_port

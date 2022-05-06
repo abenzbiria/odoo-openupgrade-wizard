@@ -4,9 +4,12 @@ from loguru import logger
 from odoo_openupgrade_wizard.cli_options import (
     database_option,
     get_migration_steps_from_options,
+    step_option,
 )
 from odoo_openupgrade_wizard.configuration_version_dependant import (
+    generate_analysis_files,
     generate_records,
+    get_installable_odoo_modules,
     get_upgrade_analysis_module,
 )
 from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
@@ -14,26 +17,19 @@ from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
 
 
 @click.command()
+@step_option
+@database_option
 @click.option(
-    "--last-step",
-    required=True,
-    prompt=True,
-    type=int,
-    help="Last step in witch the analysis will be generated",
-)
-@click.option(
+    "-m",
     "--modules",
     type=str,
     help="Coma-separated list of modules to analysis."
-    " Let empty to analyse all the modules.",
+    " Let empty to analyse all the Odoo modules.",
 )
-@database_option
 @click.pass_context
-def generate_module_analysis(ctx, last_step, database, modules):
+def generate_module_analysis(ctx, step, database, modules):
 
-    migration_steps = get_migration_steps_from_options(
-        ctx, last_step - 1, last_step
-    )
+    migration_steps = get_migration_steps_from_options(ctx, step - 1, step)
 
     initial_step = migration_steps[0].copy()
     final_step = migration_steps[1].copy()
@@ -54,7 +50,7 @@ def generate_module_analysis(ctx, last_step, database, modules):
         str(final_step["release"]).replace(".", ""),
     )
 
-    modules = (modules or "").split(",")
+    modules = modules and modules.split(",") or []
 
     # Force to be in openupgrade mode
     initial_step["action"] = final_step["action"] = "upgrade"
@@ -77,11 +73,15 @@ def generate_module_analysis(ctx, last_step, database, modules):
             database=initial_database,
             detached_container=True,
         )
+
+        # # INITIAL : install modules to analyse and generate records
         initial_instance = OdooInstance(ctx, initial_database)
-
-        # INITIAL : install modules to analyse and generate records
-
-        initial_instance.install_modules(modules)
+        initial_modules = (
+            modules
+            and modules
+            or get_installable_odoo_modules(initial_instance, initial_step)
+        )
+        initial_instance.install_modules(initial_modules)
         generate_records(initial_instance, initial_step)
 
         # FINAL : Run odoo and install analysis module
@@ -103,14 +103,28 @@ def generate_module_analysis(ctx, last_step, database, modules):
             detached_container=True,
             alternative_xml_rpc_port=alternative_xml_rpc_port,
         )
-        final_instance = OdooInstance(ctx, final_database)
 
-        # FINAL : install modules to analyse and generate records
+        # # FINAL : install modules to analyse and generate records
+        final_instance = OdooInstance(
+            ctx,
+            final_database,
+            alternative_xml_rpc_port=alternative_xml_rpc_port,
+        )
+        final_modules = (
+            modules
+            and modules
+            or get_installable_odoo_modules(final_instance, final_step)
+        )
+        final_instance.install_modules(final_modules)
+        generate_records(final_instance, final_step)
 
-        final_instance.install_modules(modules)
-        generate_records(final_instance, initial_step)
+        generate_analysis_files(
+            final_instance,
+            final_step,
+            initial_database,
+            ctx.obj["config"]["odoo_host_xmlrpc_port"],
+        )
 
-        final_database = final_database
     except (KeyboardInterrupt, SystemExit):
         logger.info("Received Keyboard Interrupt or System Exiting...")
     finally:

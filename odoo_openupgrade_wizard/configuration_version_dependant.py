@@ -155,3 +155,73 @@ def generate_records(odoo_instance, migration_step: dict):
             "upgrade.generate.record.wizard", {}
         )
     wizard.generate()
+
+
+def get_installable_odoo_modules(odoo_instance, migraton_step):
+    if migraton_step["release"] < 14.0:
+        # TODO, improve that algorithm, if possible
+        modules = odoo_instance.browse_by_search(
+            "ir.module.module",
+            [
+                ("state", "!=", "uninstallable"),
+                ("website", "not ilike", "github/OCA"),
+            ],
+        )
+
+    else:
+        # We use here a new feature implemented in the upgrade_analysis
+        # in a wizard to install odoo modules
+        wizard = odoo_instance.browse_by_create("upgrade.install.wizard", {})
+        wizard.select_odoo_modules()
+        modules = wizard.module_ids
+
+    return modules.mapped("name")
+
+
+def generate_analysis_files(
+    final_odoo_instance, final_step, initial_database, initial_xmlrpc_port
+):
+    logger.info(
+        "Generate analysis files for"
+        " the modules installed on %s ..." % (initial_database)
+    )
+    proxy_vals = {
+        "name": "Proxy to Previous Release",
+        "server": "localhost",
+        "port": initial_xmlrpc_port,
+        "database": initial_database,
+        "username": "admin",
+        "password": "admin",
+    }
+    if final_step["release"] < 14.0:
+        logger.info("> Create proxy ...")
+        proxy = final_odoo_instance.browse_by_create(
+            "openupgrade.comparison.config", proxy_vals
+        )
+
+        logger.info("> Create wizard ...")
+
+        wizard = final_odoo_instance.browse_by_create(
+            "openupgrade.analysis.wizard",
+            {
+                "server_config": proxy.id,
+                "write_files": True,
+            },
+        )
+        logger.info("> Launch analysis. This can take a while ...")
+        wizard.get_communication()
+
+    else:
+        logger.info("> Create proxy ...")
+        proxy = final_odoo_instance.browse_by_create(
+            "upgrade.comparison.config", proxy_vals
+        )
+        logger.info("> Create wizard ...")
+        analysis = final_odoo_instance.browse_by_create(
+            "upgrade.analysis",
+            {
+                "config_id": proxy.id,
+            },
+        )
+        logger.info("> Launch analysis. This can take a while ...")
+        analysis.analyze()

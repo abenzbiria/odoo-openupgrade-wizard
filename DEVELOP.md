@@ -70,7 +70,6 @@ sudo apt-get install python3.6  python3.6-distutils
 sudo apt-get install python3.7  python3.7-distutils
 sudo apt-get install python3.8  python3.8-distutils
 sudo apt-get install python3.9  python3.9-distutils
-sudo apt-get install python3.10 python3.10-distutils
 ```
 
 ## Via Gitlab Runner locally

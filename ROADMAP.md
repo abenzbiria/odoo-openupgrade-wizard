@@ -35,9 +35,8 @@ _LEGACY_OPENUPGRADELIB = (
 
 ```
 
-py310 is not available, due to dependencies to ``odoorpc``
-that raise an error :
-``ERROR tests/cli_A_init_test.py - AttributeError: module 'collections' has no attribute 'MutableMapping'``
+* py310 is not available, due to dependencies to ``odoorpc`` that raise an error :
+  ``ERROR tests/cli_A_init_test.py - AttributeError: module 'collections' has no attribute 'MutableMapping'``
 
 
 # tips
@@ -62,8 +61,6 @@ docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set
 
 - add a tools to analyze workload.
 
-- execute ``pre-migration.sql`` files.
-
 # TODO Nice To have
 
 - Fix gitlabci-local. For the time being, it is not possible to debug
@@ -72,3 +69,5 @@ docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set
 
 - ``.absolute()`` has been added in test to try to fix some things,
   but maybe it's not necessary.
+
+- Check if there are default values for containers, limiting ressources.
