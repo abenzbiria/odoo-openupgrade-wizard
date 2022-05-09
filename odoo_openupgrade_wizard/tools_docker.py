@@ -39,7 +39,7 @@ def run_container(
     debug_docker_command = "docker run --name %s\\\n" % (container_name)
 
     for k, v in ports.items():
-        debug_docker_command += " --publish {k}={v}\\\n".format(k=k, v=v)
+        debug_docker_command += " --publish {k}:{v}\\\n".format(k=k, v=v)
     for k, v in volumes.items():
         debug_docker_command += " --volume {k}:{v}\\\n".format(
             k=str(k), v=str(v)
