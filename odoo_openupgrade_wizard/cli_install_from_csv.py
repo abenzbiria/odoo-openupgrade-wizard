@@ -17,7 +17,7 @@ from odoo_openupgrade_wizard.tools_postgres import ensure_database
 @click.pass_context
 def install_from_csv(ctx, database):
     migration_step = get_migration_step_from_options(ctx, 1)
-    ensure_database(database, state="present")
+    ensure_database(ctx, database, state="present")
 
     # Get modules list from the CSV file
     csv_path = ctx.obj["module_file_path"]
@@ -27,6 +27,8 @@ def install_from_csv(ctx, database):
     spamreader = csv.reader(csvfile, delimiter=",", quotechar='"')
     for row in spamreader:
         # Try to guess that a line is not correct
+        if not row:
+            continue
         if not row[0]:
             continue
         if " " in row[0]:
