@@ -19,7 +19,7 @@ def test_cli_init():
             "--project-name=test-cli",
             "--initial-release=13.0",
             "--final-release=14.0",
-            "--extra-repository=OCA/web",
+            "--extra-repository=OCA/web,OCA/server-tools",
         ]
     )
 
