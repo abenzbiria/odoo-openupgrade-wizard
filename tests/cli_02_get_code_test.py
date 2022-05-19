@@ -1,27 +1,10 @@
 from pathlib import Path
 
-from plumbum.cmd import mkdir
-
 from . import cli_runner_invoke
 
 
 def test_cli_get_code():
-    output_folder_path = Path("./tests/output_B").absolute()
-    mkdir([output_folder_path, "--parents"])
-
-    # We initialize an env with only two releases to avoid to git clone
-    # large data
-    cli_runner_invoke(
-        [
-            "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
-            "init",
-            "--project-name=test-cli",
-            "--initial-release=13.0",
-            "--final-release=14.0",
-            "--extra-repository=OCA/web",
-        ]
-    )
+    output_folder_path = Path("./tests/output").absolute()
 
     cli_runner_invoke(
         [

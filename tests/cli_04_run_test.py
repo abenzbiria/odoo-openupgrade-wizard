@@ -7,7 +7,7 @@ from . import build_ctx_from_config_file, cli_runner_invoke
 
 
 def test_cli_run():
-    output_folder_path = Path("./tests/output_B").absolute()
+    output_folder_path = Path("./tests/output").absolute()
     ctx = build_ctx_from_config_file(output_folder_path)
     db_name = "database_test_cli_run"
     cli_runner_invoke(

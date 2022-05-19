@@ -4,6 +4,5 @@ __pycache__
 .tox
 .coverage
 .pytest_cache
-/tests/output_A/*
-/tests/output_B/*
+/tests/output/*
 log/

@@ -9,7 +9,7 @@ from . import build_ctx_from_config_file, cli_runner_invoke
 
 
 def test_cli_upgrade():
-    output_folder_path = Path("./tests/output_B").absolute()
+    output_folder_path = Path("./tests/output").absolute()
 
     db_name = "database_test_cli_upgrade"
 

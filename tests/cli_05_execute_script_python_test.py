@@ -4,10 +4,10 @@ from . import cli_runner_invoke
 
 
 def test_cli_execute_script_python():
-    output_folder_path = Path("./tests/output_B").absolute()
+    output_folder_path = Path("./tests/output").absolute()
 
     extra_script_path = Path(
-        "./tests/extra_script_B/post-migration-custom_test.py"
+        "./tests/extra_script/post-migration-custom_test.py"
     ).absolute()
 
     db_name = "database_test_cli_execute_script_python"

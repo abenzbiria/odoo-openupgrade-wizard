@@ -10,10 +10,10 @@ from . import build_ctx_from_config_file, cli_runner_invoke
 
 
 def test_cli_execute_script_sql():
-    output_folder_path = Path("./tests/output_B").absolute()
+    output_folder_path = Path("./tests/output").absolute()
 
     extra_script_path = Path(
-        "./tests/extra_script_B/pre-migration-custom_test.sql"
+        "./tests/extra_script/pre-migration-custom_test.sql"
     ).absolute()
 
     destination_path = output_folder_path / "scripts/step_01__update__13.0"

@@ -6,7 +6,7 @@ from . import cli_runner_invoke
 
 
 def test_cli_docker_build():
-    output_folder_path = Path("./tests/output_B").absolute()
+    output_folder_path = Path("./tests/output").absolute()
 
     cli_runner_invoke(
         [

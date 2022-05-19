@@ -7,8 +7,8 @@ from . import cli_runner_invoke
 
 
 def test_cli_init():
-    output_folder_path = Path("./tests/output_A").absolute()
-    expected_folder_path = Path("./tests/output_A_expected").absolute()
+    output_folder_path = Path("./tests/output").absolute()
+    expected_folder_path = Path("./tests/output_expected").absolute()
     mkdir([output_folder_path, "--parents"])
 
     cli_runner_invoke(
@@ -17,10 +17,9 @@ def test_cli_init():
             "--env-folder=%s" % output_folder_path,
             "init",
             "--project-name=test-cli",
-            "--initial-release=9.0",
-            "--final-release=12.0",
-            "--extra-repository="
-            "OCA/web,OCA/server-tools,GRAP/grap-odoo-incubator",
+            "--initial-release=13.0",
+            "--final-release=14.0",
+            "--extra-repository=OCA/web",
         ]
     )
 
