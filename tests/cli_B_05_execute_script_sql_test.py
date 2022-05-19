@@ -33,7 +33,7 @@ def test_cli_execute_script_sql():
         ]
     )
 
-    # Ensure that the request has been done correctlys
+    # Ensure that the request has been done correctly
     request = "SELECT name from city order by id;"
     result = execute_sql_request(ctx, request, database=db_name)
 

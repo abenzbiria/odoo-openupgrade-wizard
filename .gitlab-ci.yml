@@ -1,15 +1,7 @@
-image: docker:18.09
-
-# TODO, ne sert à rien.
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
-
-
-
+image: docker:latest
 
 services:
-  - docker:18.09-dind
+  - docker:dind
 
 stages:
   - linting
@@ -45,12 +37,11 @@ pytest:
     - echo $PYTHONPATH
     - poetry run pytest --version
 
-    # - poetry run pytest --cov odoo_openupgrade_wizard --verbose --verbose --exitfirst tests/cli_A_init_test.py tests/cli_B_01_get_code_test.py tests/cli_B_02_docker_build_test.py tests/cli_B_03_run_test.py tests/cli_B_05_execute_script_sql_test.py
     - poetry run pytest --verbose --verbose tests/cli_A_init_test.py
     # - poetry run pytest --verbose --verbose tests/cli_B_01_get_code_test.py
     # - poetry run pytest --verbose --verbose tests/cli_B_02_docker_build_test.py
     # - poetry run pytest --verbose --verbose tests/cli_B_03_run_test.py
+    # - poetry run pytest --verbose --verbose tests/cli_B_04_execute_script_python_test.py
     # - poetry run pytest --verbose --verbose tests/cli_B_05_execute_script_sql_test.py
-
-    # tests/cli_B_04_execute_script_python_test.py
-    # tests/cli_B_06_upgrade_test.py
+    # - poetry run pytest --verbose --verbose tests/cli_B_06_upgrade_test.py
+    # - poetry run pytest --verbose --verbose tests/cli_B_07_generate_module_analysis_test.py
