@@ -71,3 +71,12 @@ docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set
   but maybe it's not necessary.
 
 - Check if there are default values for containers, limiting ressources.
+
+
+# Try gitlab runner
+
+curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_amd64.deb"
+
+sudo dpkg -i gitlab-runner_amd64.deb
+
+(https://docs.gitlab.com/runner/install/linux-manually.html)
