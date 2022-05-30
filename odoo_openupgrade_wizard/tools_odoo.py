@@ -1,4 +1,4 @@
-import importlib.util
+import configparser
 import os
 import sys
 import traceback
@@ -15,7 +15,6 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     skip_addon_path,
 )
 from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
-from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
 from odoo_openupgrade_wizard.tools_postgres import get_postgres_container
 from odoo_openupgrade_wizard.tools_system import get_script_folder
 
@@ -76,13 +75,6 @@ def get_odoo_version_from_migration_step(ctx, migration_step: dict) -> dict:
     raise Exception
 
 
-def get_server_wide_modules(ctx, migration_step: dict) -> str:
-    # TODO, read from odoo.cfg file, the key server_wide_modules
-    modules = []
-    modules += get_server_wide_modules_upgrade(migration_step)
-    return modules
-
-
 def generate_odoo_command(
     ctx,
     migration_step: dict,
@@ -93,22 +85,12 @@ def generate_odoo_command(
     shell: bool,
     demo: bool,
 ) -> str:
-    addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
-    server_wide_modules = get_server_wide_modules(ctx, migration_step)
-    server_wide_modules_cmd = (
-        server_wide_modules
-        and "--load %s" % ",".join(server_wide_modules)
-        or ""
-    )
     database_cmd = database and "--database %s" % database or ""
     update_cmd = update and "--update %s" % update or ""
     init_cmd = init and "--init %s" % init or ""
     stop_after_init_cmd = stop_after_init and "--stop-after-init" or ""
     shell_cmd = shell and "shell" or ""
     demo_cmd = not demo and "--without-demo all" or ""
-    log_file = "/env/log/{}____{}.log".format(
-        ctx.obj["log_prefix"], migration_step["complete_name"]
-    )
     command = (
         Path("/odoo_env")
         / Path(get_odoo_folder(migration_step))
@@ -117,16 +99,7 @@ def generate_odoo_command(
     result = (
         f" {command}"
         f" {shell_cmd}"
-        f" --db_host db"
-        f" --db_port 5432"
-        f" --db_user odoo"
-        f" --db_password odoo"
-        f" --workers 0"
-        f" --config /odoo_env/odoo.cfg"
-        f" --data-dir /env/filestore/"
-        f" --logfile {log_file}"
-        f" --addons-path {addons_path}"
-        f" {server_wide_modules_cmd}"
+        f" --config /odoo_env/_auto_generated_odoo.cfg"
         f" {demo_cmd}"
         f" {database_cmd}"
         f" {update_cmd}"
@@ -134,6 +107,52 @@ def generate_odoo_command(
         f" {stop_after_init_cmd}"
     )
     return result
+
+
+def generate_odoo_config_file(ctx, migration_step, log_file):
+    """Create a config file name _auto_generated_odoo.cfg
+    in the according environment (defined by migration_step)
+    This configuration file is a merge of the odoo.cfg file that can
+    contain custom values, and the values required to run the docker container.
+    """
+    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
+    odoo_env_path = get_odoo_env_path(ctx, odoo_version)
+
+    custom_odoo_config_file = odoo_env_path / "odoo.cfg"
+    auto_generated_odoo_config_file = (
+        odoo_env_path / "_auto_generated_odoo.cfg"
+    )
+
+    parser = configparser.RawConfigParser()
+    # Read custom file
+    parser.read(custom_odoo_config_file)
+
+    # compute addons_path
+    addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
+
+    # compute server wides modules
+    server_wide_modules = parser.get(
+        "options", "server_wide_modules", fallback=[]
+    )
+    server_wide_modules += get_server_wide_modules_upgrade(migration_step)
+
+    # Add required keys
+    if "options" not in parser:
+        parser.add_section("options")
+    parser.set("options", "db_host", "db")
+    parser.set("options", "db_port", 5432)
+    parser.set("options", "db_user", "odoo")
+    parser.set("options", "db_password", "odoo")
+    parser.set("options", "workers", 0)
+    parser.set("options", "data_dir", "/env/filestore/")
+    parser.set("options", "logfile", log_file)
+    parser.set("options", "addons_path", addons_path)
+    if server_wide_modules:
+        parser.set(
+            "options", "server_wide_modules", ",".join(server_wide_modules)
+        )
+
+    parser.write(open(auto_generated_odoo_config_file, "w"))
 
 
 def run_odoo(
@@ -169,6 +188,10 @@ def run_odoo(
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     env_path = ctx.obj["env_folder_path"]
     odoo_env_path = get_odoo_env_path(ctx, odoo_version)
+    log_file = "/env/log/{}____{}.log".format(
+        ctx.obj["log_prefix"], migration_step["complete_name"]
+    )
+    generate_odoo_config_file(ctx, migration_step, log_file)
 
     command = generate_odoo_command(
         ctx,
@@ -208,52 +231,69 @@ def kill_odoo(ctx, migration_step: dict):
     kill_container(get_docker_container_name(ctx, migration_step))
 
 
-def execute_python_files_post_migration(
+def execute_click_odoo_python_files(
     ctx, database: str, migration_step: dict, python_files: list = []
 ):
-    if not python_files:
-        script_folder = get_script_folder(ctx, migration_step)
 
+    if not python_files:
+        # Get post-migration python scripts to execute
+        script_folder = get_script_folder(ctx, migration_step)
         python_files = [
-            script_folder / Path(f)
+            Path("scripts") / Path(migration_step["complete_name"]) / Path(f)
             for f in os.listdir(script_folder)
             if os.path.isfile(os.path.join(script_folder, f))
             and f[-3:] == ".py"
         ]
         python_files = sorted(python_files)
 
-    try:
-        # Launch Odoo
-        run_odoo(
-            ctx,
-            migration_step,
-            detached_container=True,
+    # Prepare data information for docker
+    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
+    links = {ctx.obj["config"]["postgres_container_name"]: "db"}
+    env_path = ctx.obj["env_folder_path"]
+    odoo_env_path = get_odoo_env_path(ctx, odoo_version)
+
+    # Generate odoo config file
+    log_file = "/env/log/{}____{}__post_migration.log".format(
+        ctx.obj["log_prefix"], migration_step["complete_name"]
+    )
+    generate_odoo_config_file(ctx, migration_step, log_file)
+
+    for python_file in python_files:
+        # TODO, check if we should set python2 for old version of Odoo
+        # or just 'python'
+        command = (
+            "click-odoo"
+            " --database {database}"
+            " --config /odoo_env/_auto_generated_odoo.cfg"
+            " /env/{python_file}"
+        ).format(
             database=database,
+            python_file=str(python_file),
         )
-
-        # Create Odoo instance via Odoo RPC
-        odoo_instance = OdooInstance(ctx, database)
-
-        for python_file in python_files:
-            # Generate Python Script
-
-            logger.info("Running Script Post (Python) %s" % python_file)
-            package_name = "script.%s.%s" % (
-                migration_step["complete_name"],
-                python_file.name[:-3],
+        try:
+            logger.info(
+                "Executing script %s / %s"
+                % (migration_step["complete_name"], python_file)
             )
-            module_spec = importlib.util.spec_from_file_location(
-                package_name, python_file
+            run_container(
+                get_docker_image_tag(ctx, odoo_version),
+                get_docker_container_name(ctx, migration_step),
+                command=command,
+                ports={},
+                volumes={
+                    env_path: "/env/",
+                    odoo_env_path: "/odoo_env/",
+                },
+                links=links,
+                detach=False,
+                auto_remove=True,
             )
-            module = importlib.util.module_from_spec(module_spec)
-            module_spec.loader.exec_module(module)
-
-            module.main(odoo_instance)
-    except Exception as e:
-        logger.error(
-            "An error occured. Exiting. %s\n%s"
-            % (e, traceback.print_exception(*sys.exc_info()))
-        )
-        raise e
-    finally:
-        kill_odoo(ctx, migration_step)
+        except Exception as e:
+            traceback.print_exc()
+            logger.error(
+                "An error occured. Exiting. %s\n%s"
+                % (e, traceback.print_exception(*sys.exc_info()))
+            )
+            raise e
+        finally:
+            kill_odoo(ctx, migration_step)

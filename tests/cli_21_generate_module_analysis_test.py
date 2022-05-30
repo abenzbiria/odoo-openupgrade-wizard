@@ -2,16 +2,18 @@ from pathlib import Path
 
 from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
 
-from . import build_ctx_from_config_file, cli_runner_invoke
+from . import (
+    build_ctx_from_config_file,
+    cli_runner_invoke,
+    move_to_test_folder,
+)
 
 
 def test_cli_generate_module_analysis():
-    # TODO, fixme, this test is not working for the time being
-    return
-    output_folder_path = Path("./tests/output").absolute()
-    db_name = "database_test_cli_cli_generate_module_analysis"
+    move_to_test_folder()
+    db_name = "database_test_cli___generate_module_analysis"
 
-    ctx = build_ctx_from_config_file(output_folder_path)
+    ctx = build_ctx_from_config_file()
     # identify main analysis file of openupgrade
     analysis_file_path = get_odoo_env_path(ctx, {"release": 14.0}) / Path(
         "src/openupgrade/openupgrade_scripts/scripts"
@@ -28,7 +30,6 @@ def test_cli_generate_module_analysis():
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "generate-module-analysis",
             "--step=2",
             "--database=%s" % db_name,

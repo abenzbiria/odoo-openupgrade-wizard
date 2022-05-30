@@ -71,6 +71,7 @@ PYTHON_REQUIREMENTS_TXT_TEMPLATE = """
 {{ python_librairy }}
 {% endfor %}
 odoorpc
+click-odoo
 """
 
 DEBIAN_REQUIREMENTS_TXT_TEMPLATE = """
@@ -111,8 +112,13 @@ USER odoo
 PRE_MIGRATION_SQL_TEMPLATE = ""
 
 POST_MIGRATION_PY_TEMPLATE = """
-def main(self):
-    pass
+import logging
+
+_logger = logging.getLogger(__name__)
+_logger.info("Executing post-migration.py script ...")
+
+env = env  # noqa: F821
+
 """
 
 GIT_IGNORE_CONTENT = """
@@ -123,6 +129,5 @@ GIT_IGNORE_CONTENT = """
 MODULES_CSV_TEMPLATE = """
 base,Base
 account,Account Module
-product,Product
 web_responsive,Web Responsive Module
 """

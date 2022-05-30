@@ -1,25 +1,26 @@
-from pathlib import Path
-
 from odoo_openupgrade_wizard.tools_postgres import (
     ensure_database,
     execute_sql_request,
 )
 
-from . import build_ctx_from_config_file, cli_runner_invoke
+from . import (
+    build_ctx_from_config_file,
+    cli_runner_invoke,
+    move_to_test_folder,
+)
 
 
 def test_cli_upgrade():
-    output_folder_path = Path("./tests/output").absolute()
+    move_to_test_folder()
 
-    db_name = "database_test_cli_upgrade"
-
-    ctx = build_ctx_from_config_file(output_folder_path)
+    # Initialize database
+    db_name = "database_test_cli___upgrade"
+    ctx = build_ctx_from_config_file()
     ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "run",
             "--step=1",
             "--database=%s" % db_name,
@@ -42,7 +43,6 @@ def test_cli_upgrade():
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "upgrade",
             "--database=%s" % db_name,
             "--first-step=1",

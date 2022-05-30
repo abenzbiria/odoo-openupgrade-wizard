@@ -4,5 +4,6 @@ __pycache__
 .tox
 .coverage
 .pytest_cache
-/tests/output/*
+/tests/data/output/*
 log/
+_auto_generated_odoo.cfg

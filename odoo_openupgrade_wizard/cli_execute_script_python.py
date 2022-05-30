@@ -7,9 +7,7 @@ from odoo_openupgrade_wizard.cli_options import (
     get_migration_step_from_options,
     step_option,
 )
-from odoo_openupgrade_wizard.tools_odoo import (
-    execute_python_files_post_migration,
-)
+from odoo_openupgrade_wizard.tools_odoo import execute_click_odoo_python_files
 
 
 @click.command()
@@ -21,7 +19,6 @@ from odoo_openupgrade_wizard.tools_odoo import (
     type=click.Path(
         exists=True,
         dir_okay=False,
-        resolve_path=True,
     ),
     help="List of python files that will be executed, replacing the default"
     " scripts placed in the migration step folder.",
@@ -30,6 +27,6 @@ from odoo_openupgrade_wizard.tools_odoo import (
 def execute_script_python(ctx, step, database, script_file_path):
     migration_step = get_migration_step_from_options(ctx, step)
 
-    execute_python_files_post_migration(
+    execute_click_odoo_python_files(
         ctx, database, migration_step, [Path(x) for x in script_file_path]
     )

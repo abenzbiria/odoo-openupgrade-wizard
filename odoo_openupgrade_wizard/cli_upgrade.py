@@ -8,7 +8,7 @@ from odoo_openupgrade_wizard.cli_options import (
     last_step_option,
 )
 from odoo_openupgrade_wizard.tools_odoo import (
-    execute_python_files_post_migration,
+    execute_click_odoo_python_files,
     kill_odoo,
     run_odoo,
 )
@@ -38,4 +38,4 @@ def upgrade(ctx, first_step, last_step, database):
             logger.info("Received Keyboard Interrupt or System Exiting...")
         finally:
             kill_odoo(ctx, migration_step)
-        execute_python_files_post_migration(ctx, database, migration_step)
+        execute_click_odoo_python_files(ctx, database, migration_step)

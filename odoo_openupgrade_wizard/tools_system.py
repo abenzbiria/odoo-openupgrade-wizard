@@ -80,7 +80,7 @@ def git_aggregate(folder_path: Path, config_path: Path):
         do_push=False,
         expand_env=False,
         env_file=None,
-        force=False,
+        force=True,
     )
     with working_directory_keeper:
         os.chdir(folder_path)

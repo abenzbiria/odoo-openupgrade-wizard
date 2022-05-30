@@ -1,32 +1,40 @@
-import shutil
 from pathlib import Path
+
+from plumbum.cmd import cp
 
 from odoo_openupgrade_wizard.tools_postgres import (
     ensure_database,
     execute_sql_request,
 )
 
-from . import build_ctx_from_config_file, cli_runner_invoke
+from . import (
+    build_ctx_from_config_file,
+    cli_runner_invoke,
+    move_to_test_folder,
+)
 
 
 def test_cli_execute_script_sql():
-    output_folder_path = Path("./tests/output").absolute()
-
+    move_to_test_folder()
     extra_script_path = Path(
-        "./tests/extra_script/pre-migration-custom_test.sql"
+        "../extra_script/pre-migration-custom_test.sql"
     ).absolute()
 
-    destination_path = output_folder_path / "scripts/step_01__update__13.0"
-    shutil.copy(extra_script_path, destination_path)
-    ctx = build_ctx_from_config_file(output_folder_path)
-    db_name = "database_test_cli_execute_script_sql"
+    # Deploy SQL Script
+    destination_path = Path("scripts/step_01__update__13.0")
+    cp([extra_script_path, destination_path])
+    ctx = build_ctx_from_config_file()
+
+    # Reset database
+    db_name = "database_test_cli___execute_script_sql"
     ensure_database(ctx, db_name, state="absent")
     ensure_database(ctx, db_name, state="present")
 
+    # TODO call with script-file-path
+    # to avoid to copy file in scripts/step_xxx folder
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "execute-script-sql",
             "--step=1",
             "--database=%s" % db_name,

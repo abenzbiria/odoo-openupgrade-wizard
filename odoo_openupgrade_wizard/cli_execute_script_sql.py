@@ -21,7 +21,6 @@ from odoo_openupgrade_wizard.tools_postgres import (
     type=click.Path(
         exists=True,
         dir_okay=False,
-        resolve_path=True,
     ),
     help="List of SQL files that will be executed, replacing the default"
     " scripts placed in the migration step folder.",

@@ -1,38 +1,58 @@
 from pathlib import Path
 
-from . import cli_runner_invoke
+from plumbum.cmd import cp
+
+from odoo_openupgrade_wizard.tools_postgres import execute_sql_request
+
+from . import (
+    build_ctx_from_config_file,
+    cli_runner_invoke,
+    move_to_test_folder,
+)
 
 
 def test_cli_execute_script_python():
-    output_folder_path = Path("./tests/output").absolute()
+    move_to_test_folder()
+    extra_script_path = Path("../extra_script/click_odoo_test.py").absolute()
+    cp(
+        extra_script_path,
+        Path("click_odoo_test.py"),
+    )
 
-    extra_script_path = Path(
-        "./tests/extra_script/post-migration-custom_test.py"
-    ).absolute()
+    db_name = "database_test_cli___execute_script_python"
 
-    db_name = "database_test_cli_execute_script_python"
-
-    # Install Odoo on V13 with product installed
+    # Install Odoo on V13 with base installed
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "run",
             "--step=1",
             "--database=%s" % db_name,
-            "--init-modules=product",
+            "--init-modules=base",
             "--stop-after-init",
         ]
     )
 
+    # Compute partners quantity
+    ctx = build_ctx_from_config_file()
+    request = "SELECT count(*)" " FROM res_partner;"
+    partner_quantity_before = int(
+        execute_sql_request(ctx, request, database=db_name)[0][0]
+    )
+
+    # Execute Custom Python Script
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "execute-script-python",
             "--step=1",
             "--database=%s" % db_name,
-            "--script-file-path=%s" % extra_script_path,
+            "--script-file-path=click_odoo_test.py",
         ]
     )
-    # TODO, add manually script
+    partner_quantity_after = int(
+        execute_sql_request(ctx, request, database=db_name)[0][0]
+    )
+
+    # Ensure that partners have been created by click_odoo_test.py
+    assert partner_quantity_after == (partner_quantity_before + 10)

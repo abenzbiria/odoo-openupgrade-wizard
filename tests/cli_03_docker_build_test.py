@@ -1,17 +1,13 @@
-from pathlib import Path
-
 from odoo_openupgrade_wizard.tools_docker import get_docker_client
 
-from . import cli_runner_invoke
+from . import cli_runner_invoke, move_to_test_folder
 
 
 def test_cli_docker_build():
-    output_folder_path = Path("./tests/output").absolute()
-
+    move_to_test_folder()
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
-            "--env-folder=%s" % output_folder_path,
             "docker-build",
             "--releases=13.0,14.0",
         ]
