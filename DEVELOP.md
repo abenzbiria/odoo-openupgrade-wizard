@@ -53,6 +53,17 @@ This will run tests only for the current ``python3.X`` version.
 ```
 poetry run pytest --cov odoo_openupgrade_wizard --verbosity=2 --exitfirst
 ```
+
+Debug Test
+```
+poetry run pytest --verbosity=2 --exitfirst --cov odoo_openupgrade_wizard\
+    tests/cli_01_init_test.py\
+    tests/cli_02_get_code_test.py\
+    tests/cli_03_docker_build_test.py\
+    tests/cli_04_run_test.py\
+    tests/cli_06_execute_script_sql_test.py
+```
+
 ## Via Tox
 
 This will run tests for all the python versions put in the ``tox.ini`` folder.

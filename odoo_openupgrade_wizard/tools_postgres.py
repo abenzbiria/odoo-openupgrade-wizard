@@ -41,7 +41,7 @@ def get_postgres_container(ctx):
     # Postgres container doesn't seems available immediately.
     # check in odoo container, i remember that there is
     # some script to do the job
-    time.sleep(3)
+    time.sleep(5)
     return container
 
 
