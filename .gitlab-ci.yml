@@ -44,15 +44,16 @@ pytest:
     - echo $PYTHONPATH
     - poetry run pytest --version
 
-    - poetry run pytest --verbose --verbose
+    - poetry run pytest --verbosity=2 --exitfirst --cov odoo_openupgrade_wizard
       tests/cli_01_init_test.py
       tests/cli_02_get_code_test.py
       tests/cli_03_docker_build_test.py
       tests/cli_04_run_test.py
+      tests/cli_06_execute_script_sql_test.py
     # Disabled : calling OdooRPC on mounted container
     # in a container (gitlab) does'nt seems to work.
 
     # - poetry run pytest --verbose --verbose tests/cli_05_execute_script_python_test.py
-    # - poetry run pytest --verbose --verbose tests/cli_06_execute_script_sql_test.py
+    # - poetry run pytest --verbose --verbose
     # - poetry run pytest --verbose --verbose tests/cli_07_upgrade_test.py
     # - poetry run pytest --verbose --verbose tests/cli_08_generate_module_analysis_test.py

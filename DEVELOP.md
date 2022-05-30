@@ -51,7 +51,7 @@ This will run tests only for the current ``python3.X`` version.
 
 (in your virtualenv)
 ```
-poetry run pytest --cov odoo_openupgrade_wizard -v
+poetry run pytest --cov odoo_openupgrade_wizard --verbosity=2 --exitfirst
 ```
 ## Via Tox
 
