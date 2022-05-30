@@ -1,4 +1,4 @@
-image: docker:latest
+image: docker:19.03
 
 services:
   - docker:dind
@@ -7,6 +7,7 @@ stages:
   - linting
   - tests
 
+# TODO, fix me : call all the pre-commit stuff instead.
 black:
   stage: linting
   image: python
@@ -16,16 +17,21 @@ black:
     - python -m pipx ensurepath
     - source ~/.profile
 
-      # Black Check
+      # Install black
     - pipx install black
     - black --version
+
+      # Log
+
+      # Call black Check
     - black --check .
 
 pytest:
   stage: tests
   script:
-    # Install the latest pythhon version supported by this librairy
-    - apk add python3==~3.9 python3-dev==~3.9
+    # Install the the version 3.8. (the version 3.9 is the latest available)
+    # however, docker 19.03 comes with python3.8 and docker 20.10 comes with python3.10
+    - apk add python3==~3.8 python3-dev==~3.8
     - apk add gcc g++ libffi-dev
     - apk add git
     - python3 -m venv /.gitlab-ci-venv
