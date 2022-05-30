@@ -24,7 +24,7 @@ black:
 pytest:
   stage: tests
   script:
-    - apk add python3 python3-dev
+    - apk add python3.6 python3.6-dev
     - apk add gcc g++ libffi-dev
     - apk add git
     - python3 -m venv /.gitlab-ci-venv
