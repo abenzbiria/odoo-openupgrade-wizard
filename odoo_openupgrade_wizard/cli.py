@@ -10,6 +10,7 @@ from loguru import logger
 
 import odoo_openupgrade_wizard
 from odoo_openupgrade_wizard.cli_docker_build import docker_build
+from odoo_openupgrade_wizard.cli_estimate_workload import estimate_workload
 from odoo_openupgrade_wizard.cli_execute_script_python import (
     execute_script_python,
 )
@@ -109,10 +110,9 @@ def main(ctx, env_folder, filestore_folder, log_level):
     elif ctx.invoked_subcommand != "init":
         raise
 
-    logger.debug("context %s: " % ctx.obj)
-
 
 main.add_command(docker_build)
+main.add_command(estimate_workload)
 main.add_command(execute_script_python)
 main.add_command(execute_script_sql)
 main.add_command(generate_module_analysis)

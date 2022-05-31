@@ -39,6 +39,7 @@ single-source = "^0.3"
 git-aggregator = "^2.1"
 docker = "^5.0"
 pyyaml = "5.4.1"
+GitPython = "^3.1"
 
 [tool.poetry.dev-dependencies]
 pytest = [

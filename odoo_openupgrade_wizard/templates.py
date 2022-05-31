@@ -131,3 +131,46 @@ base,Base
 account,Account Module
 web_responsive,Web Responsive Module
 """
+
+ANALYSIS_TEMPLATE = """
+<html>
+  <body>
+    <h1>Migration Analysis</h1>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>Initial Release</th>
+          <th>Final Release</th>
+          <th>Project Name</th>
+          <th>Analysis Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ ctx.obj["config"]["odoo_versions"][0]["release"] }}</td>
+          <td>{{ ctx.obj["config"]["odoo_versions"][-1]["release"] }}</td>
+          <td>{{ ctx.obj["config"]["project_name"] }}</td>
+          <td>{{ current_date }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th> - </th>
+        </tr>
+      </thead>
+      <tbody>
+{%- for odoo_module in analysis.modules -%}
+        <tr>
+          <td>{{odoo_module.name}} ({{odoo_module.module_type}})
+          </td>
+        </tr>
+{% endfor %}
+
+      </tbody>
+    </table>
+  </body>
+</html>
+"""

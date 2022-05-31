@@ -1,5 +1,3 @@
-import csv
-
 import click
 from loguru import logger
 
@@ -7,7 +5,11 @@ from odoo_openupgrade_wizard.cli_options import (
     database_option,
     get_migration_step_from_options,
 )
-from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
+from odoo_openupgrade_wizard.tools_odoo import (
+    get_odoo_modules_from_csv,
+    kill_odoo,
+    run_odoo,
+)
 from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
 from odoo_openupgrade_wizard.tools_postgres import ensure_database
 
@@ -20,23 +22,7 @@ def install_from_csv(ctx, database):
     ensure_database(ctx, database, state="present")
 
     # Get modules list from the CSV file
-    csv_path = ctx.obj["module_file_path"]
-    logger.info("Reading '%s' file ..." % csv_path)
-    module_names = []
-    csvfile = open(csv_path, "r")
-    spamreader = csv.reader(csvfile, delimiter=",", quotechar='"')
-    for row in spamreader:
-        # Try to guess that a line is not correct
-        if not row:
-            continue
-        if not row[0]:
-            continue
-        if " " in row[0]:
-            continue
-        if any([x.isupper() for x in row[0]]):
-            continue
-        module_names.append(row[0])
-
+    module_names = get_odoo_modules_from_csv(ctx.obj["module_file_path"])
     module_names.sort()
     logger.info("Found %d modules." % (len(module_names)))
     logger.debug(module_names)

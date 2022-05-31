@@ -1,4 +1,5 @@
 import configparser
+import csv
 import os
 import sys
 import traceback
@@ -41,7 +42,7 @@ def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
         else:
             addons_path.append(path)
 
-    return ",".join([str(x) for x in addons_path])
+    return addons_path
 
 
 def get_odoo_env_path(ctx, odoo_version: dict) -> Path:
@@ -128,7 +129,14 @@ def generate_odoo_config_file(ctx, migration_step, log_file):
     parser.read(custom_odoo_config_file)
 
     # compute addons_path
-    addons_path = get_odoo_addons_path(ctx, Path("/odoo_env"), migration_step)
+    addons_path = ",".join(
+        [
+            str(x)
+            for x in get_odoo_addons_path(
+                ctx, Path("/odoo_env"), migration_step
+            )
+        ]
+    )
 
     # compute server wides modules
     server_wide_modules = parser.get(
@@ -297,3 +305,22 @@ def execute_click_odoo_python_files(
             raise e
         finally:
             kill_odoo(ctx, migration_step)
+
+
+def get_odoo_modules_from_csv(module_file_path: Path) -> list:
+    logger.info("Reading '%s' file ..." % module_file_path)
+    module_names = []
+    csvfile = open(module_file_path, "r")
+    spamreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+    for row in spamreader:
+        # Try to guess that a line is not correct
+        if not row:
+            continue
+        if not row[0]:
+            continue
+        if " " in row[0]:
+            continue
+        if any([x.isupper() for x in row[0]]):
+            continue
+        module_names.append(row[0])
+    return module_names
