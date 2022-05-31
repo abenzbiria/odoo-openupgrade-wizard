@@ -1,3 +1,18 @@
+# Tools to understand
+
+The library is using many tools. It is recommanded to understand that tools
+to contribute to that project.
+
+* Docker (https://www.docker.com/)
+* Dind (Docker In Docker) for running docker in gitlab-ci. (https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker)
+* Gitlab CI (https://docs.gitlab.com/ee/ci/quick_start/index.html)
+* openupgrade project (https://github.com/oca/openupgrade) and related openupgradelib (https://github.com/oca/openupgradelib)
+* poetry (https://python-poetry.org/)
+* odoorpc (https://github.com/OCA/odoorpc)
+* git-aggregator (https://github.com/acsone/git-aggregator)
+* click-odoo (https://github.com/acsone/click-odoo)
+
+
 # Extra Developper Requirements
 
 If you want to use this library without installing anything in your

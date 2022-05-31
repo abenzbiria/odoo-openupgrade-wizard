@@ -67,9 +67,6 @@ docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set
   locally. (there are extra bugs locally that doesn't occures on gitlab,
   in ``cli_B_03_run_test.py``...
 
-- ``.absolute()`` has been added in test to try to fix some things,
-  but maybe it's not necessary.
-
 - Check if there are default values for containers, limiting ressources.
 
 
