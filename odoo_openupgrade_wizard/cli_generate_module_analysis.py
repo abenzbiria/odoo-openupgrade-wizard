@@ -78,7 +78,7 @@ def generate_module_analysis(ctx, step, database, modules):
             database=initial_database,
             detached_container=True,
         )
-        # # INITIAL : install modules to analyse and generate records
+        # INITIAL : install modules to analyse and generate records
         initial_instance = OdooInstance(ctx, initial_database)
         initial_modules = (
             modules
@@ -112,7 +112,7 @@ def generate_module_analysis(ctx, step, database, modules):
             links={initial_container.name: odoo_initial_host_name},
         )
 
-        # # FINAL : install modules to analyse and generate records
+        # FINAL : install modules to analyse and generate records
         final_instance = OdooInstance(
             ctx,
             final_database,

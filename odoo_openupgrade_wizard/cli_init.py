@@ -82,28 +82,28 @@ def init(
     ]
 
     # Add all upgrade steps
-    count = 2
+    step_nbr = 2
     for odoo_version in odoo_versions[1:]:
         steps.append(
             {
-                "name": count,
+                "name": step_nbr,
                 "action": "upgrade",
                 "release": odoo_version["release"],
                 "complete_name": "step_%s__upgrade__%s"
-                % (str(count).rjust(2, "0"), odoo_version["release"]),
+                % (str(step_nbr).rjust(2, "0"), odoo_version["release"]),
             }
         )
-        count += 1
+        step_nbr += 1
 
     # add final update step
     if len(odoo_versions) > 1:
         steps.append(
             {
-                "name": count,
+                "name": step_nbr,
                 "action": "update",
                 "release": odoo_versions[-1]["release"],
                 "complete_name": "step_%s__update__%s"
-                % (str(count).rjust(2, "0"), odoo_versions[-1]["release"]),
+                % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]["release"]),
             }
         )
 

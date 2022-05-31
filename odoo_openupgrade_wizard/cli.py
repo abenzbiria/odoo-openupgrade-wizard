@@ -106,7 +106,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
         with open(config_file_path) as file:
             config = yaml.safe_load(file)
             ctx.obj["config"] = config
-            file.close()
     elif ctx.invoked_subcommand != "init":
         raise
 

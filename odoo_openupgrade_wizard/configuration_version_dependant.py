@@ -112,8 +112,10 @@ def get_base_module_folder(migration_step: dict) -> str:
 
 
 def skip_addon_path(migration_step: dict, path: Path) -> bool:
-    # if repo.yml contains both odoo and openupgrade repo
-    # we skip one of them (before the refactoring)
+    """return a boolean to indicate if the addon_path should be
+    remove (during the generation of the addons_path).
+    Note : if repo.yml contains both odoo and openupgrade repo
+    we skip one of them (before the V14 refactoring)"""
     return (
         str(path).endswith("/src/odoo")
         or str(path).endswith("src/openupgrade")

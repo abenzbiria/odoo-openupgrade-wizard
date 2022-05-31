@@ -82,8 +82,9 @@ def get_migration_step_from_options(ctx, step_arg):
     for migration_step in ctx.obj["config"]["migration_steps"]:
         if migration_step["name"] == step:
             return migration_step
-    # TODO, improve exception
-    raise Exception
+    raise ValueError(
+        "No migration step found in configuration for step %s" % step_arg
+    )
 
 
 def get_migration_steps_from_options(ctx, first_step_arg, last_step_arg):
@@ -99,7 +100,11 @@ def get_migration_steps_from_options(ctx, first_step_arg, last_step_arg):
     for migration_step in ctx.obj["config"]["migration_steps"]:
         if migration_step["name"] in list(range(first_step, last_step + 1)):
             result.append(migration_step.copy())
-    if not result:
-        # TODO, improve exception
-        raise Exception
-    return result
+    if result:
+        return result
+
+    raise ValueError(
+        "Unable to define steps in configuration"
+        " from options. (first step %s ; last step %s)"
+        % (first_step_arg, last_step_arg)
+    )
