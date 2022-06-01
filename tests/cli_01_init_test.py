@@ -1,30 +1,25 @@
 import filecmp
 from pathlib import Path
 
-from click.testing import CliRunner
-from plumbum.cmd import mkdir
-
-from odoo_openupgrade_wizard.cli import main
+from . import cli_runner_invoke, move_to_test_folder
 
 
 def test_cli_init():
-    output_folder_path = Path("./tests/output_01")
-    expected_folder_path = Path("./tests/output_01_expected")
-    mkdir([output_folder_path, "--parents"])
-    result = CliRunner().invoke(
-        main,
+    move_to_test_folder()
+    expected_folder_path = Path("../output_expected").absolute()
+
+    cli_runner_invoke(
         [
-            "--env-folder=%s" % output_folder_path,
+            "--log-level=DEBUG",
             "init",
-            "--initial-release=9.0",
-            "--final-release=12.0",
-            "--extra-repository="
-            "OCA/web,OCA/server-tools,GRAP/grap-odoo-incubator",
-        ],
+            "--project-name=test-cli",
+            "--initial-release=13.0",
+            "--final-release=14.0",
+            "--extra-repository=OCA/web,OCA/server-tools",
+        ]
     )
-    assert result.exit_code == 0
 
     assert filecmp.cmp(
-        output_folder_path / Path("config.yml"),
+        Path("config.yml"),
         expected_folder_path / Path("config.yml"),
     )

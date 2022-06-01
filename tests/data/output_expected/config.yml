@@ -1,0 +1,32 @@
+
+project_name: test-cli
+
+postgres_image_name: postgres:13
+postgres_container_name: test-cli-db
+
+odoo_host_xmlrpc_port: 9069
+odoo_default_country_code: FR
+
+odoo_versions:
+
+  - release: 13.0
+
+  - release: 14.0
+
+
+migration_steps:
+
+  - name: 1
+    release: 13.0
+    action: update
+    complete_name: step_01__update__13.0
+
+  - name: 2
+    release: 14.0
+    action: upgrade
+    complete_name: step_02__upgrade__14.0
+
+  - name: 3
+    release: 14.0
+    action: update
+    complete_name: step_03__update__14.0

@@ -4,10 +4,10 @@ import click
 
 from odoo_openupgrade_wizard import templates
 from odoo_openupgrade_wizard.configuration_version_dependant import (
-    get_odoo_env_path,
     get_odoo_versions,
     get_release_options,
 )
+from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
 from odoo_openupgrade_wizard.tools_system import (
     ensure_file_exists_from_template,
     ensure_folder_exists,
@@ -15,6 +15,16 @@ from odoo_openupgrade_wizard.tools_system import (
 
 
 @click.command()
+@click.option(
+    "--project-name",
+    required=True,
+    prompt=True,
+    type=str,
+    help="Name of your project without spaces neither special"
+    " chars or uppercases.  exemple 'my-customer-9-12'."
+    " This will be used to tag with a friendly"
+    " name the odoo docker images.",
+)
 @click.option(
     "--initial-release",
     required=True,
@@ -35,9 +45,10 @@ from odoo_openupgrade_wizard.tools_system import (
     "Ex: 'OCA/web,OCA/server-tools,GRAP/grap-odoo-incubator'",
 )
 @click.pass_context
-def init(ctx, initial_release, final_release, extra_repository_list):
-    """
-    Initialize OpenUpgrade Wizard Environment based on the initial and
+def init(
+    ctx, project_name, initial_release, final_release, extra_repository_list
+):
+    """Initialize OpenUpgrade Wizard Environment based on the initial and
     the final release of Odoo you want to migrate.
     """
 
@@ -71,46 +82,69 @@ def init(ctx, initial_release, final_release, extra_repository_list):
     ]
 
     # Add all upgrade steps
-    count = 2
+    step_nbr = 2
     for odoo_version in odoo_versions[1:]:
         steps.append(
             {
-                "name": count,
+                "name": step_nbr,
                 "action": "upgrade",
                 "release": odoo_version["release"],
                 "complete_name": "step_%s__upgrade__%s"
-                % (str(count).rjust(2, "0"), odoo_version["release"]),
+                % (str(step_nbr).rjust(2, "0"), odoo_version["release"]),
             }
         )
-        count += 1
+        step_nbr += 1
 
     # add final update step
-    count += 1
-    steps.append(
-        {
-            "name": count,
-            "action": "update",
-            "release": odoo_versions[-1]["release"],
-            "complete_name": "step_%s__update__%s"
-            % (str(count).rjust(2, "0"), odoo_versions[-1]["release"]),
-        }
-    )
+    if len(odoo_versions) > 1:
+        steps.append(
+            {
+                "name": step_nbr,
+                "action": "update",
+                "release": odoo_versions[-1]["release"],
+                "complete_name": "step_%s__update__%s"
+                % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]["release"]),
+            }
+        )
 
     # 3. ensure src folder exists
     ensure_folder_exists(ctx.obj["src_folder_path"])
 
     # 4. ensure filestore folder exists
-    ensure_folder_exists(ctx.obj["filestore_folder_path"])
+    ensure_folder_exists(
+        ctx.obj["filestore_folder_path"], mode="777", git_ignore_content=True
+    )
 
-    # 5. ensure main configuration file exists
+    # 5. ensure postgres data folder exists
+    ensure_folder_exists(
+        ctx.obj["postgres_folder_path"].parent,
+        mode="777",
+        git_ignore_content=True,
+    )
+    ensure_folder_exists(
+        ctx.obj["postgres_folder_path"],
+        mode="777",
+    )
+
+    # 6. ensure main configuration file exists
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
         templates.CONFIG_YML_TEMPLATE,
+        project_name=project_name,
         steps=steps,
         odoo_versions=odoo_versions,
     )
 
-    # 6. Create one folder per version and add files
+    # 7. Ensure module list file exists
+    ensure_file_exists_from_template(
+        ctx.obj["module_file_path"],
+        templates.MODULES_CSV_TEMPLATE,
+        project_name=project_name,
+        steps=steps,
+        odoo_versions=odoo_versions,
+    )
+
+    # 8. Create one folder per version and add files
     for odoo_version in odoo_versions:
         # Create main path for each version
         path_version = get_odoo_env_path(ctx, odoo_version)
@@ -150,7 +184,12 @@ def init(ctx, initial_release, final_release, extra_repository_list):
             odoo_version=odoo_version,
         )
 
-    # 6. Create one folder per step and add files
+        # Create 'src' folder that will contain all the odoo code
+        ensure_folder_exists(
+            path_version / Path("src"), git_ignore_content=True
+        )
+
+    # 9. Create one folder per step and add files
     ensure_folder_exists(ctx.obj["script_folder_path"])
 
     for step in steps:

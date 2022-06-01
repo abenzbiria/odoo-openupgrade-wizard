@@ -6,10 +6,27 @@ from git_aggregator import main as gitaggregate_cmd
 from git_aggregator.utils import working_directory_keeper
 from jinja2 import Template
 from loguru import logger
-from plumbum.cmd import mkdir
+from plumbum.cmd import chmod, mkdir
+from plumbum.commands.processes import ProcessExecutionError
+
+from odoo_openupgrade_wizard import templates
 
 
-def ensure_folder_exists(folder_path: Path, mode: str = False):
+def get_script_folder(ctx, migration_step: dict) -> Path:
+    return ctx.obj["script_folder_path"] / migration_step["complete_name"]
+
+
+def ensure_folder_writable(folder_path: Path):
+    logger.info("Make writable the folder '%s'" % folder_path)
+    try:
+        chmod(["--silent", "--recursive", "o+w", str(folder_path)])
+    except ProcessExecutionError:
+        pass
+
+
+def ensure_folder_exists(
+    folder_path: Path, mode: str = "755", git_ignore_content: bool = False
+):
     """Create a local folder.
     - directory is created if it doesn't exist.
     - mode is applied if defined.
@@ -17,10 +34,15 @@ def ensure_folder_exists(folder_path: Path, mode: str = False):
     """
     if not folder_path.exists():
         cmd = ["--parents", folder_path]
-        if mode:
-            cmd = ["--mode", "755"] + cmd
+        cmd = ["--mode", mode] + cmd
         logger.info("Creating folder '%s' ..." % (folder_path))
         mkdir(cmd)
+
+    if git_ignore_content:
+        ensure_file_exists_from_template(
+            folder_path / Path(".gitignore"),
+            templates.GIT_IGNORE_CONTENT,
+        )
 
 
 def ensure_file_exists_from_template(
@@ -58,7 +80,7 @@ def git_aggregate(folder_path: Path, config_path: Path):
         do_push=False,
         expand_env=False,
         env_file=None,
-        force=False,
+        force=True,
     )
     with working_directory_keeper:
         os.chdir(folder_path)
