@@ -7,7 +7,9 @@ def releases_options(function):
         "--releases",
         type=str,
         help="Coma-separated values of odoo releases for which"
-        " you want to perform the operation.",
+        " you want to perform the operation."
+        " Let empty to perform the operation on all the releases"
+        " of the project",
     )(function)
     return function
 

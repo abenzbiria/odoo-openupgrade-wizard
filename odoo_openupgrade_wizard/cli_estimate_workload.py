@@ -22,6 +22,8 @@ from odoo_openupgrade_wizard.tools_system import (
 def estimate_workload(ctx, analysis_file_path):
     # Analyse
     analysis = Analysis(ctx)
+    analysis.analyse_module_version(ctx)
+    analysis.analyse_openupgrade_state(ctx)
 
     # Make some clean to display properly
     analysis.modules = sorted(analysis.modules)
@@ -30,7 +32,7 @@ def estimate_workload(ctx, analysis_file_path):
     # TODO, make
     ensure_file_exists_from_template(
         Path(analysis_file_path),
-        templates.ANALYSIS_TEMPLATE,
+        templates.ANALYSIS_HTML_TEMPLATE,
         ctx=ctx,
         analysis=analysis,
         current_date=datetime.now().strftime("%d/%m/%Y %H:%M:%S"),

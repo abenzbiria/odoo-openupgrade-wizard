@@ -228,3 +228,32 @@ def generate_analysis_files(
 
         logger.info("> Launch analysis. This can take a while ...")
         analysis.analyze()
+
+
+def get_apriori_file_relative_path(migration_step: dict) -> (str, Path):
+    """Return the module name and the relative file path of
+    the apriori.py file that contains all the rename and
+    the merge information for a given upgrade."""
+    if migration_step["release"] < 14.0:
+        return ("openupgrade_records", Path("lib/apriori.py"))
+    else:
+        return ("openupgrade_scripts", Path("apriori.py"))
+
+
+def get_coverage_relative_path(migration_step: dict) -> (str, Path):
+    """Return the path of the coverage file."""
+    if migration_step["release"] < 10.0:
+        base_path = Path("src/openupgrade/openerp/openupgrade/doc/source")
+    elif migration_step["release"] < 14.0:
+        base_path = Path("src/openupgrade/odoo/openupgrade/doc/source")
+    else:
+        base_path = Path("src/openupgrade/docsource")
+
+    previous_release = migration_step["release"] - 1
+    return base_path / Path(
+        "modules%s-%s.rst"
+        % (
+            ("%.1f" % previous_release).replace(".", ""),
+            ("%.1f" % migration_step["release"]).replace(".", ""),
+        )
+    )

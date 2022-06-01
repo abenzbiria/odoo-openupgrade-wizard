@@ -126,13 +126,18 @@ GIT_IGNORE_CONTENT = """
 !.gitignore
 """
 
+# TODO, this value are usefull for test for analyse between 13 and 14.
+# move that values in data/extra_script/modules.csv
+# and let this template with only 'base' module.
 MODULES_CSV_TEMPLATE = """
 base,Base
 account,Account Module
 web_responsive,Web Responsive Module
+account_facturx,Account Factur X
+account_bank_statement_import, Account Bank Statement Import
 """
 
-ANALYSIS_TEMPLATE = """
+ANALYSIS_HTML_TEMPLATE = """
 <html>
   <body>
     <h1>Migration Analysis</h1>
@@ -154,19 +159,71 @@ ANALYSIS_TEMPLATE = """
         </tr>
       </tbody>
     </table>
-
+    <br/><hr/><br/>
     <table border="1" width="100%">
       <thead>
         <tr>
-          <th> - </th>
+          <th>&nbsp;</th>
+{%- for odoo_version in ctx.obj["config"]["odoo_versions"] -%}
+          <th>{{ odoo_version["release"] }}</th>
+{% endfor %}
+
         </tr>
       </thead>
       <tbody>
-{%- for odoo_module in analysis.modules -%}
+{% set ns = namespace(
+  current_repository='',
+  current_module_type='',
+) %}
+{% for odoo_module in analysis.modules %}
+
+<!-- ---------------------- -->
+<!-- Handle New Module Type -->
+<!-- ---------------------- -->
+
+  {% if (
+    ns.current_module_type != odoo_module.module_type
+    and odoo_module.module_type != 'odoo') %}
+    {% set ns.current_module_type = odoo_module.module_type %}
         <tr>
-          <td>{{odoo_module.name}} ({{odoo_module.module_type}})
+          <th colspan="{{1 + ctx.obj["config"]["odoo_versions"]|length}}">
+            {{ ns.current_module_type}}
+          </th>
+        <tr>
+  {% endif %}
+
+<!-- -------------------- -->
+<!-- Handle New Repository-->
+<!-- -------------------- -->
+
+  {% if ns.current_repository != odoo_module.repository %}
+    {% set ns.current_repository = odoo_module.repository %}
+        <tr>
+          <th colspan="{{1 + ctx.obj["config"]["odoo_versions"]|length}}">
+            {{ ns.current_repository}}
+          </th>
+        <tr>
+  {% endif %}
+
+<!-- -------------------- -->
+<!-- Display Module Line  -->
+<!-- -------------------- -->
+
+        <tr>
+          <td>{{odoo_module.name}}
           </td>
+  {% for release in odoo_module.analyse.all_releases %}
+    {% set module_version = odoo_module.get_module_version(release) %}
+    {% if module_version %}
+          <td style="background-color:{{module_version.get_bg_color()}};">
+            {{module_version.get_text()}}
+          </td>
+    {% else %}
+          <td style="background-color:gray;">&nbsp;</td>
+    {% endif %}
+  {% endfor %}
         </tr>
+
 {% endfor %}
 
       </tbody>
