@@ -19,11 +19,14 @@ this tool is useful for complex migrations:
 It will create a migration environment (with all the code available)
 and provides helpers to run (and replay) migrations until it works.
 
+* To develop and contribute to the library, refer to the ``DEVELOP.md`` file.
+* Refer to the ``ROADMAP.md`` file to see the current limitation, bugs, and task to do.
+* See authors in the ``CONTRIBUTORS.md`` file.
+
 # Installation
 
 ``pipx install odoo-openupgrade-wizard``.
 
-To develop and contribute to the library, refer to the ``DEVELOP.md`` file.
 
 # Usage
 
