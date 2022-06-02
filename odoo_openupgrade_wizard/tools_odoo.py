@@ -308,7 +308,7 @@ def execute_click_odoo_python_files(
 
 
 def get_odoo_modules_from_csv(module_file_path: Path) -> list:
-    logger.info("Reading '%s' file ..." % module_file_path)
+    logger.debug("Reading '%s' file ..." % module_file_path)
     module_names = []
     csvfile = open(module_file_path, "r")
     spamreader = csv.reader(csvfile, delimiter=",", quotechar='"')

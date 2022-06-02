@@ -18,40 +18,12 @@ from odoo_openupgrade_wizard.tools_odoo import (
 
 class Analysis(object):
     def __init__(self, ctx):
-        module_names = get_odoo_modules_from_csv(ctx.obj["module_file_path"])
-
         self.modules = []
         self.initial_release = ctx.obj["config"]["odoo_versions"][0]["release"]
         self.final_release = ctx.obj["config"]["odoo_versions"][-1]["release"]
         self.all_releases = [
             x["release"] for x in ctx.obj["config"]["odoo_versions"]
         ]
-
-        # Instanciate a new odoo_module
-        for module_name in module_names:
-
-            addon_path = OdooModule.get_addon_path(
-                ctx, module_name, self.initial_release
-            )
-            if addon_path:
-                repository_name = OdooModule.get_repository_name(addon_path)
-                if (
-                    "%s.%s" % (repository_name, module_name)
-                    not in self.modules
-                ):
-                    logger.debug(
-                        "Discovering module '%s' in %s for release %s"
-                        % (module_name, repository_name, self.initial_release)
-                    )
-                    self.modules.append(
-                        OdooModule(ctx, self, module_name, repository_name)
-                    )
-            else:
-                raise ValueError(
-                    "The module %s has not been found in the release %s."
-                    "Analyse can not be done."
-                    % (module_name, self.initial_release)
-                )
 
     def analyse_module_version(self, ctx):
         self._generate_module_version_first_release(ctx)
@@ -100,22 +72,52 @@ class Analysis(object):
             odoo_module.analyse_openupgrade_state(coverage_analysis)
 
     def _generate_module_version_first_release(self, ctx):
+        not_found_modules = []
         logger.info(
             "Analyse version %s. (First Release)" % self.initial_release
         )
-        for odoo_module in self.modules:
-            # Get new name of the module
-            new_name = odoo_module.name
+        module_names = get_odoo_modules_from_csv(ctx.obj["module_file_path"])
+
+        # Instanciate a new odoo_module
+        for module_name in module_names:
 
             addon_path = OdooModule.get_addon_path(
-                ctx, new_name, self.initial_release
+                ctx, module_name, self.initial_release
             )
+            if addon_path:
+                repository_name = OdooModule.get_repository_name(addon_path)
+                if (
+                    "%s.%s" % (repository_name, module_name)
+                    not in self.modules
+                ):
+                    logger.debug(
+                        "Discovering module '%s' in %s for release %s"
+                        % (module_name, repository_name, self.initial_release)
+                    )
+                    new_odoo_module = OdooModule(
+                        ctx, self, module_name, repository_name
+                    )
+                    new_module_version = OdooModuleVersion(
+                        self.initial_release, new_odoo_module, addon_path
+                    )
+                    new_odoo_module.module_versions.update(
+                        {self.initial_release: new_module_version}
+                    )
+                    self.modules.append(new_odoo_module)
+            else:
+                logger.error(
+                    "Module %s not found for release %s."
+                    % (module_name, self.initial_release)
+                )
+                not_found_modules.append(module_name)
 
-            new_module_version = OdooModuleVersion(
-                self.initial_release, odoo_module, addon_path
-            )
-            odoo_module.module_versions.update(
-                {self.initial_release: new_module_version}
+        if not_found_modules:
+            raise ValueError(
+                "The modules %s have not been found in the release %s."
+                " Analyse can not be done. Please update your repos.yml"
+                " of your initial release to add repositories that"
+                " include the modules, then run again the command."
+                % (",".join(not_found_modules), self.initial_release)
             )
 
     def _generate_module_version_next_release(

@@ -36,7 +36,7 @@ and provides helpers to run (and replay) migrations until it works.
 
 ``pipx install odoo-openupgrade-wizard``
 
-(coming soon. Not still deployed on pyp ! See alternative installation
+(coming soon. Not still deployed on pypi ! See alternative installation
 in ``DEVELOP.md`` file.)
 
 # Usage
