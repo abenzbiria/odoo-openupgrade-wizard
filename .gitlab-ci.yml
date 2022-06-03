@@ -13,6 +13,8 @@ pre-commit:
 
 pytest:
   stage: test
+  tags:
+    - shell
   script:
     - python3 -m venv /.gitlab-ci-venv
     - source /.gitlab-ci-venv/bin/activate
