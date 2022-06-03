@@ -30,6 +30,7 @@ docker exec db psql --username=odoo --dbname=test_v12 -c "update res_partner set
   in ``cli_B_03_run_test.py``...
 
 
+- add
 
 # Try gitlab runner
 
@@ -38,3 +39,8 @@ curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-ru
 sudo dpkg -i gitlab-runner_amd64.deb
 
 (https://docs.gitlab.com/runner/install/linux-manually.html)
+
+
+# TODO:
+- check dynamic user id with
+https://github.com/camptocamp/docker-odoo-project/blob/master/bin/docker-entrypoint.sh
