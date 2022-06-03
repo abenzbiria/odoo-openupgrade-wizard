@@ -18,8 +18,8 @@ pytest:
   only:
     - merge_requests
   script:
-    - python3 -m venv /.gitlab-ci-venv
-    - source /.gitlab-ci-venv/bin/activate
+    - python3 -m venv ./.gitlab-ci-venv
+    - source ./.gitlab-ci-venv/bin/activate
     # - pip install --upgrade pip
     - pip install poetry
     - poetry --version
