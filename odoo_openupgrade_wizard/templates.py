@@ -159,7 +159,43 @@ ANALYSIS_HTML_TEMPLATE = """
         </tr>
       </tbody>
     </table>
-    <br/><hr/><br/>
+
+    <h2>Summary</h2>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>Module Type</th>
+          <th>Module Quantity</th>
+          <th>Remaining Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Odoo</td>
+          <td>{{ analysis.get_module_qty("odoo") }}</td>
+          <td>{{ analysis.workload_hour_text("odoo") }}</td>
+        </tr>
+        <tr>
+          <td>OCA</td>
+          <td>{{ analysis.get_module_qty("OCA") }}</td>
+          <td>{{ analysis.workload_hour_text("OCA") }}</td>
+        </tr>
+        <tr>
+          <td>Custom</td>
+          <td>{{ analysis.get_module_qty("custom") }}</td>
+          <td>{{ analysis.workload_hour_text("custom") }}</td>
+        </tr>
+      </tbody>
+      <tfood>
+        <tr>
+          <th>Total</th>
+          <td>{{ analysis.get_module_qty() }}</td>
+          <td>{{ analysis.workload_hour_text() }}</td>
+        </tr>
+      </tfood>
+    </table>
+
+    <h2>Details</h2>
     <table border="1" width="100%">
       <thead>
         <tr>
@@ -215,8 +251,20 @@ ANALYSIS_HTML_TEMPLATE = """
   {% for release in odoo_module.analyse.all_releases %}
     {% set module_version = odoo_module.get_module_version(release) %}
     {% if module_version %}
+      {% set size_text = module_version.get_size_text() %}
+      {% set workload = module_version.workload %}
+
           <td style="background-color:{{module_version.get_bg_color()}};">
             {{module_version.get_text()}}
+
+      {% if size_text %}
+        <span style="color:gray">({{ size_text}})</span>
+      {% endif %}
+      {% if workload %}
+        <span style="background-color:lightblue;">
+          ({{ module_version.workload_hour_text()}})
+        </span>
+      {% endif %}
           </td>
     {% else %}
           <td style="background-color:gray;">&nbsp;</td>

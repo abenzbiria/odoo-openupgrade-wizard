@@ -1,9 +1,11 @@
 import importlib
+import os
 from functools import total_ordering
 from pathlib import Path
 
 from git import Repo
 from loguru import logger
+from pygount import SourceAnalysis
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_apriori_file_relative_path,
@@ -69,7 +71,29 @@ class Analysis(object):
         for odoo_module in filter(
             lambda x: x.module_type == "odoo", self.modules
         ):
-            odoo_module.analyse_openupgrade_state(coverage_analysis)
+            for module_version in list(odoo_module.module_versions.values()):
+                module_version.analyse_openupgrade_state(coverage_analysis)
+
+    def analyse_missing_module(self):
+        for odoo_module in filter(
+            lambda x: x.module_type != "odoo", self.modules
+        ):
+            last_module_version = odoo_module.module_versions.get(
+                self.final_release, False
+            )
+
+            if (
+                not last_module_version.addon_path
+                and last_module_version.state
+                not in ["renamed", "merged", "normal_loss"]
+            ):
+                last_module_version.analyse_missing_module()
+
+    def estimate_workload(self, ctx):
+        logger.info("Estimate workload ...")
+        for odoo_module in self.modules:
+            for module_version in odoo_module.module_versions.values():
+                module_version.estimate_workload(ctx)
 
     def _generate_module_version_first_release(self, ctx):
         not_found_modules = []
@@ -248,6 +272,35 @@ class Analysis(object):
                 }
             )
 
+    def get_module_qty(self, module_type=False):
+        if module_type:
+            odoo_modules = [
+                x
+                for x in filter(
+                    lambda x: x.module_type == module_type, self.modules
+                )
+            ]
+        else:
+            odoo_modules = self.modules
+        return len(odoo_modules)
+
+    def workload_hour_text(self, module_type=False):
+        if module_type:
+            odoo_modules = [
+                x
+                for x in filter(
+                    lambda x: x.module_type == module_type, self.modules
+                )
+            ]
+        else:
+            odoo_modules = self.modules
+
+        total = 0
+        for odoo_module in odoo_modules:
+            for module_version in list(odoo_module.module_versions.values()):
+                total += module_version.workload
+        return "%d h" % (int(round(total / 60)))
+
 
 @total_ordering
 class OdooModule(object):
@@ -267,10 +320,6 @@ class OdooModule(object):
     def get_module_version(self, current_release):
         res = self.module_versions.get(current_release, False)
         return res
-
-    def analyse_openupgrade_state(self, coverage_analysis):
-        for module_version in list(self.module_versions.values()):
-            module_version.analyse_openupgrade_state(coverage_analysis)
 
     @classmethod
     def get_addon_path(cls, ctx, module_name, current_release):
@@ -344,6 +393,28 @@ class OdooModule(object):
 
 
 class OdooModuleVersion(object):
+
+    _exclude_directories = [
+        "lib",
+        "demo",
+        "test",
+        "tests",
+        "doc",
+        "description",
+    ]
+    _exclude_files = ["__openerp__.py", "__manifest__.py"]
+
+    _file_extensions = [".py", ".xml", ".js"]
+
+    # TODO, make all the values configuration
+    # in the main config.yml file
+    _port_minimal_time = 60
+    # 1 hour ~ 60 lines of Python / Javascript
+    _port_per_python_line_time = 1
+    _port_per_javascript_line_time = 1
+    # 1 hour ~ 180 lines of XML
+    _port_per_xml_line_time = 0.33
+
     def __init__(
         self,
         release,
@@ -358,6 +429,87 @@ class OdooModuleVersion(object):
         self.state = state
         self.target_module = target_module
         self.openupgrade_state = ""
+        self.python_code = 0
+        self.xml_code = 0
+        self.javascript_code = 0
+        self.workload = 0
+
+    def get_last_existing_version(self):
+        versions = list(self.odoo_module.module_versions.values())
+        return [x for x in filter(lambda x: x.addon_path, versions)][-1]
+
+    def estimate_workload(self, ctx):
+        if self.state in ["merged", "renamed", "normal_loss"]:
+            # The module has been moved, nothing to do
+            return
+
+        if self.odoo_module.module_type == "odoo":
+            if self.release == self.odoo_module.analyse.initial_release:
+                # No work to do for the initial release
+                return
+            if self.openupgrade_state and (
+                self.openupgrade_state.lower().startswith("done")
+                or self.openupgrade_state.lower().startswith("nothing to do")
+            ):
+                return
+            else:
+                # TODO
+                self.workload = 99
+
+        # OCA / Custom Module
+        if self.release != self.odoo_module.analyse.final_release:
+            # No need to work for intermediate release (in theory ;-))
+            return
+
+        if self.addon_path:
+            # The module has been ported, nothing to do
+            return
+
+        previous_module_version = self.get_last_existing_version()
+        self.workload = (
+            self._port_minimal_time
+            + (
+                self._port_per_python_line_time
+                * previous_module_version.python_code
+            )
+            + (self._port_per_xml_line_time * previous_module_version.xml_code)
+            + (
+                self._port_per_javascript_line_time
+                * previous_module_version.javascript_code
+            )
+        )
+
+    def analyse_size(self):
+        self.python_code = 0
+        self.xml_code = 0
+        self.javascript_code = 0
+        # compute file list to analyse
+        file_list = []
+        for root, dirs, files in os.walk(
+            self.addon_path / Path(self.odoo_module.name), followlinks=True
+        ):
+            if set(Path(root).parts) & set(self._exclude_directories):
+                continue
+            for name in files:
+                if name in self._exclude_files:
+                    continue
+                filename, file_extension = os.path.splitext(name)
+                if file_extension in self._file_extensions:
+                    file_list.append(
+                        (os.path.join(root, name), file_extension)
+                    )
+
+        # Analyse files
+        for file_path, file_ext in file_list:
+            file_res = SourceAnalysis.from_file(
+                file_path, "", encoding="utf-8"
+            )
+            if file_ext == ".py":
+                self.python_code += file_res.code
+            elif file_ext == ".xml":
+                self.xml_code += file_res.code
+            elif file_ext == ".js":
+                self.javascript_code += file_res.code
 
     def analyse_openupgrade_state(self, coverage_analysis):
         if self.release == self.odoo_module.analyse.initial_release:
@@ -365,6 +517,28 @@ class OdooModuleVersion(object):
         self.openupgrade_state = coverage_analysis[self.release].get(
             self.odoo_module.name, False
         )
+
+    def workload_hour_text(self):
+        if not self.workload:
+            return ""
+        return "%d h" % (int(round(self.workload / 60)))
+
+    def get_size_text(self):
+        data = {
+            "Python": self.python_code,
+            "XML": self.xml_code,
+            "JavaScript": self.javascript_code,
+        }
+        # Remove empty values
+        data = {k: v for k, v in data.items() if v}
+        if not data:
+            return ""
+        else:
+            return ", ".join(["%s: %s" % (a, b) for a, b in data.items()])
+
+    def analyse_missing_module(self):
+        last_existing_version = self.get_last_existing_version()
+        last_existing_version.analyse_size()
 
     def get_bg_color(self):
         if self.addon_path:
@@ -428,7 +602,10 @@ class OdooModuleVersion(object):
             elif self.release != self.odoo_module.analyse.final_release:
                 return "Unported"
             else:
-                return "To port"
+                return (
+                    "To port from %s"
+                    % self.get_last_existing_version().release
+                )
 
     def __str__(self):
         return "%s - %s - %s" % (

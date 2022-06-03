@@ -23,7 +23,9 @@ def estimate_workload(ctx, analysis_file_path):
     # Analyse
     analysis = Analysis(ctx)
     analysis.analyse_module_version(ctx)
+    analysis.analyse_missing_module()
     analysis.analyse_openupgrade_state(ctx)
+    analysis.estimate_workload(ctx)
 
     # Make some clean to display properly
     analysis.modules = sorted(analysis.modules)
