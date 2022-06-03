@@ -6,15 +6,17 @@ pre-commit:
   stage: lint
   tags:
     - shell
-  script:
-    - pre-commit run --all --show-diff-on-failure --verbose --color always
   only:
     - merge_requests
+  script:
+    - pre-commit run --all --show-diff-on-failure --verbose --color always
 
 pytest:
   stage: test
   tags:
     - shell
+  only:
+    - merge_requests
   script:
     - python3 -m venv /.gitlab-ci-venv
     - source /.gitlab-ci-venv/bin/activate
