@@ -133,8 +133,6 @@ MODULES_CSV_TEMPLATE = """
 base,Base
 account,Account Module
 web_responsive,Web Responsive Module
-account_facturx,Account Factur X
-account_bank_statement_import, Account Bank Statement Import
 """
 
 ANALYSIS_HTML_TEMPLATE = """

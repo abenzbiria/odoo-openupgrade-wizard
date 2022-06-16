@@ -14,7 +14,6 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
 from odoo_openupgrade_wizard.tools_odoo import (
     get_odoo_addons_path,
     get_odoo_env_path,
-    get_odoo_modules_from_csv,
 )
 
 
@@ -27,8 +26,8 @@ class Analysis(object):
             x["release"] for x in ctx.obj["config"]["odoo_versions"]
         ]
 
-    def analyse_module_version(self, ctx):
-        self._generate_module_version_first_release(ctx)
+    def analyse_module_version(self, ctx, module_list):
+        self._generate_module_version_first_release(ctx, module_list)
 
         for count in range(len(self.all_releases) - 1):
             previous_release = self.all_releases[count]
@@ -95,15 +94,14 @@ class Analysis(object):
             for module_version in odoo_module.module_versions.values():
                 module_version.estimate_workload(ctx)
 
-    def _generate_module_version_first_release(self, ctx):
+    def _generate_module_version_first_release(self, ctx, module_list):
         not_found_modules = []
         logger.info(
             "Analyse version %s. (First Release)" % self.initial_release
         )
-        module_names = get_odoo_modules_from_csv(ctx.obj["module_file_path"])
 
         # Instanciate a new odoo_module
-        for module_name in module_names:
+        for module_name in module_list:
 
             addon_path = OdooModule.get_addon_path(
                 ctx, module_name, self.initial_release
@@ -388,9 +386,6 @@ class OdooModule(object):
         else:
             return self.name < other.name
 
-    def __str__(self):
-        return "%s - %s" % (self.unique_name, self.module_type)
-
 
 class OdooModuleVersion(object):
 
@@ -617,10 +612,3 @@ class OdooModuleVersion(object):
                     "To port from %s"
                     % self.get_last_existing_version().release
                 )
-
-    def __str__(self):
-        return "%s - %s - %s" % (
-            self.odoo_module.name,
-            self.release,
-            self.addon_path,
-        )
