@@ -6,6 +6,11 @@ def get_docker_client():
     return docker.from_env()
 
 
+def pull_image(image_name):
+    client = get_docker_client()
+    client.images.pull(image_name)
+
+
 def build_image(path, tag):
     logger.debug(
         "Building image named based on %s/Dockerfile."
