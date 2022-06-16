@@ -494,7 +494,8 @@ class OdooModuleVersion(object):
         for root, dirs, files in os.walk(
             self.addon_path / Path(self.odoo_module.name), followlinks=True
         ):
-            if set(Path(root).parts) & set(self._exclude_directories):
+            relative_path = os.path.relpath(Path(root), self.addon_path)
+            if set(Path(relative_path).parts) & set(self._exclude_directories):
                 continue
             for name in files:
                 if name in self._exclude_files:
