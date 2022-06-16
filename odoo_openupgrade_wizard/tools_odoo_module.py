@@ -408,12 +408,16 @@ class OdooModuleVersion(object):
 
     # TODO, make all the values configuration
     # in the main config.yml file
-    _port_minimal_time = 60
-    # 1 hour ~ 60 lines of Python / Javascript
-    _port_per_python_line_time = 1
-    _port_per_javascript_line_time = 1
-    # 1 hour ~ 180 lines of XML
-    _port_per_xml_line_time = 0.33
+
+    # port a module requires 45 minutes minimaly
+    _port_minimal_time = 45
+    # a migration cost more for each version
+    _port_per_version = 15
+    # 1 hour ~ 120 lines of Python / Javascript
+    _port_per_python_line_time = 0.5
+    _port_per_javascript_line_time = 0.5
+    # 1 minute ~ 10 lines of XML
+    _port_per_xml_line_time = 0.10
 
     def __init__(
         self,
@@ -467,12 +471,19 @@ class OdooModuleVersion(object):
 
         previous_module_version = self.get_last_existing_version()
         self.workload = (
+            # Minimal port time
             self._port_minimal_time
+            # Add time per release
+            + (self.release - previous_module_version.release)
+            * self._port_per_version
+            # Add python time
             + (
                 self._port_per_python_line_time
                 * previous_module_version.python_code
             )
+            # Add XML Time
             + (self._port_per_xml_line_time * previous_module_version.xml_code)
+            # Add Javascript Time
             + (
                 self._port_per_javascript_line_time
                 * previous_module_version.javascript_code
