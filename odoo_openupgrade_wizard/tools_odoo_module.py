@@ -82,10 +82,12 @@ class Analysis(object):
                 openupgrade_analysis_files = get_openupgrade_analysis_files(
                     odoo_env_path, release
                 )
-                module_version = odoo_module.get_module_version(release)
-                module_version.analyse_openupgrade_work(
-                    openupgrade_analysis_files
-                )
+                # TODO, FIX ME
+                openupgrade_analysis_files = openupgrade_analysis_files
+                # module_version = odoo_module.get_module_version(release)
+                # module_version.analyse_openupgrade_work(
+                #     openupgrade_analysis_files
+                # )
 
     def analyse_missing_module(self):
         for odoo_module in filter(
