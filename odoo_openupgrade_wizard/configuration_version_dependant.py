@@ -257,3 +257,31 @@ def get_coverage_relative_path(migration_step: dict) -> (str, Path):
             ("%.1f" % migration_step["release"]).replace(".", ""),
         )
     )
+
+
+def get_openupgrade_analysis_files(
+    odoo_env_path: Path, release: float
+) -> dict:
+    """return a dictionnary of module_name : path,
+    where module_name is the name of each module of a release
+    and and path is the path of the migration_analysis.txt file
+    of the module"""
+    result = {}
+    if release < 14.0:
+        base_name = "openupgrade_analysis.txt"
+    else:
+        base_name = "upgrade_analysis.txt"
+
+    files = [
+        x
+        for x in sorted(odoo_env_path.rglob("**/*.txt"))
+        if x.name == base_name
+    ]
+
+    for file in files:
+        if file.parent.parent == "migrations":
+            module_name = file.parent.parent.parent.name
+        else:
+            module_name = file.parent.parent.name
+        result[module_name] = file
+    return result

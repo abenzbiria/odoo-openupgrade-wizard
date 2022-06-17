@@ -10,6 +10,7 @@ from pygount import SourceAnalysis
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_apriori_file_relative_path,
     get_coverage_relative_path,
+    get_openupgrade_analysis_files,
 )
 from odoo_openupgrade_wizard.tools_odoo import (
     get_odoo_addons_path,
@@ -72,6 +73,19 @@ class Analysis(object):
         ):
             for module_version in list(odoo_module.module_versions.values()):
                 module_version.analyse_openupgrade_state(coverage_analysis)
+
+        for release in self.all_releases[1:]:
+            for odoo_module in filter(
+                lambda x: x.module_type == "odoo", self.modules
+            ):
+                odoo_env_path = get_odoo_env_path(ctx, {"release": release})
+                openupgrade_analysis_files = get_openupgrade_analysis_files(
+                    odoo_env_path, release
+                )
+                module_version = odoo_module.get_module_version(release)
+                module_version.analyse_openupgrade_work(
+                    openupgrade_analysis_files
+                )
 
     def analyse_missing_module(self):
         for odoo_module in filter(
@@ -419,6 +433,9 @@ class OdooModuleVersion(object):
         self.xml_code = 0
         self.javascript_code = 0
         self.workload = 0
+        self.openupgrade_model_lines = 0
+        self.openupgrade_field_lines = 0
+        self.openupgrade_xml_lines = 0
 
     def get_last_existing_version(self):
         versions = list(self.odoo_module.module_versions.values())
@@ -517,6 +534,17 @@ class OdooModuleVersion(object):
         self.openupgrade_state = coverage_analysis[self.release].get(
             self.odoo_module.name, False
         )
+
+    def analyse_openupgrade_work(self, analysis_files):
+        if self.release == self.odoo_module.analyse.initial_release:
+            return
+        analysis_file = analysis_files.get(self.odoo_module.name, False)
+        if analysis_file:
+            # TODO
+            pass
+        else:
+            # TODO
+            pass
 
     def workload_hour_text(self):
         if not self.workload:
