@@ -6,6 +6,11 @@ def get_docker_client():
     return docker.from_env()
 
 
+def pull_image(image_name):
+    client = get_docker_client()
+    client.images.pull(image_name)
+
+
 def build_image(path, tag):
     logger.debug(
         "Building image named based on %s/Dockerfile."
@@ -34,6 +39,12 @@ def run_container(
     auto_remove=False,
 ):
     client = get_docker_client()
+    if not client.images.list(filters={"reference": image_name}):
+        raise Exception(
+            "The image %s is not available on your system."
+            " Did you run 'odoo-openupgrade-wizard docker-build' ?"
+            % image_name
+        )
 
     logger.debug("Launching Docker container named %s ..." % (image_name))
     debug_docker_command = "docker run --name %s\\\n" % (container_name)

@@ -7,6 +7,7 @@ postgres_container_name: test-cli-db
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
 
+
 odoo_versions:
 
   - release: 13.0
@@ -30,3 +31,21 @@ migration_steps:
     release: 14.0
     action: update
     complete_name: step_03__update__14.0
+
+
+workload_settings:
+
+    # porting a module requires 45 minutes minimaly
+    port_minimal_time: 45
+
+    # a migration cost more for each version
+    port_per_version: 15
+
+    # Porting 120 lines of Python code costs 1 hour
+    port_per_python_line_time: 0.5
+
+    # Porting 120 lines of Python code costs 1 hour
+    port_per_javascript_line_time: 0.5
+
+    # Porting 10 lines of XML costs 1 minute
+    port_per_xml_line_time: 0.10

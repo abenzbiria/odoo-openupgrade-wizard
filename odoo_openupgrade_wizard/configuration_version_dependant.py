@@ -228,3 +228,60 @@ def generate_analysis_files(
 
         logger.info("> Launch analysis. This can take a while ...")
         analysis.analyze()
+
+
+def get_apriori_file_relative_path(migration_step: dict) -> (str, Path):
+    """Return the module name and the relative file path of
+    the apriori.py file that contains all the rename and
+    the merge information for a given upgrade."""
+    if migration_step["release"] < 14.0:
+        return ("openupgrade_records", Path("lib/apriori.py"))
+    else:
+        return ("openupgrade_scripts", Path("apriori.py"))
+
+
+def get_coverage_relative_path(migration_step: dict) -> (str, Path):
+    """Return the path of the coverage file."""
+    if migration_step["release"] < 10.0:
+        base_path = Path("src/openupgrade/openerp/openupgrade/doc/source")
+    elif migration_step["release"] < 14.0:
+        base_path = Path("src/openupgrade/odoo/openupgrade/doc/source")
+    else:
+        base_path = Path("src/openupgrade/docsource")
+
+    previous_release = migration_step["release"] - 1
+    return base_path / Path(
+        "modules%s-%s.rst"
+        % (
+            ("%.1f" % previous_release).replace(".", ""),
+            ("%.1f" % migration_step["release"]).replace(".", ""),
+        )
+    )
+
+
+def get_openupgrade_analysis_files(
+    odoo_env_path: Path, release: float
+) -> dict:
+    """return a dictionnary of module_name : path,
+    where module_name is the name of each module of a release
+    and and path is the path of the migration_analysis.txt file
+    of the module"""
+    result = {}
+    if release < 14.0:
+        base_name = "openupgrade_analysis.txt"
+    else:
+        base_name = "upgrade_analysis.txt"
+
+    files = [
+        x
+        for x in sorted(odoo_env_path.rglob("**/*.txt"))
+        if x.name == base_name
+    ]
+
+    for file in files:
+        if file.parent.parent == "migrations":
+            module_name = file.parent.parent.parent.name
+        else:
+            module_name = file.parent.parent.name
+        result[module_name] = file
+    return result

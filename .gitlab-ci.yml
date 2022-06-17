@@ -1,42 +1,26 @@
-image: docker:19.03
-
-services:
-  - docker:dind
-
 stages:
-  - linting
-  - tests
+  - lint
+  - test
 
-# TODO, fix me : call all the pre-commit stuff instead.
-black:
-  stage: linting
-  image: python
+pre-commit:
+  stage: lint
+  tags:
+    - shell
+  only:
+    - merge_requests
   script:
-      # Install pipx
-    - pip install --user pipx
-    - python -m pipx ensurepath
-    - source ~/.profile
-
-      # Install black
-    - pipx install black
-    - black --version
-
-      # Log
-
-      # Call black Check
-    - black --check .
+    - pre-commit run --all --show-diff-on-failure --verbose --color always
 
 pytest:
-  stage: tests
+  stage: test
+  tags:
+    - shell
+  only:
+    - merge_requests
   script:
-    # Install the the version 3.8. (the version 3.9 is the latest available)
-    # however, docker 19.03 comes with python3.8 and docker 20.10 comes with python3.10
-    - apk add python3==~3.8 python3-dev==~3.8
-    - apk add gcc g++ libffi-dev
-    - apk add git
-    - python3 -m venv /.gitlab-ci-venv
-    - source /.gitlab-ci-venv/bin/activate
-    - pip install --upgrade pip
+    - python3 -m venv ./.gitlab-ci-venv
+    - source ./.gitlab-ci-venv/bin/activate
+    # - pip install --upgrade pip
     - pip install poetry
     - poetry --version
     - poetry install -v
@@ -53,11 +37,5 @@ pytest:
       tests/cli_06_execute_script_sql_test.py
       tests/cli_07_upgrade_test.py
       tests/cli_08_estimate_workload_test.py
-
-    # Disabled test on gitlab-ci :
-    # The following tests should work locally but doesn't on gitlab-ci
-    # because calling OdooRPC on mounted container
-    # in a container (gitlab) doesn't work.
-
-      # tests/cli_20_install_from_csv_test.py
-      # tests/cli_21_generate_module_analysis_test.py
+      tests/cli_20_install_from_csv_test.py
+      tests/cli_21_generate_module_analysis_test.py

@@ -22,6 +22,7 @@ from odoo_openupgrade_wizard.tools_postgres import ensure_database
     " function to stop.",
 )
 @click.option(
+    "-i",
     "--init-modules",
     type=str,
     help="List of modules to install. Equivalent to -i odoo options.",

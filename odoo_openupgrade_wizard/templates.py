@@ -7,6 +7,7 @@ postgres_container_name: {{project_name}}-db
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
 
+
 odoo_versions:
 {% for odoo_version in odoo_versions %}
   - release: {{ odoo_version['release'] }}
@@ -19,6 +20,24 @@ migration_steps:
     action: {{ step['action'] }}
     complete_name: {{ step['complete_name'] }}
 {% endfor %}
+
+workload_settings:
+
+    # porting a module requires 45 minutes minimaly
+    port_minimal_time: 45
+
+    # a migration cost more for each version
+    port_per_version: 15
+
+    # Porting 120 lines of Python code costs 1 hour
+    port_per_python_line_time: 0.5
+
+    # Porting 120 lines of Python code costs 1 hour
+    port_per_javascript_line_time: 0.5
+
+    # Porting 10 lines of XML costs 1 minute
+    port_per_xml_line_time: 0.10
+
 """
 
 REPO_YML_TEMPLATE = """
@@ -126,13 +145,16 @@ GIT_IGNORE_CONTENT = """
 !.gitignore
 """
 
+# TODO, this value are usefull for test for analyse between 13 and 14.
+# move that values in data/extra_script/modules.csv
+# and let this template with only 'base' module.
 MODULES_CSV_TEMPLATE = """
 base,Base
 account,Account Module
 web_responsive,Web Responsive Module
 """
 
-ANALYSIS_TEMPLATE = """
+ANALYSIS_HTML_TEMPLATE = """
 <html>
   <body>
     <h1>Migration Analysis</h1>
@@ -155,18 +177,118 @@ ANALYSIS_TEMPLATE = """
       </tbody>
     </table>
 
+    <h2>Summary</h2>
     <table border="1" width="100%">
       <thead>
         <tr>
-          <th> - </th>
+          <th>Module Type</th>
+          <th>Module Quantity</th>
+          <th>Remaining Hours</th>
         </tr>
       </thead>
       <tbody>
-{%- for odoo_module in analysis.modules -%}
         <tr>
-          <td>{{odoo_module.name}} ({{odoo_module.module_type}})
-          </td>
+          <td>Odoo</td>
+          <td>{{ analysis.get_module_qty("odoo") }}</td>
+          <td>{{ analysis.workload_hour_text("odoo") }}</td>
         </tr>
+        <tr>
+          <td>OCA</td>
+          <td>{{ analysis.get_module_qty("OCA") }}</td>
+          <td>{{ analysis.workload_hour_text("OCA") }}</td>
+        </tr>
+        <tr>
+          <td>Custom</td>
+          <td>{{ analysis.get_module_qty("custom") }}</td>
+          <td>{{ analysis.workload_hour_text("custom") }}</td>
+        </tr>
+      </tbody>
+      <tfood>
+        <tr>
+          <th>Total</th>
+          <td>{{ analysis.get_module_qty() }}</td>
+          <td>{{ analysis.workload_hour_text() }}</td>
+        </tr>
+      </tfood>
+    </table>
+
+    <h2>Details</h2>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+{%- for odoo_version in ctx.obj["config"]["odoo_versions"] -%}
+          <th>{{ odoo_version["release"] }}</th>
+{% endfor %}
+
+        </tr>
+      </thead>
+      <tbody>
+{% set ns = namespace(
+  current_repository='',
+  current_module_type='',
+) %}
+{% for odoo_module in analysis.modules %}
+
+<!-- ---------------------- -->
+<!-- Handle New Module Type -->
+<!-- ---------------------- -->
+
+  {% if (
+    ns.current_module_type != odoo_module.module_type
+    and odoo_module.module_type != 'odoo') %}
+    {% set ns.current_module_type = odoo_module.module_type %}
+        <tr>
+          <th colspan="{{1 + ctx.obj["config"]["odoo_versions"]|length}}">
+            {{ ns.current_module_type}}
+          </th>
+        <tr>
+  {% endif %}
+
+<!-- -------------------- -->
+<!-- Handle New Repository-->
+<!-- -------------------- -->
+
+  {% if ns.current_repository != odoo_module.repository %}
+    {% set ns.current_repository = odoo_module.repository %}
+        <tr>
+          <th colspan="{{1 + ctx.obj["config"]["odoo_versions"]|length}}">
+            {{ ns.current_repository}}
+          </th>
+        <tr>
+  {% endif %}
+
+<!-- -------------------- -->
+<!-- Display Module Line  -->
+<!-- -------------------- -->
+
+        <tr>
+          <td>{{odoo_module.name}}
+          </td>
+  {% for release in odoo_module.analyse.all_releases %}
+    {% set module_version = odoo_module.get_module_version(release) %}
+    {% if module_version %}
+      {% set size_text = module_version.get_size_text() %}
+      {% set workload = module_version.workload %}
+
+          <td style="background-color:{{module_version.get_bg_color()}};">
+            {{module_version.get_text()}}
+
+      {% if size_text %}
+        <span style="color:gray">({{ size_text}})</span>
+      {% endif %}
+      {% if workload %}
+        <span style="background-color:lightblue;">
+          ({{ module_version.workload_hour_text()}})
+        </span>
+      {% endif %}
+          </td>
+    {% else %}
+          <td style="background-color:gray;">&nbsp;</td>
+    {% endif %}
+  {% endfor %}
+        </tr>
+
 {% endfor %}
 
       </tbody>

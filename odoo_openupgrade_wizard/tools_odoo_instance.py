@@ -85,30 +85,6 @@ class OdooInstance:
         model = self.env[model_name]
         return model.browse(model.create(vals))
 
-    def check_modules_installed(self, module_names) -> bool:
-        if type(module_names) == str:
-            module_names = [module_names]
-        installed_module_ids = self.env["ir.module.module"].search(
-            [
-                ("name", "in", module_names),
-                ("state", "=", "installed"),
-            ]
-        )
-        return len(module_names) == len(installed_module_ids)
-
-    def check_models_present(
-        self, model_name, warning_if_not_found=True
-    ) -> bool:
-        if self.env["ir.model"].search([("model", "=", model_name)]):
-            return True
-        else:
-            if warning_if_not_found:
-                logger.warning(
-                    "Model '%s' not found."
-                    " Part of the script will be skipped." % (model_name)
-                )
-            return False
-
     def install_modules(self, module_names):
         if type(module_names) == str:
             module_names = [module_names]
@@ -171,40 +147,3 @@ class OdooInstance:
                     % (prefix, module_name, module.state)
                 )
         return installed_modules
-
-    def uninstall_modules(self, module_names):
-        if type(module_names) == str:
-            module_names = [module_names]
-        i = 0
-        for module_name in module_names:
-            i += 1
-            prefix = str(i) + "/" + str(len(module_names))
-            modules = self.browse_by_search(
-                "ir.module.module", [("name", "=", module_name)]
-            )
-            if not len(modules):
-                logger.error(
-                    "%s - Module '%s': Not found." % (prefix, module_name)
-                )
-                continue
-            module = modules[0]
-            if module.state in (
-                "installed",
-                "to upgrade",
-                "to update",
-                "to remove",
-            ):
-                logger.info(
-                    "%s - Module '%s': Uninstalling .." % (prefix, module_name)
-                )
-                module.button_upgrade_cancel()
-                module.button_uninstall()
-                wizard = self.browse_by_create("base.module.upgrade", {})
-                wizard.upgrade_module()
-
-            else:
-                logger.error(
-                    "%s - Module '%s': In the %s state."
-                    " (Unable to uninstall)"
-                    % (prefix, module_name, module.state)
-                )
