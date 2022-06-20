@@ -38,6 +38,18 @@ workload_settings:
     # Porting 10 lines of XML costs 1 minute
     port_per_xml_line_time: 0.10
 
+    # Minimal time for Openupgrade PR
+    open_upgrade_minimal_time: 10
+
+    # time for a line of model in the openupgrade_analysis.txt
+    openupgrade_model_line_time: 10
+
+    # Time for a line of field in the openupgrade_analysis.txt
+    openupgrade_field_line_time: 5
+
+    # Time for a line of XML in the openupgrade_analysis.txt
+    openupgrade_xml_line_time: 0.1
+
 """
 
 REPO_YML_TEMPLATE = """
@@ -269,19 +281,32 @@ ANALYSIS_HTML_TEMPLATE = """
     {% set module_version = odoo_module.get_module_version(release) %}
     {% if module_version %}
       {% set size_text = module_version.get_size_text() %}
+      {% set analysis_text = module_version.get_analysis_text() %}
       {% set workload = module_version.workload %}
 
           <td style="background-color:{{module_version.get_bg_color()}};">
             {{module_version.get_text()}}
 
-      {% if size_text %}
-        <span style="color:gray">({{ size_text}})</span>
-      {% endif %}
       {% if workload %}
         <span style="background-color:lightblue;">
           ({{ module_version.workload_hour_text()}})
         </span>
       {% endif %}
+      {% if size_text %}
+        <br/>
+        <span style="color:gray;font-size:11px;font-family:monospace;">
+          ({{ size_text}})
+        </span>
+      {% endif %}
+      {% if analysis_text %}
+        <br/>
+        <span style="color:gray;font-size:11px;font-family:monospace;">
+          <a href="{{module_version.analysis_url()}}" target="_blank">
+          ({{ analysis_text}})
+          </a>
+        </span>
+      {% endif %}
+
           </td>
     {% else %}
           <td style="background-color:gray;">&nbsp;</td>

@@ -279,9 +279,14 @@ def get_openupgrade_analysis_files(
     ]
 
     for file in files:
-        if file.parent.parent == "migrations":
+        # this part doesn't depends only of the release
+        # 14+ module can have migrations folder.
+        if file.parent.parent.name == "migrations":
             module_name = file.parent.parent.parent.name
         else:
             module_name = file.parent.parent.name
         result[module_name] = file
+    logger.debug(
+        "Release %s : %d analysis files found." % (release, len(result))
+    )
     return result
