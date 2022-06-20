@@ -75,19 +75,19 @@ class Analysis(object):
                 module_version.analyse_openupgrade_state(coverage_analysis)
 
         for release in self.all_releases[1:]:
+            odoo_env_path = get_odoo_env_path(ctx, {"release": release})
+            openupgrade_analysis_files = get_openupgrade_analysis_files(
+                odoo_env_path, release
+            )
+            openupgrade_analysis_files = openupgrade_analysis_files
             for odoo_module in filter(
                 lambda x: x.module_type == "odoo", self.modules
             ):
-                odoo_env_path = get_odoo_env_path(ctx, {"release": release})
-                openupgrade_analysis_files = get_openupgrade_analysis_files(
-                    odoo_env_path, release
-                )
-                # TODO, FIX ME
-                openupgrade_analysis_files = openupgrade_analysis_files
-                # module_version = odoo_module.get_module_version(release)
-                # module_version.analyse_openupgrade_work(
-                #     openupgrade_analysis_files
-                # )
+                module_version = odoo_module.get_module_version(release)
+                if module_version:
+                    module_version.analyse_openupgrade_work(
+                        openupgrade_analysis_files
+                    )
 
     def analyse_missing_module(self):
         for odoo_module in filter(
@@ -435,6 +435,7 @@ class OdooModuleVersion(object):
         self.xml_code = 0
         self.javascript_code = 0
         self.workload = 0
+        self.analysis_file = False
         self.openupgrade_model_lines = 0
         self.openupgrade_field_lines = 0
         self.openupgrade_xml_lines = 0
@@ -452,6 +453,10 @@ class OdooModuleVersion(object):
             "port_per_javascript_line_time"
         ]
         port_per_xml_line_time = settings["port_per_xml_line_time"]
+        open_upgrade_minimal_time = settings["open_upgrade_minimal_time"]
+        openupgrade_model_line_time = settings["openupgrade_model_line_time"]
+        openupgrade_field_line_time = settings["openupgrade_field_line_time"]
+        openupgrade_xml_line_time = settings["openupgrade_xml_line_time"]
 
         if self.state in ["merged", "renamed", "normal_loss"]:
             # The module has been moved, nothing to do
@@ -467,8 +472,22 @@ class OdooModuleVersion(object):
             ):
                 return
             else:
-                # TODO
-                self.workload = 99
+                self.workload = (
+                    # Minimal openupgrade time
+                    open_upgrade_minimal_time
+                    # Add model time
+                    + (
+                        openupgrade_model_line_time
+                        * self.openupgrade_model_lines
+                    )
+                    # Add field Time
+                    + (
+                        openupgrade_field_line_time
+                        * self.openupgrade_field_lines
+                    )
+                    # Add XML Time
+                    + (openupgrade_xml_line_time * self.openupgrade_xml_lines)
+                )
 
         # OCA / Custom Module
         if self.release != self.odoo_module.analyse.final_release:
@@ -541,17 +560,41 @@ class OdooModuleVersion(object):
         if self.release == self.odoo_module.analyse.initial_release:
             return
         analysis_file = analysis_files.get(self.odoo_module.name, False)
-        if analysis_file:
-            # TODO
-            pass
-        else:
-            # TODO
-            pass
+
+        if not analysis_file:
+            return
+
+        self.analysis_file = analysis_file
+        with open(analysis_file, "r") as input_file:
+            line_type = False
+            for line in input_file.readlines():
+                if line.startswith("---Models in module"):
+                    line_type = "model"
+                    continue
+                elif line.startswith("---Fields in module"):
+                    line_type = "field"
+                    continue
+                elif line.startswith("---XML records in module"):
+                    line_type = "xml"
+                    continue
+                elif line.startswith("---nothing has changed in this module"):
+                    continue
+                elif line.startswith("---"):
+                    raise Exception("comment %s not undestood" % line)
+
+                if line_type == "model":
+                    self.openupgrade_model_lines += 1
+                elif line_type == "field":
+                    self.openupgrade_field_lines += 1
+                elif line_type == "xml":
+                    self.openupgrade_xml_lines += 1
 
     def workload_hour_text(self):
         if not self.workload:
             return ""
-        return "%d h" % (int(round(self.workload / 60)))
+        hour = int(self.workload // 60)
+        minute = round(self.workload % 60)
+        return f"{hour}h{minute:02}"
 
     def get_size_text(self):
         data = {
@@ -565,6 +608,22 @@ class OdooModuleVersion(object):
             return ""
         else:
             return ", ".join(["%s: %s" % (a, b) for a, b in data.items()])
+
+    def get_analysis_text(self):
+        data = {
+            "Model": self.openupgrade_model_lines,
+            "Field": self.openupgrade_field_lines,
+            "XML": self.openupgrade_xml_lines,
+        }
+        # Remove empty values
+        data = {k: v for k, v in data.items() if v}
+        if not data:
+            return ""
+        else:
+            return ", ".join(["%s: %s" % (a, b) for a, b in data.items()])
+
+    def analysis_url(self):
+        return os.path.relpath(self.analysis_file, Path(os.getcwd()))
 
     def analyse_missing_module(self):
         last_existing_version = self.get_last_existing_version()
