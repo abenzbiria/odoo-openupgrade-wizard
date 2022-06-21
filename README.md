@@ -88,7 +88,7 @@ config.yml
 modules.csv
 ```
 
-* ``config.xml`` is the main configuration file of your project.
+* ``config.yml`` is the main configuration file of your project.
 
 * ``modules.csv`` file is an optional file. You can fill it with the list
   of your modules installed on your production. The first column of this
@@ -239,6 +239,11 @@ Install the list of the modules defined in your ``modules.csv`` files on the
 given database.
 
 The database will be created, if it doesn't exists.
+
+To get a correct ``modules.csv`` file, the following query can be used:
+```
+psql -c "copy (select name, shortdesc from ir_module_module where state = 'installed' order by 1) to stdout csv" coopiteasy
+```
 
 
 
