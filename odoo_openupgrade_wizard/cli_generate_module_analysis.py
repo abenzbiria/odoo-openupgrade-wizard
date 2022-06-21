@@ -48,11 +48,11 @@ def generate_module_analysis(ctx, step, database, modules):
 
     initial_database = "%s_%s" % (
         database,
-        str(initial_step["release"]).replace(".", ""),
+        str(initial_step["version"]).replace(".", ""),
     )
     final_database = "%s_%s" % (
         database,
-        str(final_step["release"]).replace(".", ""),
+        str(final_step["version"]).replace(".", ""),
     )
 
     modules = modules and modules.split(",") or []
@@ -131,7 +131,7 @@ def generate_module_analysis(ctx, step, database, modules):
         # group to make possible to write analysis files
         # for docker container user
         ensure_folder_writable(
-            get_odoo_env_path(ctx, {"release": final_step["release"]}) / "src"
+            get_odoo_env_path(ctx, final_step["version"]) / "src"
         )
 
         generate_analysis_files(

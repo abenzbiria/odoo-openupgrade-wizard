@@ -9,7 +9,7 @@ def test_cli_docker_build():
         [
             "--log-level=DEBUG",
             "docker-build",
-            "--releases=13.0,14.0",
+            "--versions=13.0,14.0",
         ]
     )
 

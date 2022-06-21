@@ -5,7 +5,9 @@ import click
 from odoo_openupgrade_wizard import templates
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_odoo_versions,
-    get_release_options,
+    get_python_libraries,
+    get_python_major_version,
+    get_version_options,
 )
 from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
 from odoo_openupgrade_wizard.tools_system import (
@@ -26,16 +28,16 @@ from odoo_openupgrade_wizard.tools_system import (
     " name the odoo docker images.",
 )
 @click.option(
-    "--initial-release",
+    "--initial-version",
     required=True,
     prompt=True,
-    type=click.Choice(get_release_options("initial")),
+    type=click.Choice(get_version_options("initial")),
 )
 @click.option(
-    "--final-release",
+    "--final-version",
     required=True,
     prompt=True,
-    type=click.Choice(get_release_options("final")),
+    type=click.Choice(get_version_options("final")),
 )
 @click.option(
     "--extra-repository",
@@ -46,10 +48,10 @@ from odoo_openupgrade_wizard.tools_system import (
 )
 @click.pass_context
 def init(
-    ctx, project_name, initial_release, final_release, extra_repository_list
+    ctx, project_name, initial_version, final_version, extra_repository_list
 ):
     """Initialize OpenUpgrade Wizard Environment based on the initial and
-    the final release of Odoo you want to migrate.
+    the final version of Odoo you want to migrate.
     """
 
     # Handle arguments
@@ -65,7 +67,7 @@ def init(
 
     # 1. Compute Odoo versions
     odoo_versions = get_odoo_versions(
-        float(initial_release), float(final_release)
+        float(initial_version), float(final_version)
     )
 
     # 2. Compute Migration Steps
@@ -75,9 +77,8 @@ def init(
         {
             "name": 1,
             "execution_context": "regular",
-            "release": odoo_versions[0]["release"],
-            "complete_name": "step_01__update__%s"
-            % (odoo_versions[0]["release"]),
+            "version": odoo_versions[0],
+            "complete_name": "step_01__update__%s" % (odoo_versions[0]),
         }
     ]
 
@@ -88,9 +89,9 @@ def init(
             {
                 "name": step_nbr,
                 "execution_context": "openupgrade",
-                "release": odoo_version["release"],
+                "version": odoo_version,
                 "complete_name": "step_%s__upgrade__%s"
-                % (str(step_nbr).rjust(2, "0"), odoo_version["release"]),
+                % (str(step_nbr).rjust(2, "0"), odoo_version),
             }
         )
         step_nbr += 1
@@ -101,9 +102,9 @@ def init(
             {
                 "name": step_nbr,
                 "execution_context": "regular",
-                "release": odoo_versions[-1]["release"],
+                "version": odoo_versions[-1],
                 "complete_name": "step_%s__update__%s"
-                % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]["release"]),
+                % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]),
             }
         )
 
@@ -154,7 +155,7 @@ def init(
         ensure_file_exists_from_template(
             path_version / Path("python_requirements.txt"),
             templates.PYTHON_REQUIREMENTS_TXT_TEMPLATE,
-            python_libraries=odoo_version["python_libraries"],
+            python_libraries=get_python_libraries(odoo_version),
         )
 
         # Create debian requirements file
@@ -182,6 +183,7 @@ def init(
             path_version / Path("Dockerfile"),
             templates.DOCKERFILE_TEMPLATE,
             odoo_version=odoo_version,
+            python_major_version=get_python_major_version(odoo_version),
         )
 
         # Create 'src' folder that will contain all the odoo code

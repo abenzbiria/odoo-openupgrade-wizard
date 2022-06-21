@@ -21,29 +21,27 @@ from odoo_openupgrade_wizard.tools_odoo import (
 class Analysis(object):
     def __init__(self, ctx):
         self.modules = []
-        self.initial_release = ctx.obj["config"]["odoo_versions"][0]["release"]
-        self.final_release = ctx.obj["config"]["odoo_versions"][-1]["release"]
-        self.all_releases = [
-            x["release"] for x in ctx.obj["config"]["odoo_versions"]
-        ]
+        self.initial_version = ctx.obj["config"]["odoo_versions"][0]
+        self.final_version = ctx.obj["config"]["odoo_versions"][-1]
+        self.all_versions = [x for x in ctx.obj["config"]["odoo_versions"]]
 
     def analyse_module_version(self, ctx, module_list):
-        self._generate_module_version_first_release(ctx, module_list)
+        self._generate_module_version_first_version(ctx, module_list)
 
-        for count in range(len(self.all_releases) - 1):
-            previous_release = self.all_releases[count]
-            current_release = self.all_releases[count + 1]
-            self._generate_module_version_next_release(
-                ctx, previous_release, current_release
+        for count in range(len(self.all_versions) - 1):
+            previous_version = self.all_versions[count]
+            current_version = self.all_versions[count + 1]
+            self._generate_module_version_next_version(
+                ctx, previous_version, current_version
             )
 
     def analyse_openupgrade_state(self, ctx):
         logger.info("Parsing openupgrade module coverage for each migration.")
         coverage_analysis = {}
-        for release in self.all_releases[1:]:
-            coverage_analysis[release] = {}
-            relative_path = get_coverage_relative_path({"release": release})
-            env_folder_path = get_odoo_env_path(ctx, {"release": release})
+        for version in self.all_versions[1:]:
+            coverage_analysis[version] = {}
+            relative_path = get_coverage_relative_path(version)
+            env_folder_path = get_odoo_env_path(ctx, version)
             coverage_path = env_folder_path / relative_path
             with open(coverage_path) as f:
                 lines = f.readlines()
@@ -55,11 +53,11 @@ class Analysis(object):
                 )
                 splited_line = [x.strip() for x in clean_line.split("|") if x]
                 if len(splited_line) == 2:
-                    coverage_analysis[release][splited_line[0]] = splited_line[
+                    coverage_analysis[version][splited_line[0]] = splited_line[
                         1
                     ]
                 if len(splited_line) == 3:
-                    coverage_analysis[release][splited_line[0]] = (
+                    coverage_analysis[version][splited_line[0]] = (
                         splited_line[1] + " " + splited_line[2]
                     ).strip()
                 elif len(splited_line) > 3:
@@ -74,16 +72,16 @@ class Analysis(object):
             for module_version in list(odoo_module.module_versions.values()):
                 module_version.analyse_openupgrade_state(coverage_analysis)
 
-        for release in self.all_releases[1:]:
-            odoo_env_path = get_odoo_env_path(ctx, {"release": release})
+        for version in self.all_versions[1:]:
+            odoo_env_path = get_odoo_env_path(ctx, version)
             openupgrade_analysis_files = get_openupgrade_analysis_files(
-                odoo_env_path, release
+                odoo_env_path, version
             )
             openupgrade_analysis_files = openupgrade_analysis_files
             for odoo_module in filter(
                 lambda x: x.module_type == "odoo", self.modules
             ):
-                module_version = odoo_module.get_module_version(release)
+                module_version = odoo_module.get_module_version(version)
                 if module_version:
                     module_version.analyse_openupgrade_work(
                         openupgrade_analysis_files
@@ -94,7 +92,7 @@ class Analysis(object):
             lambda x: x.module_type != "odoo", self.modules
         ):
             last_module_version = odoo_module.module_versions.get(
-                self.final_release, False
+                self.final_version, False
             )
 
             if (
@@ -110,17 +108,17 @@ class Analysis(object):
             for module_version in odoo_module.module_versions.values():
                 module_version.estimate_workload(ctx)
 
-    def _generate_module_version_first_release(self, ctx, module_list):
+    def _generate_module_version_first_version(self, ctx, module_list):
         not_found_modules = []
         logger.info(
-            "Analyse version %s. (First Release)" % self.initial_release
+            "Analyse version %s. (First version)" % self.initial_version
         )
 
         # Instanciate a new odoo_module
         for module_name in module_list:
 
             addon_path = OdooModule.get_addon_path(
-                ctx, module_name, self.initial_release
+                ctx, module_name, self.initial_version
             )
             if addon_path:
                 repository_name = OdooModule.get_repository_name(addon_path)
@@ -129,54 +127,54 @@ class Analysis(object):
                     not in self.modules
                 ):
                     logger.debug(
-                        "Discovering module '%s' in %s for release %s"
-                        % (module_name, repository_name, self.initial_release)
+                        "Discovering module '%s' in %s for version %s"
+                        % (module_name, repository_name, self.initial_version)
                     )
                     new_odoo_module = OdooModule(
                         ctx, self, module_name, repository_name
                     )
                     new_module_version = OdooModuleVersion(
-                        self.initial_release, new_odoo_module, addon_path
+                        self.initial_version, new_odoo_module, addon_path
                     )
                     new_odoo_module.module_versions.update(
-                        {self.initial_release: new_module_version}
+                        {self.initial_version: new_module_version}
                     )
                     self.modules.append(new_odoo_module)
             else:
                 logger.error(
-                    "Module %s not found for release %s."
-                    % (module_name, self.initial_release)
+                    "Module %s not found for version %s."
+                    % (module_name, self.initial_version)
                 )
                 not_found_modules.append(module_name)
 
         if not_found_modules:
             raise ValueError(
-                "The modules %s have not been found in the release %s."
+                "The modules %s have not been found in the version %s."
                 " Analyse can not be done. Please update your repos.yml"
-                " of your initial release to add repositories that"
+                " of your initial version to add repositories that"
                 " include the modules, then run again the command."
-                % (",".join(not_found_modules), self.initial_release)
+                % (",".join(not_found_modules), self.initial_version)
             )
 
-    def _generate_module_version_next_release(
-        self, ctx, previous_release, current_release
+    def _generate_module_version_next_version(
+        self, ctx, previous_version, current_version
     ):
         logger.info(
             "Analyse change between %s and %s"
-            % (previous_release, current_release)
+            % (previous_version, current_version)
         )
-        # Get changes between the two releases
+        # Get changes between the two versions
         (
             apriori_module_name,
             apriori_relative_path,
-        ) = get_apriori_file_relative_path({"release": current_release})
+        ) = get_apriori_file_relative_path(current_version)
         apriori_module_path = OdooModule.get_addon_path(
-            ctx, apriori_module_name, current_release
+            ctx, apriori_module_name, current_version
         )
         if not apriori_module_path:
             raise ValueError(
-                "Unable to find the path of the module %s for the release %s"
-                % (apriori_module_name, current_release)
+                "Unable to find the path of the module %s for the version %s"
+                % (apriori_module_name, current_version)
             )
         apriori_absolute_path = (
             apriori_module_path
@@ -202,8 +200,8 @@ class Analysis(object):
                 logger.debug(
                     "%s -> %s : %s renamed into %s"
                     % (
-                        previous_release,
-                        current_release,
+                        previous_version,
+                        current_version,
                         odoo_module.name,
                         new_module_name,
                     )
@@ -214,8 +212,8 @@ class Analysis(object):
                 logger.debug(
                     "%s -> %s : %s merged into %s"
                     % (
-                        previous_release,
-                        current_release,
+                        previous_version,
+                        current_version,
                         odoo_module.name,
                         new_module_name,
                     )
@@ -225,13 +223,13 @@ class Analysis(object):
             if state and new_module_name != odoo_module.name:
                 # Ensure that the module exists in self.modules
                 new_addon_path = OdooModule.get_addon_path(
-                    ctx, new_module_name, current_release
+                    ctx, new_module_name, current_version
                 )
                 if not new_addon_path:
                     raise ValueError(
-                        "The module %s has not been found in the release %s."
+                        "The module %s has not been found in the version %s."
                         " Analyse can not be done."
-                        % (new_module_name, current_release)
+                        % (new_module_name, current_version)
                     )
                 else:
                     new_repository_name = OdooModule.get_repository_name(
@@ -242,11 +240,11 @@ class Analysis(object):
                         not in self.modules
                     ):
                         logger.debug(
-                            "Discovering module '%s' in %s for release %s"
+                            "Discovering module '%s' in %s for version %s"
                             % (
                                 new_module_name,
                                 new_repository_name,
-                                current_release,
+                                current_version,
                             )
                         )
                         new_odoo_module = OdooModule(
@@ -255,19 +253,19 @@ class Analysis(object):
                         self.modules.append(new_odoo_module)
                         new_odoo_module.module_versions.update(
                             {
-                                current_release: OdooModuleVersion(
-                                    current_release,
+                                current_version: OdooModuleVersion(
+                                    current_version,
                                     new_odoo_module,
                                     new_addon_path,
                                 )
                             }
                         )
 
-            # Get the previous release of the module
+            # Get the previous version of the module
             previous_module_version = odoo_module.get_module_version(
-                previous_release
+                previous_version
             )
-            # if the previous release has been renamed or merged
+            # if the previous version has been renamed or merged
             # the loss is normal
             if previous_module_version and previous_module_version.state in [
                 "merged",
@@ -277,12 +275,12 @@ class Analysis(object):
                 state = "normal_loss"
 
             new_addon_path = OdooModule.get_addon_path(
-                ctx, odoo_module.name, current_release
+                ctx, odoo_module.name, current_version
             )
             odoo_module.module_versions.update(
                 {
-                    current_release: OdooModuleVersion(
-                        current_release,
+                    current_version: OdooModuleVersion(
+                        current_version,
                         odoo_module,
                         new_addon_path,
                         state=state,
@@ -336,23 +334,23 @@ class OdooModule(object):
         else:
             self.module_type = "custom"
 
-    def get_module_version(self, current_release):
-        res = self.module_versions.get(current_release, False)
+    def get_module_version(self, current_version):
+        res = self.module_versions.get(current_version, False)
         return res
 
     @classmethod
-    def get_addon_path(cls, ctx, module_name, current_release):
-        """Search the module in all the addons path of the current release
+    def get_addon_path(cls, ctx, module_name, current_version):
+        """Search the module in all the addons path of a given version
         and return the addon path of the module, or False if not found.
         For exemple find_repository(ctx, 'web_responsive', 12.0)
         '/PATH_TO_LOCAL_ENV/src/OCA/web'
         """
         # Try to find the repository that contains the module
-        main_path = get_odoo_env_path(ctx, {"release": current_release})
+        main_path = get_odoo_env_path(ctx, current_version)
         addons_path = get_odoo_addons_path(
             ctx,
             main_path,
-            {"release": current_release, "execution_context": "openupgrade"},
+            {"version": current_version, "execution_context": "openupgrade"},
         )
         for addon_path in addons_path:
             if (addon_path / module_name).exists():
@@ -427,13 +425,13 @@ class OdooModuleVersion(object):
 
     def __init__(
         self,
-        release,
+        version,
         odoo_module,
         addon_path,
         state=False,
         target_module=False,
     ):
-        self.release = release
+        self.version = version
         self.odoo_module = odoo_module
         self.addon_path = addon_path
         self.state = state
@@ -471,8 +469,8 @@ class OdooModuleVersion(object):
             return
 
         if self.odoo_module.module_type == "odoo":
-            if self.release == self.odoo_module.analyse.initial_release:
-                # No work to do for the initial release
+            if self.version == self.odoo_module.analyse.initial_version:
+                # No work to do for the initial version
                 return
             if self.openupgrade_state and (
                 self.openupgrade_state.lower().startswith("done")
@@ -498,8 +496,8 @@ class OdooModuleVersion(object):
                 )
 
         # OCA / Custom Module
-        if self.release != self.odoo_module.analyse.final_release:
-            # No need to work for intermediate release (in theory ;-))
+        if self.version != self.odoo_module.analyse.final_version:
+            # No need to work for intermediate version (in theory ;-))
             return
 
         if self.addon_path:
@@ -510,8 +508,8 @@ class OdooModuleVersion(object):
         self.workload = (
             # Minimal port time
             port_minimal_time
-            # Add time per release
-            + (self.release - previous_module_version.release)
+            # Add time per version
+            + (self.version - previous_module_version.version)
             * port_per_version
             # Add python time
             + (port_per_python_line_time * previous_module_version.python_code)
@@ -558,14 +556,14 @@ class OdooModuleVersion(object):
                 self.javascript_code += file_res.code
 
     def analyse_openupgrade_state(self, coverage_analysis):
-        if self.release == self.odoo_module.analyse.initial_release:
+        if self.version == self.odoo_module.analyse.initial_version:
             return
-        self.openupgrade_state = coverage_analysis[self.release].get(
+        self.openupgrade_state = coverage_analysis[self.version].get(
             self.odoo_module.name, False
         )
 
     def analyse_openupgrade_work(self, analysis_files):
-        if self.release == self.odoo_module.analyse.initial_release:
+        if self.version == self.odoo_module.analyse.initial_version:
             return
         analysis_file = analysis_files.get(self.odoo_module.name, False)
 
@@ -641,7 +639,7 @@ class OdooModuleVersion(object):
         if self.addon_path:
             if (
                 self.odoo_module.module_type == "odoo"
-                and self.release != self.odoo_module.analyse.initial_release
+                and self.version != self.odoo_module.analyse.initial_version
             ):
                 if self.openupgrade_state and (
                     self.openupgrade_state.lower().startswith("done")
@@ -654,7 +652,7 @@ class OdooModuleVersion(object):
                     return "orange"
             return "lightgreen"
         else:
-            # The module doesn't exist in the current release
+            # The module doesn't exist in the current version
             if self.state in ["merged", "renamed", "normal_loss"]:
                 # Normal case, the previous version has been renamed
                 # or merged
@@ -664,7 +662,7 @@ class OdooModuleVersion(object):
                 # A core module disappeared and has not been merged
                 # or renamed
                 return "red"
-            elif self.release != self.odoo_module.analyse.final_release:
+            elif self.version != self.odoo_module.analyse.final_version:
                 return "lightgray"
             else:
                 return "orange"
@@ -673,7 +671,7 @@ class OdooModuleVersion(object):
         if self.addon_path:
             if (
                 self.odoo_module.module_type == "odoo"
-                and self.release != self.odoo_module.analyse.initial_release
+                and self.version != self.odoo_module.analyse.initial_version
             ):
                 if self.openupgrade_state.lower().startswith(
                     "done"
@@ -696,10 +694,10 @@ class OdooModuleVersion(object):
                 # A core module disappeared and has not been merged
                 # or renamed
                 return "Module lost"
-            elif self.release != self.odoo_module.analyse.final_release:
+            elif self.version != self.odoo_module.analyse.final_version:
                 return "Unported"
             else:
                 return (
                     "To port from %s"
-                    % self.get_last_existing_version().release
+                    % self.get_last_existing_version().version
                 )

@@ -1,5 +1,4 @@
-CONFIG_YML_TEMPLATE = """
-project_name: {{ project_name }}
+CONFIG_YML_TEMPLATE = """project_name: {{ project_name }}
 
 postgres_image_name: postgres:13
 postgres_container_name: {{project_name}}-db
@@ -9,14 +8,14 @@ odoo_default_country_code: FR
 
 
 odoo_versions:
-{% for odoo_version in odoo_versions %}
-  - release: {{ odoo_version['release'] }}
-{% endfor %}
+{%- for odoo_version in odoo_versions %}
+  - {{ odoo_version }}
+{%- endfor %}
 
 migration_steps:
-{% for step in steps %}
+{%- for step in steps %}
   - name: {{ step['name'] }}
-    release: {{ step['release'] }}
+    version: {{ step['version'] }}
     execution_context: {{ step['execution_context'] }}
     complete_name: {{ step['complete_name'] }}
 {% endfor %}
@@ -62,9 +61,9 @@ REPO_YML_TEMPLATE = """
     depth: 1
   remotes:
     odoo: https://github.com/odoo/odoo
-  target: odoo {{ odoo_version['release'] }}-target
+  target: odoo {{ odoo_version }}-target
   merges:
-    - odoo {{ odoo_version['release'] }}
+    - odoo {{ odoo_version }}
 
 ##############################################################################
 ## OpenUpgrade Repository
@@ -75,9 +74,9 @@ REPO_YML_TEMPLATE = """
     depth: 1
   remotes:
     OCA: https://github.com/OCA/OpenUpgrade
-  target: OCA {{ odoo_version['release'] }}-target
+  target: OCA {{ odoo_version }}-target
   merges:
-    - OCA {{ odoo_version['release'] }}
+    - OCA {{ odoo_version }}
 
 {% for org_name, repo_list in orgs.items() %}
 ##############################################################################
@@ -89,9 +88,9 @@ REPO_YML_TEMPLATE = """
     depth: 1
   remotes:
     {{ org_name }}: https://github.com/{{ org_name }}/{{ repo }}
-  target: {{ org_name }} {{ odoo_version['release'] }}-target
+  target: {{ org_name }} {{ odoo_version }}-target
   merges:
-    - {{ org_name }} {{ odoo_version['release'] }}
+    - {{ org_name }} {{ odoo_version }}
 {% endfor %}
 {% endfor %}
 
@@ -113,10 +112,10 @@ ODOO_CONFIG_TEMPLATE = ""
 
 
 # Technical Notes:
-# - We set apt-get update || true, because for some release (at least odoo:10)
+# - We set apt-get update || true, because for some version (at least odoo:10)
 #   the command update fail, because of obsolete postgresql repository.
 DOCKERFILE_TEMPLATE = """
-FROM odoo:{{ odoo_version['release'] }}
+FROM odoo:{{ odoo_version }}
 MAINTAINER GRAP, Coop It Easy
 
 # Set User root for installations
@@ -133,7 +132,7 @@ RUN apt-get update || true &&\
  xargs apt-get install -y --no-install-recommends <debian_requirements.txt
 
 # 3. Install extra Python librairies
-RUN {{ odoo_version["python_major_version"] }}\
+RUN {{ python_major_version }}\
  -m pip install -r python_requirements.txt
 
 # Reset to odoo user to run the container
@@ -173,16 +172,16 @@ ANALYSIS_HTML_TEMPLATE = """
     <table border="1" width="100%">
       <thead>
         <tr>
-          <th>Initial Release</th>
-          <th>Final Release</th>
+          <th>Initial Version</th>
+          <th>Final Version</th>
           <th>Project Name</th>
           <th>Analysis Date</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>{{ ctx.obj["config"]["odoo_versions"][0]["release"] }}</td>
-          <td>{{ ctx.obj["config"]["odoo_versions"][-1]["release"] }}</td>
+          <td>{{ ctx.obj["config"]["odoo_versions"][0] }}</td>
+          <td>{{ ctx.obj["config"]["odoo_versions"][-1] }}</td>
           <td>{{ ctx.obj["config"]["project_name"] }}</td>
           <td>{{ current_date }}</td>
         </tr>
@@ -230,7 +229,7 @@ ANALYSIS_HTML_TEMPLATE = """
         <tr>
           <th>&nbsp;</th>
 {%- for odoo_version in ctx.obj["config"]["odoo_versions"] -%}
-          <th>{{ odoo_version["release"] }}</th>
+          <th>{{ odoo_version }}</th>
 {% endfor %}
 
         </tr>
@@ -277,8 +276,8 @@ ANALYSIS_HTML_TEMPLATE = """
         <tr>
           <td>{{odoo_module.name}}
           </td>
-  {% for release in odoo_module.analyse.all_releases %}
-    {% set module_version = odoo_module.get_module_version(release) %}
+  {% for version in odoo_module.analyse.all_version %}
+    {% set module_version = odoo_module.get_module_version(version) %}
     {% if module_version %}
       {% set size_text = module_version.get_size_text() %}
       {% set analysis_text = module_version.get_analysis_text() %}

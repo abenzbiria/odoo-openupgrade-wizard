@@ -47,8 +47,8 @@ in ``DEVELOP.md`` file.)
 
 ```
 odoo-openupgrade-wizard init\
-  --initial-release=10.0\
-  --final-release=12.0\
+  --initial-version=10.0\
+  --final-version=12.0\
   --project-name=my-customer-10-12\
   --extra-repository=OCA/web,OCA/server-tools
 ```
@@ -158,10 +158,10 @@ The code is defined in the ``repos.yml`` of each sub folders.
 
 **Optional arguments**
 
-if you want to update the code of some given releases, you can provide an extra parameter:
+if you want to update the code of some given versions, you can provide an extra parameter:
 
 ```
-odoo-openupgrade-wizard get-code --releases 10.0,11.0
+odoo-openupgrade-wizard get-code --versions 10.0,11.0
 ```
 
 
@@ -190,8 +190,8 @@ odoo-openupgrade-wizard-image---my-customer-10-12---10.0   latest    9d94dce2bd4
 
 **Optional arguments**
 
-* if you want to (re)build an image for some given releases, you can provide
-  an extra parameter: ``--releases 10.0,12.0``
+* if you want to (re)build an image for some given versions, you can provide
+  an extra parameter: ``--versions 10.0,12.0``
 
 **Note**
 
@@ -256,8 +256,8 @@ odoo-openupgrade-wizard upgrade\
     --database DB_NAME
 ```
 
-Realize an upgrade of the database from the initial release to
-the final release, following the different steps.
+Realize an upgrade of the database from the initial version to
+the final version, following the different steps.
 
 For each step, it will :
 

@@ -13,8 +13,8 @@ def test_cli_init():
             "--log-level=DEBUG",
             "init",
             "--project-name=test-cli",
-            "--initial-release=13.0",
-            "--final-release=14.0",
+            "--initial-version=13.0",
+            "--final-version=14.0",
             "--extra-repository="
             "OCA/web,OCA/server-tools,OCA/bank-statement-import",
         ]
