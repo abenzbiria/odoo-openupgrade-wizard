@@ -17,7 +17,7 @@ migration_steps:
 {% for step in steps %}
   - name: {{ step['name'] }}
     release: {{ step['release'] }}
-    action: {{ step['action'] }}
+    execution_context: {{ step['execution_context'] }}
     complete_name: {{ step['complete_name'] }}
 {% endfor %}
 

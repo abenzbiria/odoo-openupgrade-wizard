@@ -89,11 +89,18 @@ def get_odoo_run_command(migration_step: dict) -> str:
     return "odoo.py"
 
 
-def get_odoo_folder(migration_step: dict) -> str:
+def get_odoo_folder(
+    migration_step: dict, execution_context: str = False
+) -> str:
     """return the main odoo folder, depending on the migration step.
     (./src/odoo, ./src/openupgrade, ...)"""
 
-    if migration_step["action"] == "update":
+    if execution_context == "regular":
+        return "src/odoo"
+    elif execution_context == "openupgrade" and migration_step["release"] < 14:
+        return "src/openupgrade"
+
+    if migration_step["execution_context"] == "regular":
         return "src/odoo"
 
     if migration_step["release"] >= 14.0:
@@ -126,7 +133,7 @@ def get_server_wide_modules_upgrade(migration_step: dict) -> list:
     """return a list of modules to load, depending on the migration step."""
     if (
         migration_step["release"] >= 14.0
-        and migration_step["action"] == "upgrade"
+        and migration_step["execution_context"] == "openupgrade"
     ):
         return ["openupgrade_framework"]
     return []

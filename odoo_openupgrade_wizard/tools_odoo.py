@@ -20,7 +20,9 @@ from odoo_openupgrade_wizard.tools_postgres import get_postgres_container
 from odoo_openupgrade_wizard.tools_system import get_script_folder
 
 
-def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
+def get_odoo_addons_path(
+    ctx, root_path: Path, migration_step: dict, execution_context: str = False
+) -> str:
     odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     repo_file = get_odoo_env_path(ctx, odoo_version) / Path("repos.yml")
     base_module_folder = get_base_module_folder(migration_step)
@@ -31,7 +33,9 @@ def get_odoo_addons_path(ctx, root_path: Path, migration_step: dict) -> str:
     addons_path = []
     for key in data.keys():
         path = root_path / Path(key)
-        if str(path).endswith(get_odoo_folder(migration_step)):
+        if str(path).endswith(
+            get_odoo_folder(migration_step, execution_context)
+        ):
             # Add two folder for odoo folder
             addons_path.append(path / Path("addons"))
             addons_path.append(
@@ -79,6 +83,7 @@ def get_odoo_version_from_migration_step(ctx, migration_step: dict) -> dict:
 def generate_odoo_command(
     ctx,
     migration_step: dict,
+    execution_context: str,
     database: str,
     update: str,
     init: str,
@@ -94,7 +99,7 @@ def generate_odoo_command(
     demo_cmd = not demo and "--without-demo all" or ""
     command = (
         Path("/odoo_env")
-        / Path(get_odoo_folder(migration_step))
+        / Path(get_odoo_folder(migration_step, execution_context))
         / Path(get_odoo_run_command(migration_step))
     )
     result = (
@@ -110,7 +115,9 @@ def generate_odoo_command(
     return result
 
 
-def generate_odoo_config_file(ctx, migration_step, log_file):
+def generate_odoo_config_file(
+    ctx, migration_step, log_file, execution_context
+):
     """Create a config file name _auto_generated_odoo.cfg
     in the according environment (defined by migration_step)
     This configuration file is a merge of the odoo.cfg file that can
@@ -133,7 +140,7 @@ def generate_odoo_config_file(ctx, migration_step, log_file):
         [
             str(x)
             for x in get_odoo_addons_path(
-                ctx, Path("/odoo_env"), migration_step
+                ctx, Path("/odoo_env"), migration_step, execution_context
             )
         ]
     )
@@ -173,6 +180,7 @@ def run_odoo(
     stop_after_init: bool = False,
     shell: bool = False,
     demo: bool = False,
+    execution_context: str = False,
     alternative_xml_rpc_port: int = False,
     links: dict = {},
 ):
@@ -180,13 +188,12 @@ def run_odoo(
     get_postgres_container(ctx)
     logger.info(
         "Launching Odoo Container (Release {release}) for {db_text}"
-        " in {action} mode. Demo Data is {demo_text}"
+        " in {execution_context} mode. Demo Data is {demo_text}"
         " {stop_text} {init_text} {update_text}".format(
             release=migration_step["release"],
             db_text=database and "database '%s'" % database or "any databases",
-            action=migration_step["action"] == "update"
-            and "regular"
-            or "OpenUpgrade",
+            execution_context=execution_context
+            or migration_step["execution_context"],
             demo_text=demo and "enabled" or "disabled",
             stop_text=stop_after_init and " (stop-after-init)" or "",
             init_text=init and " (Init : %s)" % init or "",
@@ -199,11 +206,12 @@ def run_odoo(
     log_file = "/env/log/{}____{}.log".format(
         ctx.obj["log_prefix"], migration_step["complete_name"]
     )
-    generate_odoo_config_file(ctx, migration_step, log_file)
+    generate_odoo_config_file(ctx, migration_step, log_file, execution_context)
 
     command = generate_odoo_command(
         ctx,
         migration_step,
+        execution_context,
         database=database,
         update=update,
         init=init,
@@ -240,7 +248,11 @@ def kill_odoo(ctx, migration_step: dict):
 
 
 def execute_click_odoo_python_files(
-    ctx, database: str, migration_step: dict, python_files: list = []
+    ctx,
+    database: str,
+    migration_step: dict,
+    python_files: list = [],
+    execution_context: str = False,
 ):
 
     if not python_files:
@@ -264,7 +276,7 @@ def execute_click_odoo_python_files(
     log_file = "/env/log/{}____{}__post_migration.log".format(
         ctx.obj["log_prefix"], migration_step["complete_name"]
     )
-    generate_odoo_config_file(ctx, migration_step, log_file)
+    generate_odoo_config_file(ctx, migration_step, log_file, execution_context)
 
     for python_file in python_files:
         # TODO, check if we should set python2 for old version of Odoo

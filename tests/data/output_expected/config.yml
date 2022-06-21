@@ -19,17 +19,17 @@ migration_steps:
 
   - name: 1
     release: 13.0
-    action: update
+    execution_context: regular
     complete_name: step_01__update__13.0
 
   - name: 2
     release: 14.0
-    action: upgrade
+    execution_context: openupgrade
     complete_name: step_02__upgrade__14.0
 
   - name: 3
     release: 14.0
-    action: update
+    execution_context: regular
     complete_name: step_03__update__14.0
 
 

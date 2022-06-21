@@ -57,9 +57,6 @@ def generate_module_analysis(ctx, step, database, modules):
 
     modules = modules and modules.split(",") or []
 
-    # Force to be in openupgrade mode
-    initial_step["action"] = final_step["action"] = "upgrade"
-
     try:
         # INITIAL : Run odoo and install analysis module
         run_odoo(
@@ -68,6 +65,7 @@ def generate_module_analysis(ctx, step, database, modules):
             database=initial_database,
             detached_container=False,
             stop_after_init=True,
+            execution_context="openupgrade",
             init=get_upgrade_analysis_module(initial_step),
         )
 
@@ -76,6 +74,7 @@ def generate_module_analysis(ctx, step, database, modules):
             ctx,
             initial_step,
             database=initial_database,
+            execution_context="openupgrade",
             detached_container=True,
         )
         # INITIAL : install modules to analyse and generate records
@@ -96,6 +95,7 @@ def generate_module_analysis(ctx, step, database, modules):
             detached_container=False,
             stop_after_init=True,
             init=get_upgrade_analysis_module(final_step),
+            execution_context="openupgrade",
             alternative_xml_rpc_port=alternative_xml_rpc_port,
         )
 
@@ -109,6 +109,7 @@ def generate_module_analysis(ctx, step, database, modules):
             database=final_database,
             detached_container=True,
             alternative_xml_rpc_port=alternative_xml_rpc_port,
+            execution_context="openupgrade",
             links={initial_container.name: odoo_initial_host_name},
         )
 

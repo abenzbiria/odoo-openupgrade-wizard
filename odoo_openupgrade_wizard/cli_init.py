@@ -74,7 +74,7 @@ def init(
     steps = [
         {
             "name": 1,
-            "action": "update",
+            "execution_context": "regular",
             "release": odoo_versions[0]["release"],
             "complete_name": "step_01__update__%s"
             % (odoo_versions[0]["release"]),
@@ -87,7 +87,7 @@ def init(
         steps.append(
             {
                 "name": step_nbr,
-                "action": "upgrade",
+                "execution_context": "openupgrade",
                 "release": odoo_version["release"],
                 "complete_name": "step_%s__upgrade__%s"
                 % (str(step_nbr).rjust(2, "0"), odoo_version["release"]),
@@ -100,7 +100,7 @@ def init(
         steps.append(
             {
                 "name": step_nbr,
-                "action": "update",
+                "execution_context": "regular",
                 "release": odoo_versions[-1]["release"],
                 "complete_name": "step_%s__update__%s"
                 % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]["release"]),

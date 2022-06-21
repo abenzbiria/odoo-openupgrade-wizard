@@ -173,6 +173,11 @@ class Analysis(object):
         apriori_module_path = OdooModule.get_addon_path(
             ctx, apriori_module_name, current_release
         )
+        if not apriori_module_path:
+            raise ValueError(
+                "Unable to find the path of the module %s for the release %s"
+                % (apriori_module_name, current_release)
+            )
         apriori_absolute_path = (
             apriori_module_path
             / Path(apriori_module_name)
@@ -345,11 +350,14 @@ class OdooModule(object):
         # Try to find the repository that contains the module
         main_path = get_odoo_env_path(ctx, {"release": current_release})
         addons_path = get_odoo_addons_path(
-            ctx, main_path, {"release": current_release, "action": "upgrade"}
+            ctx,
+            main_path,
+            {"release": current_release, "execution_context": "openupgrade"},
         )
         for addon_path in addons_path:
             if (addon_path / module_name).exists():
                 return addon_path
+
         return False
 
     @classmethod
