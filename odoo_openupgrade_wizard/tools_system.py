@@ -70,12 +70,12 @@ def ensure_file_exists_from_template(
         f.close()
 
 
-def git_aggregate(folder_path: Path, config_path: Path):
+def git_aggregate(folder_path: Path, config_path: Path, jobs: int):
 
     args = argparse.Namespace(
         command="aggregate",
         config=str(config_path),
-        jobs=1,
+        jobs=jobs,
         dirmatch=None,
         do_push=False,
         expand_env=False,
