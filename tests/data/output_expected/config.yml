@@ -1,4 +1,3 @@
-
 project_name: test-cli
 
 postgres_image_name: postgres:13
@@ -9,26 +8,22 @@ odoo_default_country_code: FR
 
 
 odoo_versions:
-
-  - release: 13.0
-
-  - release: 14.0
-
+  - 13.0
+  - 14.0
 
 migration_steps:
-
   - name: 1
-    release: 13.0
+    version: 13.0
     execution_context: regular
     complete_name: step_01__update__13.0
 
   - name: 2
-    release: 14.0
+    version: 14.0
     execution_context: openupgrade
     complete_name: step_02__upgrade__14.0
 
   - name: 3
-    release: 14.0
+    version: 14.0
     execution_context: regular
     complete_name: step_03__update__14.0
 

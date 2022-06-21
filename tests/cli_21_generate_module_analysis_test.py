@@ -15,7 +15,7 @@ def test_cli_generate_module_analysis():
 
     ctx = build_ctx_from_config_file()
     # identify main analysis file of openupgrade
-    analysis_file_path = get_odoo_env_path(ctx, {"release": 14.0}) / Path(
+    analysis_file_path = get_odoo_env_path(ctx, 14.0) / Path(
         "src/openupgrade/openupgrade_scripts/scripts"
         "/base/14.0.1.3/upgrade_general_log.txt"
     )

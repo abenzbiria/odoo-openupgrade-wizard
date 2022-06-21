@@ -23,8 +23,9 @@ from odoo_openupgrade_wizard.tools_system import get_script_folder
 def get_odoo_addons_path(
     ctx, root_path: Path, migration_step: dict, execution_context: str = False
 ) -> str:
-    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
-    repo_file = get_odoo_env_path(ctx, odoo_version) / Path("repos.yml")
+    repo_file = get_odoo_env_path(ctx, migration_step["version"]) / Path(
+        "repos.yml"
+    )
     base_module_folder = get_base_module_folder(migration_step)
     stream = open(repo_file, "r")
     data = yaml.safe_load(stream)
@@ -49,35 +50,27 @@ def get_odoo_addons_path(
     return addons_path
 
 
-def get_odoo_env_path(ctx, odoo_version: dict) -> Path:
-    folder_name = "env_%s" % str(odoo_version["release"]).rjust(4, "0")
+def get_odoo_env_path(ctx, odoo_version: float) -> Path:
+    folder_name = "env_%s" % str(odoo_version).rjust(4, "0")
     return ctx.obj["src_folder_path"] / folder_name
 
 
-def get_docker_image_tag(ctx, odoo_version: dict) -> str:
-    """Return a docker image tag, based on project name and odoo release"""
+def get_docker_image_tag(ctx, odoo_version: float) -> str:
+    """Return a docker image tag, based on project name and odoo version"""
     return "odoo-openupgrade-wizard-image__%s__%s" % (
         ctx.obj["config"]["project_name"],
-        str(odoo_version["release"]).rjust(4, "0"),
+        str(odoo_version).rjust(4, "0"),
     )
 
 
 def get_docker_container_name(ctx, migration_step: dict) -> str:
     """Return a docker container name, based on project name,
-    odoo release and migration step"""
+    odoo version and migration step"""
     return "odoo-openupgrade-wizard-container__%s__%s__step-%s" % (
         ctx.obj["config"]["project_name"],
-        str(migration_step["release"]).rjust(4, "0"),
+        str(migration_step["version"]).rjust(4, "0"),
         str(migration_step["name"]).rjust(2, "0"),
     )
-
-
-def get_odoo_version_from_migration_step(ctx, migration_step: dict) -> dict:
-    for odoo_version in ctx.obj["config"]["odoo_versions"]:
-        if odoo_version["release"] == migration_step["release"]:
-            return odoo_version
-    # TODO, improve exception
-    raise Exception
 
 
 def generate_odoo_command(
@@ -123,8 +116,7 @@ def generate_odoo_config_file(
     This configuration file is a merge of the odoo.cfg file that can
     contain custom values, and the values required to run the docker container.
     """
-    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
-    odoo_env_path = get_odoo_env_path(ctx, odoo_version)
+    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
 
     custom_odoo_config_file = odoo_env_path / "odoo.cfg"
     auto_generated_odoo_config_file = (
@@ -187,10 +179,10 @@ def run_odoo(
     # Ensure that Postgres container exist
     get_postgres_container(ctx)
     logger.info(
-        "Launching Odoo Container (Release {release}) for {db_text}"
+        "Launching Odoo Container (Version {version}) for {db_text}"
         " in {execution_context} mode. Demo Data is {demo_text}"
         " {stop_text} {init_text} {update_text}".format(
-            release=migration_step["release"],
+            version=migration_step["version"],
             db_text=database and "database '%s'" % database or "any databases",
             execution_context=execution_context
             or migration_step["execution_context"],
@@ -200,9 +192,8 @@ def run_odoo(
             update_text=update and " (Update : %s)" % update or "",
         )
     )
-    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     env_path = ctx.obj["env_folder_path"]
-    odoo_env_path = get_odoo_env_path(ctx, odoo_version)
+    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
     log_file = "/env/log/{}____{}.log".format(
         ctx.obj["log_prefix"], migration_step["complete_name"]
     )
@@ -227,7 +218,7 @@ def run_odoo(
     )
     links.update({ctx.obj["config"]["postgres_container_name"]: "db"})
     return run_container(
-        get_docker_image_tag(ctx, odoo_version),
+        get_docker_image_tag(ctx, migration_step["version"]),
         get_docker_container_name(ctx, migration_step),
         command=command,
         ports={
@@ -267,10 +258,9 @@ def execute_click_odoo_python_files(
         python_files = sorted(python_files)
 
     # Prepare data information for docker
-    odoo_version = get_odoo_version_from_migration_step(ctx, migration_step)
     links = {ctx.obj["config"]["postgres_container_name"]: "db"}
     env_path = ctx.obj["env_folder_path"]
-    odoo_env_path = get_odoo_env_path(ctx, odoo_version)
+    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
 
     # Generate odoo config file
     log_file = "/env/log/{}____{}__post_migration.log".format(
@@ -296,7 +286,7 @@ def execute_click_odoo_python_files(
                 % (migration_step["complete_name"], python_file)
             )
             run_container(
-                get_docker_image_tag(ctx, odoo_version),
+                get_docker_image_tag(ctx, migration_step["version"]),
                 get_docker_container_name(ctx, migration_step),
                 command=command,
                 ports={},
