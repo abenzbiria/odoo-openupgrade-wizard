@@ -27,8 +27,16 @@ from odoo_openupgrade_wizard.tools_postgres import ensure_database
     type=str,
     help="List of modules to install. Equivalent to -i odoo options.",
 )
+@click.option(
+    "-e",
+    "--execution-context",
+    type=click.Choice(["regular", "openupgrade"]),
+    help="Force to use an openupgrade (OCA/openupgrade)"
+    " or a regular (odoo/odoo or OCA/OCB) base code when running odoo."
+    " Let empty to use the defaut execution of the migration step.",
+)
 @click.pass_context
-def run(ctx, step, database, stop_after_init, init_modules):
+def run(ctx, step, database, stop_after_init, init_modules, execution_context):
 
     migration_step = get_migration_step_from_options(ctx, step)
     ensure_database(ctx, database, state="present")
@@ -40,6 +48,7 @@ def run(ctx, step, database, stop_after_init, init_modules):
             detached_container=not stop_after_init,
             init=init_modules,
             stop_after_init=stop_after_init,
+            execution_context=execution_context,
         )
         if not stop_after_init:
             logger.info(
