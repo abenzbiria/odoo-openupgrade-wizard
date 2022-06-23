@@ -475,6 +475,9 @@ class OdooModuleVersion(object):
             if self.openupgrade_state and (
                 self.openupgrade_state.lower().startswith("done")
                 or self.openupgrade_state.lower().startswith("nothing to do")
+                or self.openupgrade_state.lower().startswith(
+                    "no db layout changes"
+                )
             ):
                 return
             else:
@@ -646,6 +649,9 @@ class OdooModuleVersion(object):
                     or self.openupgrade_state.lower().startswith(
                         "nothing to do"
                     )
+                    or self.openupgrade_state.lower().startswith(
+                        "no db layout changes"
+                    )
                 ):
                     return "lightgreen"
                 else:
@@ -673,15 +679,10 @@ class OdooModuleVersion(object):
                 self.odoo_module.module_type == "odoo"
                 and self.version != self.odoo_module.analyse.initial_version
             ):
-                if self.openupgrade_state.lower().startswith(
-                    "done"
-                ) or self.openupgrade_state.lower().startswith(
-                    "nothing to do"
-                ):
+                if self.openupgrade_state:
                     return self.openupgrade_state
                 else:
                     return "To analyse"
-            return ""
         else:
             if self.state == "merged":
                 return "Merged into %s" % self.target_module

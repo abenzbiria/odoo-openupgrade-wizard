@@ -276,7 +276,7 @@ ANALYSIS_HTML_TEMPLATE = """
         <tr>
           <td>{{odoo_module.name}}
           </td>
-  {% for version in odoo_module.analyse.all_version %}
+  {% for version in odoo_module.analyse.all_versions %}
     {% set module_version = odoo_module.get_module_version(version) %}
     {% if module_version %}
       {% set size_text = module_version.get_size_text() %}
