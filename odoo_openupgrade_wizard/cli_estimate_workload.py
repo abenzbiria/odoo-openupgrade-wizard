@@ -46,7 +46,6 @@ def estimate_workload(ctx, analysis_file_path, extra_modules_list):
     analysis.modules = sorted(analysis.modules)
 
     # Render html file
-    # TODO, make
     ensure_file_exists_from_template(
         Path(analysis_file_path),
         templates.ANALYSIS_HTML_TEMPLATE,
