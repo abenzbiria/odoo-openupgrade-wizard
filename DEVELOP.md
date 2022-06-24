@@ -109,6 +109,13 @@ pipx install gitlabci-local
 gitlabci-local
 ```
 
+# Publish on pyPI
+
+```
+
+```
+
+
 # Réferences
 
 - how to install gitlab runner locally:
