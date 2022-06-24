@@ -32,19 +32,11 @@ class TestCliEstimateWorkload(unittest.TestCase):
                 ",web_view_calendar_list"
                 ",web_widget_child_selector"
                 ",web_widget_one2many_tree_line_duplicate"
-                ",web_widget_dropdown_dynamic_example",
+                ",web_widget_dropdown_dynamic_example"
+                ",my_module_that_doesnt_exist",
             ]
         )
 
         # We check file has been created
         # parsing this file is a mess, so we don't do it ;-)
         assert Path("./analysis.html").exists()
-
-        with self.assertRaises(ValueError):
-            cli_runner_invoke(
-                [
-                    "--log-level=DEBUG",
-                    "estimate-workload",
-                    "--extra-modules=my_module_that_doesnt_exist",
-                ]
-            )

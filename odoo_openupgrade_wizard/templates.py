@@ -213,6 +213,11 @@ ANALYSIS_HTML_TEMPLATE = """
           <td>{{ analysis.get_module_qty("custom") }}</td>
           <td>{{ analysis.workload_hour_text("custom") }}</td>
         </tr>
+        <tr>
+          <td>Not Found</td>
+          <td>{{ analysis.get_module_qty("custom") }}</td>
+          <td>&nbsp;</td>
+        </tr>
       </tbody>
       <tfood>
         <tr>
@@ -262,11 +267,14 @@ ANALYSIS_HTML_TEMPLATE = """
 
   {% if ns.current_repository != odoo_module.repository %}
     {% set ns.current_repository = odoo_module.repository %}
+
+    {% if ns.current_repository %}
         <tr>
           <th colspan="{{1 + ctx.obj["config"]["odoo_versions"]|length}}">
             {{ ns.current_repository}}
           </th>
         <tr>
+    {% endif %}
   {% endif %}
 
 <!-- -------------------- -->
@@ -275,6 +283,20 @@ ANALYSIS_HTML_TEMPLATE = """
 
         <tr>
           <td>{{odoo_module.name}}
+  {% if odoo_module.module_type == "not_found" %}
+    {% set odoo_apps_url = odoo_module.get_odoo_apps_url() %}
+    {% if odoo_apps_url %}
+          <a href="{{odoo_apps_url}}" target="_blank">AppsStore</a>
+    {% else %}
+      {% set odoo_code_search_url = odoo_module.get_odoo_code_search_url() %}
+      {% if odoo_code_search_url %}
+          <a href="{{odoo_code_search_url}}" target="_blank">
+            OdooCodeSearch
+          </a>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
           </td>
   {% for version in odoo_module.analyse.all_versions %}
     {% set module_version = odoo_module.get_module_version(version) %}

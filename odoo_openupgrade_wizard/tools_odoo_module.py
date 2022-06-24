@@ -3,6 +3,7 @@ import os
 from functools import total_ordering
 from pathlib import Path
 
+import requests
 from git import Repo
 from loguru import logger
 from pygount import SourceAnalysis
@@ -109,7 +110,6 @@ class Analysis(object):
                 module_version.estimate_workload(ctx)
 
     def _generate_module_version_first_version(self, ctx, module_list):
-        not_found_modules = []
         logger.info(
             "Analyse version %s. (First version)" % self.initial_version
         )
@@ -130,31 +130,22 @@ class Analysis(object):
                         "Discovering module '%s' in %s for version %s"
                         % (module_name, repository_name, self.initial_version)
                     )
-                    new_odoo_module = OdooModule(
-                        ctx, self, module_name, repository_name
-                    )
-                    new_module_version = OdooModuleVersion(
-                        self.initial_version, new_odoo_module, addon_path
-                    )
-                    new_odoo_module.module_versions.update(
-                        {self.initial_version: new_module_version}
-                    )
-                    self.modules.append(new_odoo_module)
             else:
+                repository_name = False
                 logger.error(
                     "Module %s not found for version %s."
                     % (module_name, self.initial_version)
                 )
-                not_found_modules.append(module_name)
-
-        if not_found_modules:
-            raise ValueError(
-                "The modules %s have not been found in the version %s."
-                " Analyse can not be done. Please update your repos.yml"
-                " of your initial version to add repositories that"
-                " include the modules, then run again the command."
-                % (",".join(not_found_modules), self.initial_version)
+            new_odoo_module = OdooModule(
+                ctx, self, module_name, repository_name
             )
+            new_module_version = OdooModuleVersion(
+                self.initial_version, new_odoo_module, addon_path
+            )
+            new_odoo_module.module_versions.update(
+                {self.initial_version: new_module_version}
+            )
+            self.modules.append(new_odoo_module)
 
     def _generate_module_version_next_version(
         self, ctx, previous_version, current_version
@@ -327,7 +318,9 @@ class OdooModule(object):
         self.repository = repository_name
         self.unique_name = "%s.%s" % (repository_name, module_name)
         self.module_versions = {}
-        if repository_name == "odoo/odoo":
+        if not repository_name:
+            self.module_type = "not_found"
+        elif repository_name == "odoo/odoo":
             self.module_type = "odoo"
         elif repository_name.startswith("OCA"):
             self.module_type = "OCA"
@@ -337,6 +330,24 @@ class OdooModule(object):
     def get_module_version(self, current_version):
         res = self.module_versions.get(current_version, False)
         return res
+
+    def get_odoo_apps_url(self):
+        logger.info("Searching %s in the Odoo appstore ..." % self.name)
+        url = f"https://apps.odoo.com/apps/modules/14.0/{self.name}/"
+        if requests.get(url).status_code == 200:
+            return url
+        return False
+
+    def get_odoo_code_search_url(self):
+        logger.info("Searching %s in Odoo-Code-Search ..." % self.name)
+        url = (
+            f"https://odoo-code-search.com/ocs/search?"
+            f"q=name%3A%3D{self.name}+version%3A{self.analyse.initial_version}"
+        )
+        result = requests.get(url)
+        if '<td class="code">404</td>' in result.text:
+            return False
+        return url
 
     @classmethod
     def get_addon_path(cls, ctx, module_name, current_version):
@@ -399,7 +410,15 @@ class OdooModule(object):
         if self.module_type != other.module_type:
             if self.module_type == "odoo":
                 return True
-            elif self.module_type == "OCA" and other.module_type == "custom":
+            elif self.module_type == "OCA" and other.module_type in [
+                "custom",
+                "not_found",
+            ]:
+                return True
+            elif (
+                self.module_type == "custom"
+                and other.module_type == "not_found"
+            ):
                 return True
             else:
                 return False
@@ -447,8 +466,11 @@ class OdooModuleVersion(object):
         self.openupgrade_xml_lines = 0
 
     def get_last_existing_version(self):
-        versions = list(self.odoo_module.module_versions.values())
-        return [x for x in filter(lambda x: x.addon_path, versions)][-1]
+        if self.odoo_module.module_type != "not_found":
+            versions = list(self.odoo_module.module_versions.values())
+            return [x for x in filter(lambda x: x.addon_path, versions)][-1]
+        else:
+            return False
 
     def estimate_workload(self, ctx):
         settings = ctx.obj["config"]["workload_settings"]
@@ -508,6 +530,8 @@ class OdooModuleVersion(object):
             return
 
         previous_module_version = self.get_last_existing_version()
+        if not previous_module_version:
+            return
         self.workload = (
             # Minimal port time
             port_minimal_time
@@ -636,6 +660,8 @@ class OdooModuleVersion(object):
 
     def analyse_missing_module(self):
         last_existing_version = self.get_last_existing_version()
+        if not last_existing_version:
+            return
         last_existing_version.analyse_size()
 
     def get_bg_color(self):
@@ -670,6 +696,8 @@ class OdooModuleVersion(object):
                 return "red"
             elif self.version != self.odoo_module.analyse.final_version:
                 return "lightgray"
+            elif self.odoo_module.module_type == "not_found":
+                return "lightgray"
             else:
                 return "orange"
 
@@ -695,10 +723,11 @@ class OdooModuleVersion(object):
                 # A core module disappeared and has not been merged
                 # or renamed
                 return "Module lost"
-            elif self.version != self.odoo_module.analyse.final_version:
-                return "Unported"
             else:
-                return (
-                    "To port from %s"
-                    % self.get_last_existing_version().version
-                )
+                last_existing_version = self.get_last_existing_version()
+                if not last_existing_version:
+                    return "Unknown"
+                elif self.version != self.odoo_module.analyse.final_version:
+                    return "Unported"
+                else:
+                    return "To port from %s" % last_existing_version.version
