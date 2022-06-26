@@ -9,21 +9,23 @@ from click_loglevel import LogLevel
 from loguru import logger
 
 import odoo_openupgrade_wizard
-from odoo_openupgrade_wizard.cli_docker_build import docker_build
-from odoo_openupgrade_wizard.cli_estimate_workload import estimate_workload
-from odoo_openupgrade_wizard.cli_execute_script_python import (
+from odoo_openupgrade_wizard.cli.cli_docker_build import docker_build
+from odoo_openupgrade_wizard.cli.cli_estimate_workload import estimate_workload
+from odoo_openupgrade_wizard.cli.cli_execute_script_python import (
     execute_script_python,
 )
-from odoo_openupgrade_wizard.cli_execute_script_sql import execute_script_sql
-from odoo_openupgrade_wizard.cli_generate_module_analysis import (
+from odoo_openupgrade_wizard.cli.cli_execute_script_sql import (
+    execute_script_sql,
+)
+from odoo_openupgrade_wizard.cli.cli_generate_module_analysis import (
     generate_module_analysis,
 )
-from odoo_openupgrade_wizard.cli_get_code import get_code
-from odoo_openupgrade_wizard.cli_init import init
-from odoo_openupgrade_wizard.cli_install_from_csv import install_from_csv
-from odoo_openupgrade_wizard.cli_run import run
-from odoo_openupgrade_wizard.cli_upgrade import upgrade
-from odoo_openupgrade_wizard.tools_system import ensure_folder_exists
+from odoo_openupgrade_wizard.cli.cli_get_code import get_code
+from odoo_openupgrade_wizard.cli.cli_init import init
+from odoo_openupgrade_wizard.cli.cli_install_from_csv import install_from_csv
+from odoo_openupgrade_wizard.cli.cli_run import run
+from odoo_openupgrade_wizard.cli.cli_upgrade import upgrade
+from odoo_openupgrade_wizard.tools.tools_system import ensure_folder_exists
 
 
 @click.group()

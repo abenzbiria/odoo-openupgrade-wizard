@@ -2,12 +2,14 @@ from pathlib import Path
 
 import click
 
-from odoo_openupgrade_wizard.cli_options import (
+from odoo_openupgrade_wizard.cli.cli_options import (
     database_option_required,
     get_migration_step_from_options,
     step_option,
 )
-from odoo_openupgrade_wizard.tools_odoo import execute_click_odoo_python_files
+from odoo_openupgrade_wizard.tools.tools_odoo import (
+    execute_click_odoo_python_files,
+)
 
 
 @click.command()

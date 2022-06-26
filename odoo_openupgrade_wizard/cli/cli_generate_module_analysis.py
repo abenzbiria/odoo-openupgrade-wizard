@@ -1,7 +1,7 @@
 import click
 from loguru import logger
 
-from odoo_openupgrade_wizard.cli_options import (
+from odoo_openupgrade_wizard.cli.cli_options import (
     database_option,
     get_migration_steps_from_options,
     step_option,
@@ -12,13 +12,13 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_installable_odoo_modules,
     get_upgrade_analysis_module,
 )
-from odoo_openupgrade_wizard.tools_odoo import (
+from odoo_openupgrade_wizard.tools.tools_odoo import (
     get_odoo_env_path,
     kill_odoo,
     run_odoo,
 )
-from odoo_openupgrade_wizard.tools_odoo_instance import OdooInstance
-from odoo_openupgrade_wizard.tools_system import ensure_folder_writable
+from odoo_openupgrade_wizard.tools.tools_odoo_instance import OdooInstance
+from odoo_openupgrade_wizard.tools.tools_system import ensure_folder_writable
 
 
 @click.command()

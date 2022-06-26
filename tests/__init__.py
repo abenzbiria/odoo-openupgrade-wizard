@@ -6,7 +6,7 @@ import yaml
 from click.testing import CliRunner
 from plumbum.cmd import mkdir
 
-from odoo_openupgrade_wizard.cli import main
+from odoo_openupgrade_wizard.cli.cli import main
 
 _logger = logging.getLogger()
 

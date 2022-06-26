@@ -3,9 +3,9 @@ from pathlib import Path
 
 import click
 
-from odoo_openupgrade_wizard.tools_odoo import get_odoo_modules_from_csv
-from odoo_openupgrade_wizard.tools_odoo_module import Analysis
-from odoo_openupgrade_wizard.tools_system import (
+from odoo_openupgrade_wizard.tools.tools_odoo import get_odoo_modules_from_csv
+from odoo_openupgrade_wizard.tools.tools_odoo_module import Analysis
+from odoo_openupgrade_wizard.tools.tools_system import (
     ensure_file_exists_from_template,
 )
 

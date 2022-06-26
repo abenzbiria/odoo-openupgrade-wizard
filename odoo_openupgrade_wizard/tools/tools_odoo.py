@@ -15,9 +15,12 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_server_wide_modules_upgrade,
     skip_addon_path,
 )
-from odoo_openupgrade_wizard.tools_docker import kill_container, run_container
-from odoo_openupgrade_wizard.tools_postgres import get_postgres_container
-from odoo_openupgrade_wizard.tools_system import get_script_folder
+from odoo_openupgrade_wizard.tools.tools_docker import (
+    kill_container,
+    run_container,
+)
+from odoo_openupgrade_wizard.tools.tools_postgres import get_postgres_container
+from odoo_openupgrade_wizard.tools.tools_system import get_script_folder
 
 
 def get_odoo_addons_path(

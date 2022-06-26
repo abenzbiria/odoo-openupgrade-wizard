@@ -8,8 +8,8 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_python_major_version,
     get_version_options,
 )
-from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
-from odoo_openupgrade_wizard.tools_system import (
+from odoo_openupgrade_wizard.tools.tools_odoo import get_odoo_env_path
+from odoo_openupgrade_wizard.tools.tools_system import (
     ensure_file_exists_from_template,
     ensure_folder_exists,
 )
