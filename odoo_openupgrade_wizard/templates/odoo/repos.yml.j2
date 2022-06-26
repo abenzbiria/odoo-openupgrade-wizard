@@ -1,0 +1,41 @@
+##############################################################################
+## Odoo Repository
+##############################################################################
+
+./src/odoo:
+    defaults:
+        depth: 1
+    remotes:
+        odoo: https://github.com/odoo/odoo
+    target: odoo {{ odoo_version }}-target
+    merges:
+        - odoo {{ odoo_version }}
+
+##############################################################################
+## OpenUpgrade Repository
+##############################################################################
+
+./src/openupgrade:
+    defaults:
+        depth: 1
+    remotes:
+        OCA: https://github.com/OCA/OpenUpgrade
+    target: OCA {{ odoo_version }}-target
+    merges:
+        - OCA {{ odoo_version }}
+
+{% for org_name, repo_list in orgs.items() %}
+##############################################################################
+## {{ org_name }} Repositories
+##############################################################################
+    {% for repo in repo_list %}
+./src/{{ org_name }}/{{ repo }}:
+    defaults:
+        depth: 1
+    remotes:
+        {{ org_name }}: https://github.com/{{ org_name }}/{{ repo }}
+    target: {{ org_name }} {{ odoo_version }}-target
+    merges:
+        - {{ org_name }} {{ odoo_version }}
+    {% endfor %}
+{% endfor %}

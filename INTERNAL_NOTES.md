@@ -44,3 +44,9 @@ sudo dpkg -i gitlab-runner_amd64.deb
 # TODO:
 - check dynamic user id with
 https://github.com/camptocamp/docker-odoo-project/blob/master/bin/docker-entrypoint.sh
+
+
+in modules.csv.j2 :
+# TODO, this value are usefull for test for analyse between 13 and 14.
+# move that values in data/extra_script/modules.csv
+# and let this template with only 'base' module.
