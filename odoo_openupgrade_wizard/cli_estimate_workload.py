@@ -3,7 +3,6 @@ from pathlib import Path
 
 import click
 
-from odoo_openupgrade_wizard import templates
 from odoo_openupgrade_wizard.tools_odoo import get_odoo_modules_from_csv
 from odoo_openupgrade_wizard.tools_odoo_module import Analysis
 from odoo_openupgrade_wizard.tools_system import (
@@ -48,7 +47,7 @@ def estimate_workload(ctx, analysis_file_path, extra_modules_list):
     # Render html file
     ensure_file_exists_from_template(
         Path(analysis_file_path),
-        templates.ANALYSIS_HTML_TEMPLATE,
+        "analysis.html.j2",
         ctx=ctx,
         analysis=analysis,
         current_date=datetime.now().strftime("%d/%m/%Y %H:%M:%S"),

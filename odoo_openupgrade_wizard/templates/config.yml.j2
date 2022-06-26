@@ -1,32 +1,24 @@
-project_name: test-cli
+project_name: {{ project_name }}
 
 postgres_image_name: postgres:13
-postgres_container_name: test-cli-db
+postgres_container_name: {{project_name}}-db
 
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
 
 
 odoo_versions:
-  - 13.0
-  - 14.0
+{%- for odoo_version in odoo_versions %}
+  - {{ odoo_version }}
+{%- endfor %}
 
 migration_steps:
-  - name: 1
-    version: 13.0
-    execution_context: regular
-    complete_name: step_01__update__13.0
-
-  - name: 2
-    version: 14.0
-    execution_context: openupgrade
-    complete_name: step_02__upgrade__14.0
-
-  - name: 3
-    version: 14.0
-    execution_context: regular
-    complete_name: step_03__update__14.0
-
+{%- for step in steps %}
+  - name: {{ step['name'] }}
+    version: {{ step['version'] }}
+    execution_context: {{ step['execution_context'] }}
+    complete_name: {{ step['complete_name'] }}
+{% endfor %}
 
 workload_settings:
 

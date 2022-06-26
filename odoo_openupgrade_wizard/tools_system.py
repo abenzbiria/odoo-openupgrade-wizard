@@ -2,14 +2,13 @@ import argparse
 import os
 from pathlib import Path
 
+import importlib_resources
 from git_aggregator import main as gitaggregate_cmd
 from git_aggregator.utils import working_directory_keeper
 from jinja2 import Template
 from loguru import logger
 from plumbum.cmd import chmod, mkdir
 from plumbum.commands.processes import ProcessExecutionError
-
-from odoo_openupgrade_wizard import templates
 
 
 def get_script_folder(ctx, migration_step: dict) -> Path:
@@ -41,15 +40,18 @@ def ensure_folder_exists(
     if git_ignore_content:
         ensure_file_exists_from_template(
             folder_path / Path(".gitignore"),
-            templates.GIT_IGNORE_CONTENT,
+            ".gitignore.j2",
         )
 
 
 def ensure_file_exists_from_template(
     file_path: Path, template_name: str, **args
 ):
-
-    template = Template(template_name)
+    template_folder = (
+        importlib_resources.files("odoo_openupgrade_wizard") / "templates"
+    )
+    text = (template_folder / template_name).read_text()
+    template = Template(text)
     output = template.render(args)
 
     if file_path.exists():

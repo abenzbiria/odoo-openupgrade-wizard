@@ -26,14 +26,24 @@ def test_cli_install_from_csv():
         ]
     )
 
-    # Ensure that 'account' is installed
-    # and also 'product', by dependencies
+    # Ensure that 'base' is installed
     request = (
         "SELECT count(*)"
         " FROM ir_module_module"
         " WHERE state ='installed'"
-        " AND name in ('product', 'account');"
+        " AND name in ('base');"
     )
     module_qty = int(execute_sql_request(ctx, request, database=db_name)[0][0])
 
-    assert module_qty == 2
+    assert module_qty == 1
+
+    # Ensure that 'account' is not installed
+    request = (
+        "SELECT count(*)"
+        " FROM ir_module_module"
+        " WHERE state ='installed'"
+        " AND name in ('account');"
+    )
+    module_qty = int(execute_sql_request(ctx, request, database=db_name)[0][0])
+
+    assert module_qty == 0

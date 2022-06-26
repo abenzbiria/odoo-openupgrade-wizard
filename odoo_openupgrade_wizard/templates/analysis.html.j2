@@ -1,0 +1,175 @@
+<html>
+  <body>
+    <h1>Migration Analysis</h1>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>Initial Version</th>
+          <th>Final Version</th>
+          <th>Project Name</th>
+          <th>Analysis Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ ctx.obj['config']['odoo_versions'][0] }}</td>
+          <td>{{ ctx.obj['config']['odoo_versions'][-1] }}</td>
+          <td>{{ ctx.obj['config']['project_name'] }}</td>
+          <td>{{ current_date }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Summary</h2>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>Module Type</th>
+          <th>Module Quantity</th>
+          <th>Remaining Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Odoo</td>
+          <td>{{ analysis.get_module_qty('odoo') }}</td>
+          <td>{{ analysis.workload_hour_text('odoo') }}</td>
+        </tr>
+        <tr>
+          <td>OCA</td>
+          <td>{{ analysis.get_module_qty('OCA') }}</td>
+          <td>{{ analysis.workload_hour_text('OCA') }}</td>
+        </tr>
+        <tr>
+          <td>Custom</td>
+          <td>{{ analysis.get_module_qty('custom') }}</td>
+          <td>{{ analysis.workload_hour_text('custom') }}</td>
+        </tr>
+        <tr>
+          <td>Not Found</td>
+          <td>{{ analysis.get_module_qty('custom') }}</td>
+          <td>&nbsp;</td>
+        </tr>
+      </tbody>
+      <tfood>
+        <tr>
+          <th>Total</th>
+          <td>{{ analysis.get_module_qty() }}</td>
+          <td>{{ analysis.workload_hour_text() }}</td>
+        </tr>
+      </tfood>
+    </table>
+
+    <h2>Details</h2>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+{%- for odoo_version in ctx.obj['config']['odoo_versions'] -%}
+          <th>{{ odoo_version }}</th>
+{% endfor %}
+
+        </tr>
+      </thead>
+      <tbody>
+{% set ns = namespace(
+  current_repository='',
+  current_module_type='',
+) %}
+{% for odoo_module in analysis.modules %}
+
+<!-- ---------------------- -->
+<!-- Handle New Module Type -->
+<!-- ---------------------- -->
+
+  {% if (
+    ns.current_module_type != odoo_module.module_type
+    and odoo_module.module_type != 'odoo') %}
+    {% set ns.current_module_type = odoo_module.module_type %}
+        <tr>
+          <th colspan="{{1 + ctx.obj['config']['odoo_versions']|length}}">
+            {{ ns.current_module_type}}
+          </th>
+        <tr>
+  {% endif %}
+
+<!-- -------------------- -->
+<!-- Handle New Repository-->
+<!-- -------------------- -->
+
+  {% if ns.current_repository != odoo_module.repository %}
+    {% set ns.current_repository = odoo_module.repository %}
+
+    {% if ns.current_repository %}
+        <tr>
+          <th colspan="{{1 + ctx.obj['config']['odoo_versions']|length}}">
+            {{ ns.current_repository}}
+          </th>
+        <tr>
+    {% endif %}
+  {% endif %}
+
+<!-- -------------------- -->
+<!-- Display Module Line  -->
+<!-- -------------------- -->
+
+        <tr>
+          <td>{{odoo_module.name}}
+  {% if odoo_module.module_type == 'not_found' %}
+    {% set odoo_apps_url = odoo_module.get_odoo_apps_url() %}
+    {% if odoo_apps_url %}
+          <a href="{{odoo_apps_url}}" target="_blank">AppsStore</a>
+    {% else %}
+      {% set odoo_code_search_url = odoo_module.get_odoo_code_search_url() %}
+      {% if odoo_code_search_url %}
+          <a href="{{odoo_code_search_url}}" target="_blank">
+            OdooCodeSearch
+          </a>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+          </td>
+  {% for version in odoo_module.analyse.all_versions %}
+    {% set module_version = odoo_module.get_module_version(version) %}
+    {% if module_version %}
+      {% set size_text = module_version.get_size_text() %}
+      {% set analysis_text = module_version.get_analysis_text() %}
+      {% set workload = module_version.workload %}
+
+          <td style="background-color:{{module_version.get_bg_color()}};">
+            {{module_version.get_text()}}
+
+      {% if workload %}
+        <span style="background-color:lightblue;">
+          ({{ module_version.workload_hour_text()}})
+        </span>
+      {% endif %}
+      {% if size_text %}
+        <br/>
+        <span style="color:gray;font-size:11px;font-family:monospace;">
+          ({{ size_text}})
+        </span>
+      {% endif %}
+      {% if analysis_text %}
+        <br/>
+        <span style="color:gray;font-size:11px;font-family:monospace;">
+          <a href="{{module_version.analysis_url()}}" target="_blank">
+          ({{ analysis_text}})
+          </a>
+        </span>
+      {% endif %}
+
+          </td>
+    {% else %}
+          <td style="background-color:gray;">&nbsp;</td>
+    {% endif %}
+  {% endfor %}
+        </tr>
+
+{% endfor %}
+
+      </tbody>
+    </table>
+  </body>
+</html>

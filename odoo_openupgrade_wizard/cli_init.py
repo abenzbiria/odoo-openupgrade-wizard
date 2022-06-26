@@ -2,7 +2,6 @@ from pathlib import Path
 
 import click
 
-from odoo_openupgrade_wizard import templates
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_odoo_versions,
     get_python_libraries,
@@ -130,7 +129,7 @@ def init(
     # 6. ensure main configuration file exists
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
-        templates.CONFIG_YML_TEMPLATE,
+        "config.yml.j2",
         project_name=project_name,
         steps=steps,
         odoo_versions=odoo_versions,
@@ -139,7 +138,7 @@ def init(
     # 7. Ensure module list file exists
     ensure_file_exists_from_template(
         ctx.obj["module_file_path"],
-        templates.MODULES_CSV_TEMPLATE,
+        "modules.csv.j2",
         project_name=project_name,
         steps=steps,
         odoo_versions=odoo_versions,
@@ -154,26 +153,26 @@ def init(
         # Create python requirements file
         ensure_file_exists_from_template(
             path_version / Path("python_requirements.txt"),
-            templates.PYTHON_REQUIREMENTS_TXT_TEMPLATE,
+            "odoo/python_requirements.txt.j2",
             python_libraries=get_python_libraries(odoo_version),
         )
 
         # Create debian requirements file
         ensure_file_exists_from_template(
             path_version / Path("debian_requirements.txt"),
-            templates.DEBIAN_REQUIREMENTS_TXT_TEMPLATE,
+            "odoo/debian_requirements.txt.j2",
         )
 
         # Create odoo config file
         ensure_file_exists_from_template(
             path_version / Path("odoo.cfg"),
-            templates.ODOO_CONFIG_TEMPLATE,
+            "odoo/odoo.cfg.j2",
         )
 
         # Create repos.yml file for gitaggregate tools
         ensure_file_exists_from_template(
             path_version / Path("repos.yml"),
-            templates.REPO_YML_TEMPLATE,
+            "odoo/repos.yml.j2",
             odoo_version=odoo_version,
             orgs=orgs,
         )
@@ -181,7 +180,7 @@ def init(
         # Create Dockerfile file
         ensure_file_exists_from_template(
             path_version / Path("Dockerfile"),
-            templates.DOCKERFILE_TEMPLATE,
+            "odoo/Dockerfile.j2",
             odoo_version=odoo_version,
             python_major_version=get_python_major_version(odoo_version),
         )
@@ -200,10 +199,10 @@ def init(
 
         ensure_file_exists_from_template(
             step_path / Path("pre-migration.sql"),
-            templates.PRE_MIGRATION_SQL_TEMPLATE,
+            "scripts/pre-migration.sql.j2",
         )
 
         ensure_file_exists_from_template(
             step_path / Path("post-migration.py"),
-            templates.POST_MIGRATION_PY_TEMPLATE,
+            "scripts/post-migration.py.j2",
         )
