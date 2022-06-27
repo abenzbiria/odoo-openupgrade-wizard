@@ -1,10 +1,9 @@
 [tool.poetry]
 name = "odoo-openupgrade-wizard"
-version = "0.1.0"
+version = "0.2.0"
 description = "CLI tool to manage Odoo Major Upgrades"
 authors = [
     "GRAP, Groupement Régional Alimentaire de Proximité",
-    "Coop IT Easy SCRLfs",
 ]
 maintainers = [
     "Sylvain LE GAL",
