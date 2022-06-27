@@ -153,11 +153,14 @@ def skip_addon_path(migration_step: dict, path: Path) -> bool:
     ) and migration_step["version"] < 14.0
 
 
-def get_server_wide_modules_upgrade(migration_step: dict) -> list:
+def get_server_wide_modules_upgrade(
+    migration_step: dict, execution_context: str = False
+) -> list:
     """return a list of modules to load, depending on the migration step."""
     if (
         migration_step["version"] >= 14.0
         and migration_step["execution_context"] == "openupgrade"
+        and execution_context != "regular"
     ):
         return ["openupgrade_framework"]
     return []

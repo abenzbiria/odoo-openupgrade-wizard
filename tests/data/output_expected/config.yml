@@ -14,9 +14,9 @@ odoo_versions:
 
 odoo_version_settings:
   13.0:
-    python_minor_version_short: py37
+    repo_url: False
   14.0:
-    python_minor_version_short: py39
+    repo_url: False
 
 
 migration_steps:
