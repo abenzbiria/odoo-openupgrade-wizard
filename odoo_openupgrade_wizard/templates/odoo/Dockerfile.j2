@@ -11,9 +11,5 @@ RUN apt-get update || true \
 
 # 3. Install extra Python librairies
 RUN \
-  pip install --no-cache-dir \
-    -r /odoo_requirements.txt \
-    -f https://wheelhouse.acsone.eu/manylinux2014\
-  && pip install --no-cache-dir \
-    -r /python_requirements.txt \
-    -f https://wheelhouse.acsone.eu/manylinux2014
+  /odoo/bin/pip install --no-cache-dir -r /odoo_requirements.txt -f {{prebuild_wheel_url}} \
+  && /odoo/bin/pip install --no-cache-dir -r /python_requirements.txt -f {{prebuild_wheel_url}}

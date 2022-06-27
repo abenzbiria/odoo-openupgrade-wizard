@@ -7,73 +7,70 @@ _ODOO_VERSION_TEMPLATES = [
         "version": 8.0,
         "python_major_version": "python2",
         "python_minor_version_short": "py27",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux1",
     },
     {
         "version": 9.0,
         "python_major_version": "python2",
         "python_minor_version_short": "py27",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux1",
     },
     {
         "version": 10.0,
         "python_major_version": "python2",
         "python_minor_version_short": "py27",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux1",
     },
     {
         "version": 11.0,
         "python_major_version": "python3",
         "python_minor_version_short": "py36",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
     {
         "version": 12.0,
         "python_major_version": "python3",
         # Note: doesn't work with latest available version py37
         "python_minor_version_short": "py36",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
     {
         "version": 13.0,  # OK.
         "python_major_version": "python3",
         # Note: doesn't work with latest available version py37
         "python_minor_version_short": "py36",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
     {
         "version": 14.0,  # OK
         "python_major_version": "python3",
         "python_minor_version_short": "py39",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
     {
         "version": 15.0,  # OK
         "python_major_version": "python3",
         "python_minor_version_short": "py39",
+        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
 ]
 
 
-def get_version_template(version: float) -> dict:
-    """return a version template dictionnary according to a version
-    provided"""
-    for version_template in _ODOO_VERSION_TEMPLATES:
-        if version_template["version"] == version:
-            return version_template
+def get_odoo_version_template_value(version: float, key: str) -> str:
+    """Return a value depending on a odoo given version and key.
+    Possible key:
+        - python_major_version. (python2, python3)
+        - python_minor_version_short. (py27, py36, ...)
+        - prebuild_wheel_url.
+    """
+    version_template = False
+    for odoo_version_template in _ODOO_VERSION_TEMPLATES:
+        if odoo_version_template["version"] == version:
+            version_template = odoo_version_template
+            break
     else:
         raise ValueError
-
-
-def get_python_libraries(version: float) -> list:
-    """Return a list of python librairies that should be
-    installed in each docker container for a given version"""
-    return get_version_template(version)["python_libraries"]
-
-
-def get_python_major_version(version: float) -> str:
-    """Return the major python version (2.0, 3.0) of Odoo for
-    a given version"""
-    return get_version_template(version)["python_major_version"]
-
-
-def get_python_minor_version_short(version: float) -> str:
-    """Return the default minor python version (py27, py38) of Odoo for
-    a given version"""
-    return get_version_template(version)["python_minor_version_short"]
+    return version_template[key]
 
 
 def get_version_options(mode: str) -> list:
@@ -93,27 +90,10 @@ def get_version_options(mode: str) -> list:
     return version_options
 
 
-def get_odoo_version_settings(
-    initial_version: float, final_version: float
-) -> list:
-    """Return a list of odoo version settings from the initial version to the final
-    version
-    """
-    result = []
-    for version_template in _ODOO_VERSION_TEMPLATES:
-        if (
-            version_template["version"] >= initial_version
-            and version_template["version"] <= final_version
-        ):
-            result.append(version_template)
-    return result
-
-
 def get_odoo_versions(initial_version: float, final_version: float) -> list:
     """Return a list of odoo versions from the initial version to the final
     version
     """
-    # TODO, call get_odoo_version_settings() and call keys()
     result = []
     for version_template in _ODOO_VERSION_TEMPLATES:
         if (
