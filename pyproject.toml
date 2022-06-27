@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "odoo-openupgrade-wizard"
-version = "0.2.0"
+version = "0.2.1"
 description = "CLI tool to manage Odoo Major Upgrades"
 authors = [
     "GRAP, Groupement Régional Alimentaire de Proximité",

@@ -27,23 +27,29 @@ and provides helpers to run (and replay) migrations until it works.
 
 # Installation
 
-**Prerequites**
+**Prerequites:**
 
 * You should have docker installed on your system
 * the tools run on debian system
 
-**Installation**
+**Installation:**
+
+The library is available on [PyPI](https://pypi.org/project/odoo-openupgrade-wizard/).
+
+To install it simply run :
 
 ``pipx install odoo-openupgrade-wizard``
 
-(coming soon. Not still deployed on pypi ! See alternative installation
-in ``DEVELOP.md`` file.)
+(See alternative installation in ``DEVELOP.md`` file.)
 
 # Usage
 
+**Note:**
 
+the term ``odoo-openupgrade-wizard`` can be replaced by ``oow``
+in all the command lines below.
 
-## ``odoo-openupgrade-wizard init``
+## Command: ``init``
 
 ```
 odoo-openupgrade-wizard init\
@@ -139,9 +145,9 @@ extra repositories, or dependencies...
   to have all the features of the librairies available.
 
 
-## ``odoo-openupgrade-wizard get-code``
+## Command: ``get-code``
 
-Prerequites : init
+**Prerequites:** init
 
 ```
 odoo-openupgrade-wizard get-code
@@ -166,9 +172,9 @@ odoo-openupgrade-wizard get-code --versions 10.0,11.0
 
 
 
-## ``odoo-openupgrade-wizard docker-build``
+## Command: ``docker-build``
 
-Prerequites : init + get-code
+**Prerequites:** init + get-code
 
 This will build local docker images that will be used in the following steps.
 
@@ -199,9 +205,9 @@ odoo-openupgrade-wizard-image---my-customer-10-12---10.0   latest    9d94dce2bd4
 
 
 
-## ``odoo-openupgrade-wizard run`` (BETA)
+## Command: ``run`` (BETA)
 
-Prerequites : init + get-code + build
+**Prerequites:** init + get-code + build
 
 ```
 odoo-openupgrade-wizard run\
@@ -226,9 +232,9 @@ at your host, at the following url : http://localhost:9069
 
 
 
-## ``odoo-openupgrade-wizard install-from-csv``
+## Command: ``install-from-csv``
 
-Prerequites : init + get-code + build
+**Prerequites:** init + get-code + build
 
 ```
 odoo-openupgrade-wizard install-from-csv\
@@ -247,9 +253,9 @@ psql -c "copy (select name, shortdesc from ir_module_module where state = 'insta
 
 
 
-## ``odoo-openupgrade-wizard upgrade`` (BETA)
+## Command: ``upgrade`` (BETA)
 
-Prerequites : init + get-code + build
+**Prerequites:** init + get-code + build
 
 ```
 odoo-openupgrade-wizard upgrade\
@@ -274,9 +280,9 @@ For each step, it will :
 
 
 
-## ``odoo-openupgrade-wizard generate-module-analysis`` (BETA)
+## Command: ``generate-module-analysis`` (BETA)
 
-Prerequites : init + get-code + build
+**Prerequites:** init + get-code + build
 
 ```
 odoo-openupgrade-wizard generate-module-analysis\
@@ -292,9 +298,9 @@ You can also use this fonction to analyze differences for custom / OCA modules
 between several versions, in case of refactoring.
 
 
-## ``odoo-openupgrade-wizard estimate-workload``
+## Command: ``estimate-workload``
 
-Prerequites : init + get-code
+**Prerequites:** init + get-code
 
 ```
 odoo-openupgrade-wizard estimate-workload
