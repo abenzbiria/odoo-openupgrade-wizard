@@ -3,9 +3,10 @@ from pathlib import Path
 import click
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
+    get_odoo_version_settings,
     get_odoo_versions,
-    get_python_libraries,
     get_python_major_version,
+    get_python_minor_version_short,
     get_version_options,
 )
 from odoo_openupgrade_wizard.tools.tools_odoo import get_odoo_env_path
@@ -66,6 +67,9 @@ def init(
 
     # 1. Compute Odoo versions
     odoo_versions = get_odoo_versions(
+        float(initial_version), float(final_version)
+    )
+    odoo_version_settings = get_odoo_version_settings(
         float(initial_version), float(final_version)
     )
 
@@ -133,6 +137,7 @@ def init(
         project_name=project_name,
         steps=steps,
         odoo_versions=odoo_versions,
+        odoo_version_settings=odoo_version_settings,
     )
 
     # 7. Ensure module list file exists
@@ -154,7 +159,6 @@ def init(
         ensure_file_exists_from_template(
             path_version / Path("python_requirements.txt"),
             "odoo/python_requirements.txt.j2",
-            python_libraries=get_python_libraries(odoo_version),
         )
 
         # Create debian requirements file
@@ -183,6 +187,9 @@ def init(
             "odoo/Dockerfile.j2",
             odoo_version=odoo_version,
             python_major_version=get_python_major_version(odoo_version),
+            python_minor_version_short=get_python_minor_version_short(
+                odoo_version
+            ),
         )
 
         # Create 'src' folder that will contain all the odoo code

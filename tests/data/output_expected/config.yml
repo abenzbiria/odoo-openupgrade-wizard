@@ -11,6 +11,14 @@ odoo_versions:
   - 13.0
   - 14.0
 
+
+odoo_version_settings:
+  13.0:
+    python_minor_version_short: py37
+  14.0:
+    python_minor_version_short: py39
+
+
 migration_steps:
   - name: 1
     version: 13.0

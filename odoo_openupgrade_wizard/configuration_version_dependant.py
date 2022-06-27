@@ -6,44 +6,42 @@ _ODOO_VERSION_TEMPLATES = [
     {
         "version": 8.0,
         "python_major_version": "python2",
-        "python_libraries": [],
+        "python_minor_version_short": "py27",
     },
     {
         "version": 9.0,
         "python_major_version": "python2",
-        "python_libraries": ["openupgradelib==2.0.0"],
+        "python_minor_version_short": "py27",
     },
     {
         "version": 10.0,
         "python_major_version": "python2",
-        "python_libraries": ["openupgradelib==2.0.0"],
+        "python_minor_version_short": "py27",
     },
     {
         "version": 11.0,
         "python_major_version": "python3",
-        "python_libraries": ["openupgradelib==2.0.0"],
+        "python_minor_version_short": "py36",
     },
     {
         "version": 12.0,
         "python_major_version": "python3",
-        "python_libraries": [
-            "git+https://github.com/grap/openupgradelib.git"
-            "@2.0.1#egg=openupgradelib"
-        ],
+        "python_minor_version_short": "py37",
     },
     {
         "version": 13.0,
         "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
+        "python_minor_version_short": "py37",
     },
     {
         "version": 14.0,
         "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
+        "python_minor_version_short": "py39",
     },
     {
         "version": 15.0,
         "python_major_version": "python3",
+        "python_minor_version_short": "py39",
         "python_libraries": ["openupgradelib"],
     },
 ]
@@ -71,6 +69,12 @@ def get_python_major_version(version: float) -> str:
     return get_version_template(version)["python_major_version"]
 
 
+def get_python_minor_version_short(version: float) -> str:
+    """Return the default minor python version (py27, py38) of Odoo for
+    a given version"""
+    return get_version_template(version)["python_minor_version_short"]
+
+
 def get_version_options(mode: str) -> list:
     """Get options available for version click argument.
     Arguments:
@@ -88,10 +92,27 @@ def get_version_options(mode: str) -> list:
     return version_options
 
 
+def get_odoo_version_settings(
+    initial_version: float, final_version: float
+) -> list:
+    """Return a list of odoo version settings from the initial version to the final
+    version
+    """
+    result = []
+    for version_template in _ODOO_VERSION_TEMPLATES:
+        if (
+            version_template["version"] >= initial_version
+            and version_template["version"] <= final_version
+        ):
+            result.append(version_template)
+    return result
+
+
 def get_odoo_versions(initial_version: float, final_version: float) -> list:
     """Return a list of odoo versions from the initial version to the final
     version
     """
+    # TODO, call get_odoo_version_settings() and call keys()
     result = []
     for version_template in _ODOO_VERSION_TEMPLATES:
         if (

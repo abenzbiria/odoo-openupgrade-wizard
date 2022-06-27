@@ -12,6 +12,14 @@ odoo_versions:
   - {{ odoo_version }}
 {%- endfor %}
 
+
+odoo_version_settings:
+{%- for setting in odoo_version_settings %}
+  {{setting['version']}}:
+    python_minor_version_short: {{setting['python_minor_version_short']}}
+{%- endfor %}
+
+
 migration_steps:
 {%- for step in steps %}
   - name: {{ step['name'] }}
