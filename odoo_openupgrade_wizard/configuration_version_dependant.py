@@ -26,23 +26,24 @@ _ODOO_VERSION_TEMPLATES = [
     {
         "version": 12.0,
         "python_major_version": "python3",
-        "python_minor_version_short": "py37",
+        # Note: doesn't work with latest available version py37
+        "python_minor_version_short": "py36",
     },
     {
-        "version": 13.0,
+        "version": 13.0,  # OK.
         "python_major_version": "python3",
-        "python_minor_version_short": "py37",
+        # Note: doesn't work with latest available version py37
+        "python_minor_version_short": "py36",
     },
     {
-        "version": 14.0,
-        "python_major_version": "python3",
-        "python_minor_version_short": "py39",
-    },
-    {
-        "version": 15.0,
+        "version": 14.0,  # OK
         "python_major_version": "python3",
         "python_minor_version_short": "py39",
-        "python_libraries": ["openupgradelib"],
+    },
+    {
+        "version": 15.0,  # OK
+        "python_major_version": "python3",
+        "python_minor_version_short": "py39",
     },
 ]
 
