@@ -25,7 +25,8 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-odoo-openupgrade-wizard = "odoo_openupgrade_wizard.cli:main"
+oow = "odoo_openupgrade_wizard.cli.cli:main"
+odoo-openupgrade-wizard = "odoo_openupgrade_wizard.cli.cli:main"
 
 [tool.poetry.dependencies]
 python = ">=3.6.3,<4.0.0"
