@@ -360,7 +360,7 @@ plugins = ["setuptools"]
 name = "jinja2"
 version = "3.0.3"
 description = "A very fast and expressive template engine."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -409,7 +409,7 @@ dev = ["colorama (>=0.3.4)", "docutils (==0.16)", "flake8 (>=3.7.7)", "tox (>=3.
 name = "markupsafe"
 version = "2.0.1"
 description = "Safely add untrusted strings to HTML/XML markup."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -862,7 +862,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.3,<4.0.0"
-content-hash = "cf6e4e8a8d4c26f956c108ccf66ac8e1b074c92bdf3c962537f55fb93bdddf10"
+content-hash = "83c796afe3bead38187a2cd46deab78c3b6311c416d583b20fb077014d01f139"
 
 [metadata.files]
 aiocontextvars = [
