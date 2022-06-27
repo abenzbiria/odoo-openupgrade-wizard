@@ -216,6 +216,7 @@ def run_odoo(
         command,
         detached_container=detached_container,
         database=database,
+        execution_context=execution_context,
         alternative_xml_rpc_port=alternative_xml_rpc_port,
     )
 
