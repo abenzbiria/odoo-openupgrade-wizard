@@ -1,4 +1,4 @@
-import configparser
+# import configparser
 import csv
 import os
 import sys
@@ -8,11 +8,11 @@ from pathlib import Path
 import yaml
 from loguru import logger
 
+# get_server_wide_modules_upgrade,
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_base_module_folder,
     get_odoo_folder,
     get_odoo_run_command,
-    get_server_wide_modules_upgrade,
     skip_addon_path,
 )
 from odoo_openupgrade_wizard.tools.tools_docker import (
@@ -101,7 +101,8 @@ def generate_odoo_command(
     result = (
         f" {command}"
         f" {shell_cmd}"
-        f" --config /odoo_env/_auto_generated_odoo.cfg"
+        # f" --config /etc/odoo.cfg"
+        f" --data-dir /env/filestore/"
         f" {demo_cmd}"
         f" {database_cmd}"
         f" {update_cmd}"
@@ -111,58 +112,59 @@ def generate_odoo_command(
     return result
 
 
-def generate_odoo_config_file(
-    ctx, migration_step, log_file, execution_context
-):
-    """Create a config file name _auto_generated_odoo.cfg
-    in the according environment (defined by migration_step)
-    This configuration file is a merge of the odoo.cfg file that can
-    contain custom values, and the values required to run the docker container.
-    """
-    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
+# def generate_odoo_config_file(
+#     ctx, migration_step, log_file, execution_context
+# ):
+#     """Create a config file name _auto_generated_odoo.cfg
+#     in the according environment (defined by migration_step)
+#     This configuration file is a merge of the odoo.cfg file that can
+#     contain custom values, and the values required to run the docker
+#     container.
+#     """
+#     odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
 
-    custom_odoo_config_file = odoo_env_path / "odoo.cfg"
-    auto_generated_odoo_config_file = (
-        odoo_env_path / "_auto_generated_odoo.cfg"
-    )
+#     custom_odoo_config_file = odoo_env_path / "odoo.cfg"
+#     auto_generated_odoo_config_file = (
+#         odoo_env_path / "_auto_generated_odoo.cfg"
+#     )
 
-    parser = configparser.RawConfigParser()
-    # Read custom file
-    parser.read(custom_odoo_config_file)
+#     parser = configparser.RawConfigParser()
+#     # Read custom file
+#     parser.read(custom_odoo_config_file)
 
-    # compute addons_path
-    addons_path = ",".join(
-        [
-            str(x)
-            for x in get_odoo_addons_path(
-                ctx, Path("/odoo_env"), migration_step, execution_context
-            )
-        ]
-    )
+#     # compute addons_path
+#     addons_path = ",".join(
+#         [
+#             str(x)
+#             for x in get_odoo_addons_path(
+#                 ctx, Path("/odoo_env"), migration_step, execution_context
+#             )
+#         ]
+#     )
 
-    # compute server wides modules
-    server_wide_modules = parser.get(
-        "options", "server_wide_modules", fallback=[]
-    )
-    server_wide_modules += get_server_wide_modules_upgrade(migration_step)
+#     # compute server wides modules
+#     server_wide_modules = parser.get(
+#         "options", "server_wide_modules", fallback=[]
+#     )
+#     server_wide_modules += get_server_wide_modules_upgrade(migration_step)
 
-    # Add required keys
-    if "options" not in parser:
-        parser.add_section("options")
-    parser.set("options", "db_host", "db")
-    parser.set("options", "db_port", 5432)
-    parser.set("options", "db_user", "odoo")
-    parser.set("options", "db_password", "odoo")
-    parser.set("options", "workers", 0)
-    parser.set("options", "data_dir", "/env/filestore/")
-    parser.set("options", "logfile", log_file)
-    parser.set("options", "addons_path", addons_path)
-    if server_wide_modules:
-        parser.set(
-            "options", "server_wide_modules", ",".join(server_wide_modules)
-        )
+#     # Add required keys
+#     if "options" not in parser:
+#         parser.add_section("options")
+#     parser.set("options", "db_host", "db")
+#     parser.set("options", "db_port", 5432)
+#     parser.set("options", "db_user", "odoo")
+#     parser.set("options", "db_password", "odoo")
+#     parser.set("options", "workers", 0)
+#     parser.set("options", "data_dir", "/env/filestore/")
+#     parser.set("options", "logfile", log_file)
+#     parser.set("options", "addons_path", addons_path)
+#     if server_wide_modules:
+#         parser.set(
+#             "options", "server_wide_modules", ",".join(server_wide_modules)
+#         )
 
-    parser.write(open(auto_generated_odoo_config_file, "w"))
+#     parser.write(open(auto_generated_odoo_config_file, "w"))
 
 
 def run_odoo(
@@ -195,12 +197,6 @@ def run_odoo(
             update_text=update and " (Update : %s)" % update or "",
         )
     )
-    env_path = ctx.obj["env_folder_path"]
-    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
-    log_file = "/env/log/{}____{}.log".format(
-        ctx.obj["log_prefix"], migration_step["complete_name"]
-    )
-    generate_odoo_config_file(ctx, migration_step, log_file, execution_context)
 
     command = generate_odoo_command(
         ctx,
@@ -213,12 +209,38 @@ def run_odoo(
         shell=shell,
         demo=demo,
     )
-
     host_xmlrpc_port = (
         alternative_xml_rpc_port
         and alternative_xml_rpc_port
         or ctx.obj["config"]["odoo_host_xmlrpc_port"]
     )
+
+    return run_container_odoo(
+        ctx,
+        migration_step,
+        command,
+        host_xmlrpc_port,
+        detached_container=detached_container,
+        database=database,
+    )
+
+
+def run_container_odoo(
+    ctx,
+    migration_step: dict,
+    command: str,
+    host_xmlrpc_port: int,
+    detached_container: bool = False,
+    database: str = False,
+    log_file_suffix: str = "",
+    links: dict = {},
+):
+    log_file = "/env/log/{}____{}{}.log".format(
+        ctx.obj["log_prefix"], migration_step["complete_name"], log_file_suffix
+    )
+    env_path = ctx.obj["env_folder_path"]
+    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
+
     links.update({ctx.obj["config"]["postgres_container_name"]: "db"})
     return run_container(
         get_docker_image_tag(ctx, migration_step["version"]),
@@ -230,6 +252,14 @@ def run_odoo(
         volumes={
             env_path: "/env/",
             odoo_env_path: "/odoo_env/",
+        },
+        environments={
+            "DB_HOST": "db",
+            "DB_PORT": 5432,
+            "DB_USER": "odoo",
+            "DB_PASSWORD": "odoo",
+            "DB_NAME": database,
+            "LOGFILE": log_file,
         },
         links=links,
         detach=detached_container,
@@ -266,10 +296,9 @@ def execute_click_odoo_python_files(
     odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
 
     # Generate odoo config file
-    log_file = "/env/log/{}____{}__post_migration.log".format(
-        ctx.obj["log_prefix"], migration_step["complete_name"]
-    )
-    generate_odoo_config_file(ctx, migration_step, log_file, execution_context)
+    # log_file = "/env/log/{}____{}__post_migration.log".format(
+    #     ctx.obj["log_prefix"], migration_step["complete_name"]
+    # )
 
     for python_file in python_files:
         # TODO, check if we should set python2 for old version of Odoo
