@@ -4,11 +4,11 @@ from pathlib import Path
 
 from loguru import logger
 
-from odoo_openupgrade_wizard.tools_docker import (
+from odoo_openupgrade_wizard.tools.tools_docker import (
     get_docker_client,
     run_container,
 )
-from odoo_openupgrade_wizard.tools_system import get_script_folder
+from odoo_openupgrade_wizard.tools.tools_system import get_script_folder
 
 
 def get_postgres_container(ctx):

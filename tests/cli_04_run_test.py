@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from odoo_openupgrade_wizard.tools_docker import get_docker_client
-from odoo_openupgrade_wizard.tools_postgres import execute_sql_request
+from odoo_openupgrade_wizard.tools.tools_docker import get_docker_client
+from odoo_openupgrade_wizard.tools.tools_postgres import execute_sql_request
 
 from . import (
     build_ctx_from_config_file,

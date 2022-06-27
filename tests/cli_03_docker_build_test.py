@@ -1,4 +1,4 @@
-from odoo_openupgrade_wizard.tools_docker import get_docker_client
+from odoo_openupgrade_wizard.tools.tools_docker import get_docker_client
 
 from . import cli_runner_invoke, move_to_test_folder
 

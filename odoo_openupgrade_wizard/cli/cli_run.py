@@ -1,13 +1,13 @@
 import click
 from loguru import logger
 
-from odoo_openupgrade_wizard.cli_options import (
+from odoo_openupgrade_wizard.cli.cli_options import (
     database_option,
     get_migration_step_from_options,
     step_option,
 )
-from odoo_openupgrade_wizard.tools_odoo import kill_odoo, run_odoo
-from odoo_openupgrade_wizard.tools_postgres import ensure_database
+from odoo_openupgrade_wizard.tools.tools_odoo import kill_odoo, run_odoo
+from odoo_openupgrade_wizard.tools.tools_postgres import ensure_database
 
 
 @click.command()

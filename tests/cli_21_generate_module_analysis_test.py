@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from odoo_openupgrade_wizard.tools_odoo import get_odoo_env_path
+from odoo_openupgrade_wizard.tools.tools_odoo import get_odoo_env_path
 
 from . import (
     build_ctx_from_config_file,

@@ -1,12 +1,12 @@
 import click
 from loguru import logger
 
-from odoo_openupgrade_wizard.cli_options import (
+from odoo_openupgrade_wizard.cli.cli_options import (
     get_odoo_versions_from_options,
     versions_options,
 )
-from odoo_openupgrade_wizard.tools_docker import build_image, pull_image
-from odoo_openupgrade_wizard.tools_odoo import (
+from odoo_openupgrade_wizard.tools.tools_docker import build_image, pull_image
+from odoo_openupgrade_wizard.tools.tools_odoo import (
     get_docker_image_tag,
     get_odoo_env_path,
 )

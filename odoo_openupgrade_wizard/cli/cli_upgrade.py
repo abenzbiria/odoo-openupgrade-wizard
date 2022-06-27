@@ -1,13 +1,13 @@
 import click
 from loguru import logger
 
-from odoo_openupgrade_wizard.cli_options import (
+from odoo_openupgrade_wizard.cli.cli_options import (
     database_option_required,
     first_step_option,
     get_migration_steps_from_options,
     last_step_option,
 )
-from odoo_openupgrade_wizard.tools_odoo import (
+from odoo_openupgrade_wizard.tools.tools_odoo import (
     execute_click_odoo_python_files,
     kill_odoo,
     run_odoo,

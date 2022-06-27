@@ -2,7 +2,7 @@ from pathlib import Path
 
 from plumbum.cmd import cp
 
-from odoo_openupgrade_wizard.tools_postgres import execute_sql_request
+from odoo_openupgrade_wizard.tools.tools_postgres import execute_sql_request
 
 from . import (
     build_ctx_from_config_file,

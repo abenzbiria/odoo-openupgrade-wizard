@@ -2,7 +2,7 @@ from pathlib import Path
 
 from plumbum.cmd import cp
 
-from odoo_openupgrade_wizard.tools_postgres import (
+from odoo_openupgrade_wizard.tools.tools_postgres import (
     ensure_database,
     execute_sql_request,
 )

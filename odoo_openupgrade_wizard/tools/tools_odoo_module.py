@@ -13,7 +13,7 @@ from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_coverage_relative_path,
     get_openupgrade_analysis_files,
 )
-from odoo_openupgrade_wizard.tools_odoo import (
+from odoo_openupgrade_wizard.tools.tools_odoo import (
     get_odoo_addons_path,
     get_odoo_env_path,
 )
