@@ -20,7 +20,10 @@ from odoo_openupgrade_wizard.tools.tools_docker import (
     run_container,
 )
 from odoo_openupgrade_wizard.tools.tools_postgres import get_postgres_container
-from odoo_openupgrade_wizard.tools.tools_system import get_script_folder
+from odoo_openupgrade_wizard.tools.tools_system import (
+    get_local_user_id,
+    get_script_folder,
+)
 
 
 def get_odoo_addons_path(
@@ -110,61 +113,6 @@ def generate_odoo_command(
         f" {stop_after_init_cmd}"
     )
     return result
-
-
-# def generate_odoo_config_file(
-#     ctx, migration_step, log_file, execution_context
-# ):
-#     """Create a config file name _auto_generated_odoo.cfg
-#     in the according environment (defined by migration_step)
-#     This configuration file is a merge of the odoo.cfg file that can
-#     contain custom values, and the values required to run the docker
-#     container.
-#     """
-#     odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
-
-#     custom_odoo_config_file = odoo_env_path / "odoo.cfg"
-#     auto_generated_odoo_config_file = (
-#         odoo_env_path / "_auto_generated_odoo.cfg"
-#     )
-
-#     parser = configparser.RawConfigParser()
-#     # Read custom file
-#     parser.read(custom_odoo_config_file)
-
-#     # compute addons_path
-#     addons_path = ",".join(
-#         [
-#             str(x)
-#             for x in get_odoo_addons_path(
-#                 ctx, Path("/odoo_env"), migration_step, execution_context
-#             )
-#         ]
-#     )
-
-#     # compute server wides modules
-#     server_wide_modules = parser.get(
-#         "options", "server_wide_modules", fallback=[]
-#     )
-#     server_wide_modules += get_server_wide_modules_upgrade(migration_step)
-
-#     # Add required keys
-#     if "options" not in parser:
-#         parser.add_section("options")
-#     parser.set("options", "db_host", "db")
-#     parser.set("options", "db_port", 5432)
-#     parser.set("options", "db_user", "odoo")
-#     parser.set("options", "db_password", "odoo")
-#     parser.set("options", "workers", 0)
-#     parser.set("options", "data_dir", "/env/filestore/")
-#     parser.set("options", "logfile", log_file)
-#     parser.set("options", "addons_path", addons_path)
-#     if server_wide_modules:
-#         parser.set(
-#             "options", "server_wide_modules", ",".join(server_wide_modules)
-#         )
-
-#     parser.write(open(auto_generated_odoo_config_file, "w"))
 
 
 def run_odoo(
@@ -279,7 +227,9 @@ def run_container_odoo(
         "LOGFILE": log_file,
         "ADDONS_PATH": addons_path,
         "WORKERS": 0,
+        "LOCAL_USER_ID": get_local_user_id(),
     }
+    # TODO, handle custom config.cfg file
     if server_wide_modules:
         environments["SERVER_WIDE_MODULES"] = ",".join(server_wide_modules)
 

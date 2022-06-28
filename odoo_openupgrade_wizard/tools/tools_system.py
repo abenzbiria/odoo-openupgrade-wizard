@@ -91,3 +91,8 @@ def git_aggregate(folder_path: Path, config_path: Path, jobs: int):
             % config_path
         )
         gitaggregate_cmd.run(args)
+
+
+def get_local_user_id():
+    # hum, could be improved, don't you think ?
+    return 1000

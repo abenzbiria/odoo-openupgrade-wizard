@@ -80,7 +80,7 @@ def main(ctx, env_folder, filestore_folder, log_level):
         filestore_folder_path = Path(filestore_folder)
 
     # ensure log folder exists
-    ensure_folder_exists(log_folder_path, mode="777", git_ignore_content=True)
+    ensure_folder_exists(log_folder_path, git_ignore_content=True)
 
     # Create log file
     log_prefix = "{}__{}".format(

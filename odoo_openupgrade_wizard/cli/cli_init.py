@@ -111,7 +111,7 @@ def init(
 
     # 4. ensure filestore folder exists
     ensure_folder_exists(
-        ctx.obj["filestore_folder_path"], mode="777", git_ignore_content=True
+        ctx.obj["filestore_folder_path"], git_ignore_content=True
     )
 
     # 5. ensure postgres data folder exists
