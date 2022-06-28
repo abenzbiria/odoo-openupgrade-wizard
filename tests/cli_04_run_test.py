@@ -1,7 +1,10 @@
 from pathlib import Path
 
 from odoo_openupgrade_wizard.tools.tools_docker import get_docker_client
-from odoo_openupgrade_wizard.tools.tools_postgres import execute_sql_request
+from odoo_openupgrade_wizard.tools.tools_postgres import (
+    ensure_database,
+    execute_sql_request,
+)
 
 from . import (
     build_ctx_from_config_file,
@@ -12,7 +15,11 @@ from . import (
 
 def test_cli_run():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
+
     db_name = "database_test_cli___run"
+    ensure_database(ctx, db_name, state="absent")
+
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
@@ -29,7 +36,6 @@ def test_cli_run():
     assert db_filestore_path.exists()
 
     # Ensure that 'base' module is installed
-    ctx = build_ctx_from_config_file()
     request = (
         "SELECT id"
         " FROM ir_module_module"

@@ -8,32 +8,32 @@ odoo_default_country_code: FR
 
 
 odoo_versions:
-  - 13.0
   - 14.0
+  - 15.0
 
 
 odoo_version_settings:
-  13.0:
-    repo_url: False
   14.0:
+    repo_url: False
+  15.0:
     repo_url: False
 
 
 migration_steps:
   - name: 1
-    version: 13.0
+    version: 14.0
     execution_context: regular
-    complete_name: step_01__update__13.0
+    complete_name: step_01__update__14.0
 
   - name: 2
-    version: 14.0
+    version: 15.0
     execution_context: openupgrade
-    complete_name: step_02__upgrade__14.0
+    complete_name: step_02__upgrade__15.0
 
   - name: 3
-    version: 14.0
+    version: 15.0
     execution_context: regular
-    complete_name: step_03__update__14.0
+    complete_name: step_03__update__15.0
 
 
 workload_settings:

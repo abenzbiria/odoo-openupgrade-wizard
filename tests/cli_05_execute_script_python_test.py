@@ -2,7 +2,10 @@ from pathlib import Path
 
 from plumbum.cmd import cp
 
-from odoo_openupgrade_wizard.tools.tools_postgres import execute_sql_request
+from odoo_openupgrade_wizard.tools.tools_postgres import (
+    ensure_database,
+    execute_sql_request,
+)
 
 from . import (
     build_ctx_from_config_file,
@@ -13,6 +16,8 @@ from . import (
 
 def test_cli_execute_script_python():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
+
     extra_script_path = Path("../extra_script/click_odoo_test.py").absolute()
     cp(
         extra_script_path,
@@ -20,6 +25,7 @@ def test_cli_execute_script_python():
     )
 
     db_name = "database_test_cli___execute_script_python"
+    ensure_database(ctx, db_name, state="absent")
 
     # Install Odoo on V13 with base installed
     cli_runner_invoke(
@@ -34,7 +40,6 @@ def test_cli_execute_script_python():
     )
 
     # Compute partners quantity
-    ctx = build_ctx_from_config_file()
     request = "SELECT count(*)" " FROM res_partner;"
     partner_quantity_before = int(
         execute_sql_request(ctx, request, database=db_name)[0][0]
