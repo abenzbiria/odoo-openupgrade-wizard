@@ -66,7 +66,7 @@ def run_container(
     debug_docker_command += " %s" % (image_name)
     if command:
         debug_docker_command += " \\\n%s" % (command)
-    logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
+    logger.debug("DOCKER COMMAND:\n%s" % debug_docker_command)
 
     container = client.containers.run(
         image_name,
@@ -85,6 +85,27 @@ def run_container(
         logger.debug("Container closed.")
 
     return container
+
+
+def exec_container(container, command):
+    debug_docker_command = "docker exec %s" % (container.name)
+    debug_docker_command += " \\\n%s" % (command)
+    logger.debug("DOCKER COMMAND:\n%s" % debug_docker_command)
+    docker_result = container.exec_run(command)
+    if docker_result.exit_code != 0:
+        raise Exception(
+            "The command failed in the container %s.\n"
+            "- Command : %s\n"
+            "- Exit Code : %d\n"
+            "- Output: %s"
+            % (
+                container.name,
+                command,
+                docker_result.exit_code,
+                docker_result.output,
+            )
+        )
+    return docker_result
 
 
 def kill_container(container_name):

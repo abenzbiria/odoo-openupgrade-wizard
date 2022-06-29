@@ -6,6 +6,7 @@ import docker
 from loguru import logger
 
 from odoo_openupgrade_wizard.tools.tools_docker import (
+    exec_container,
     get_docker_client,
     run_container,
 )
@@ -82,54 +83,19 @@ def execute_sql_file(ctx, database, sql_file):
     )
 
     container_path = Path("/env/") / relative_path
-    if container_path.exists():
-        docker_command = (
-            "psql --username=odoo --dbname={database} --file {file_path}"
-        ).format(database=database, file_path=container_path)
-        logger.info(
-            "Executing the script '%s' in postgres container"
-            " on database %s" % (relative_path, database)
-        )
-    else:
-        logger.error("========================")
-        logger.error("========================")
-        logger.error("========================")
-
-        def show_me_the_folders(path):
-            if not path.exists():
-                return
-            else:
-                logger.info("path '%s' exist" % path)
-                logger.info("\n" + "\n -".join([f for f in os.listdir(path)]))
-
-        show_me_the_folders(ctx.obj["env_folder_path"])
-        show_me_the_folders(ctx.obj["env_folder_path"] / Path("scripts"))
-        show_me_the_folders(
-            ctx.obj["env_folder_path"]
-            / Path("scripts")
-            / Path("step_01__update__14")
-        )
-        logger.error("========================")
-
-        raise Exception("%s doesn't exist" % container_path)
-    docker_result = container.exec_run(docker_command)
-    if docker_result.exit_code != 0:
-        raise Exception(
-            "The script '%s' failed on database %s.\n"
-            "- Exit Code : %d\n"
-            "- Output: %s"
-            % (
-                relative_path,
-                database,
-                docker_result.exit_code,
-                docker_result.output,
-            )
-        )
+    command = (
+        "psql --username=odoo --dbname={database} --file {file_path}"
+    ).format(database=database, file_path=container_path)
+    logger.info(
+        "Executing the script '%s' in postgres container"
+        " on database %s" % (relative_path, database)
+    )
+    exec_container(container, command)
 
 
 def execute_sql_request(ctx, request, database="postgres"):
     container = get_postgres_container(ctx)
-    docker_command = (
+    command = (
         "psql"
         " --username=odoo"
         " --dbname={database}"
@@ -140,12 +106,8 @@ def execute_sql_request(ctx, request, database="postgres"):
         "Executing the following command in postgres container"
         " on database %s \n %s" % (database, request)
     )
-    docker_result = container.exec_run(docker_command)
-    if docker_result.exit_code != 0:
-        raise Exception(
-            "Request %s failed on database %s. Exit Code : %d"
-            % (request, database, docker_result.exit_code)
-        )
+    docker_result = exec_container(container, command)
+
     lines = docker_result.output.decode("utf-8").split("\n")
     result = []
     for line in lines:
