@@ -34,7 +34,6 @@ def test_cli_execute_script_sql():
     # TODO call with script-file-path
     # to avoid to copy file in scripts/step_xxx folder
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "execute-script-sql",
