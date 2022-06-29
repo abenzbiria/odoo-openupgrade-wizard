@@ -15,9 +15,19 @@ def get_postgres_container(ctx):
     client = get_docker_client()
     image_name = ctx.obj["config"]["postgres_image_name"]
     container_name = ctx.obj["config"]["postgres_container_name"]
-    containers = client.containers.list(filters={"name": container_name})
+    containers = client.containers.list(
+        all=True, filters={"name": container_name}
+    )
     if containers:
-        return containers[0]
+        container = containers[0]
+        if container.status == "exited":
+            logger.warn(
+                "Found container %s in a exited status. Removing it..."
+                % container_name
+            )
+            container.remove()
+        else:
+            return container
 
     logger.info("Launching Postgres Container. (Image %s)" % image_name)
     container = run_container(
@@ -30,10 +40,10 @@ def get_postgres_container(ctx):
             "PGDATA": "/var/lib/postgresql/data/pgdata",
         },
         volumes={
-            ctx.obj["env_folder_path"]: "/env/",
+            ctx.obj["env_folder_path"].absolute(): "/env/",
             ctx.obj[
                 "postgres_folder_path"
-            ]: "/var/lib/postgresql/data/pgdata/",
+            ].absolute(): "/var/lib/postgresql/data/pgdata/",
         },
         detach=True,
     )
