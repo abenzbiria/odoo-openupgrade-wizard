@@ -83,7 +83,7 @@ def execute_sql_file(ctx, database, sql_file):
 
     container_path = Path("/env/") / relative_path
     docker_command = (
-        "psql" " --username=odoo" " --dbname={database}" " --file {file_path}"
+        "psql --username=odoo --dbname={database} --file {file_path}"
     ).format(database=database, file_path=container_path)
     logger.info(
         "Executing the script '%s' in postgres container"
@@ -91,6 +91,7 @@ def execute_sql_file(ctx, database, sql_file):
     )
     docker_result = container.exec_run(docker_command)
     if docker_result.exit_code != 0:
+        logger.error(docker_result.output)
         raise Exception(
             "The script '%s' failed on database %s. Exit Code : %d"
             % (relative_path, database, docker_result.exit_code)
