@@ -94,5 +94,4 @@ def git_aggregate(folder_path: Path, config_path: Path, jobs: int):
 
 
 def get_local_user_id():
-    # hum, could be improved, don't you think ?
-    return 1000
+    return os.getuid()
