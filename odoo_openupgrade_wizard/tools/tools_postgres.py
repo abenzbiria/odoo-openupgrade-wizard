@@ -82,13 +82,36 @@ def execute_sql_file(ctx, database, sql_file):
     )
 
     container_path = Path("/env/") / relative_path
-    docker_command = (
-        "psql --username=odoo --dbname={database} --file {file_path}"
-    ).format(database=database, file_path=container_path)
-    logger.info(
-        "Executing the script '%s' in postgres container"
-        " on database %s" % (relative_path, database)
-    )
+    if container_path.exists():
+        docker_command = (
+            "psql --username=odoo --dbname={database} --file {file_path}"
+        ).format(database=database, file_path=container_path)
+        logger.info(
+            "Executing the script '%s' in postgres container"
+            " on database %s" % (relative_path, database)
+        )
+    else:
+        logger.error("========================")
+        logger.error("========================")
+        logger.error("========================")
+
+        def show_me_the_folders(path):
+            if not path.exists():
+                return
+            else:
+                logger.info("path '%s' exist" % path)
+                logger.info("\n" + "\n -".join([f for f in os.listdir(path)]))
+
+        show_me_the_folders(ctx.obj["env_folder_path"])
+        show_me_the_folders(ctx.obj["env_folder_path"] / Path("scripts"))
+        show_me_the_folders(
+            ctx.obj["env_folder_path"]
+            / Path("scripts")
+            / Path("step_01__update__14")
+        )
+        logger.error("========================")
+
+        raise Exception("%s doesn't exist" % container_path)
     docker_result = container.exec_run(docker_command)
     if docker_result.exit_code != 0:
         raise Exception(
