@@ -274,24 +274,11 @@ def execute_click_odoo_python_files(
         ]
         python_files = sorted(python_files)
 
-    # Prepare data information for docker
-    links = {ctx.obj["config"]["postgres_container_name"]: "db"}
-    env_path = ctx.obj["env_folder_path"]
-    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
-
-    # Generate odoo config file
-    # log_file = "/env/log/{}____{}__post_migration.log".format(
-    #     ctx.obj["log_prefix"], migration_step["complete_name"]
-    # )
-
     for python_file in python_files:
         # TODO, check if we should set python2 for old version of Odoo
         # or just 'python'
         command = (
-            "click-odoo"
-            " --database {database}"
-            " --config /odoo_env/_auto_generated_odoo.cfg"
-            " /env/{python_file}"
+            "click-odoo" " --database {database}" " /env/{python_file}"
         ).format(
             database=database,
             python_file=str(python_file),
@@ -301,19 +288,14 @@ def execute_click_odoo_python_files(
                 "Executing script %s / %s"
                 % (migration_step["complete_name"], python_file)
             )
-            run_container(
-                get_docker_image_tag(ctx, migration_step["version"]),
-                get_docker_container_name(ctx, migration_step),
-                command=command,
-                ports={},
-                volumes={
-                    env_path: "/env/",
-                    odoo_env_path: "/odoo_env/",
-                },
-                links=links,
-                detach=False,
-                auto_remove=True,
+            return run_container_odoo(
+                ctx,
+                migration_step,
+                command,
+                detached_container=False,
+                database=database,
             )
+
         except Exception as e:
             traceback.print_exc()
             logger.error(

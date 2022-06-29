@@ -1,6 +1,6 @@
 FROM ghcr.io/acsone/odoo-bedrock:{{ odoo_version }}-{{python_minor_version_short}}-latest
 
-COPY ./src/odoo/requirements.txt /odoo_requirements.txt
+COPY ./src/odoo/ /odoo/src/odoo
 COPY debian_requirements.txt /debian_requirements.txt
 COPY python_requirements.txt /python_requirements.txt
 
@@ -11,5 +11,6 @@ RUN apt-get update || true \
 
 # 3. Install extra Python librairies
 RUN \
-  /odoo/bin/pip install --no-cache-dir -r /odoo_requirements.txt -f {{prebuild_wheel_url}} \
-  && /odoo/bin/pip install --no-cache-dir -r /python_requirements.txt -f {{prebuild_wheel_url}}
+  /odoo/bin/pip install --no-cache-dir -r /odoo/src/odoo/requirements.txt -f https://wheelhouse.acsone.eu/manylinux2014 \
+  && /odoo/bin/pip install --no-cache-dir -r /python_requirements.txt -f https://wheelhouse.acsone.eu/manylinux2014 \
+  && /odoo/bin/pip install -e /odoo/src/odoo
