@@ -166,6 +166,7 @@ def run_odoo(
         database=database,
         execution_context=execution_context,
         alternative_xml_rpc_port=alternative_xml_rpc_port,
+        links=links,
     )
 
 
