@@ -240,7 +240,7 @@ def run_container_odoo(
         return run_container(
             get_docker_image_tag(ctx, migration_step["version"]),
             get_docker_container_name(ctx, migration_step),
-            command=command[:-5],
+            command=command,
             ports={
                 host_xmlrpc_port: 8069,
             },
