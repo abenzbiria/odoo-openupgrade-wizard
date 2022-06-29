@@ -21,7 +21,7 @@ def get_postgres_container(ctx):
     if containers:
         container = containers[0]
         if container.status == "exited":
-            logger.warn(
+            logger.warning(
                 "Found container %s in a exited status. Removing it..."
                 % container_name
             )
