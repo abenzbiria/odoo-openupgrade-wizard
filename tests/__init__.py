@@ -67,7 +67,9 @@ def build_ctx_from_config_file() -> dict:
     setattr(ctx, "obj", {})
     config_file_path = env_folder_path / "config.yml"
     if not config_file_path.exists():
-        raise Exception("Configuration file not found %s" % config_file_path)
+        raise Exception(
+            "Configuration file not found %s" % config_file_path.absolute()
+        )
     with open(config_file_path) as file:
         config = yaml.safe_load(file)
         ctx.obj["config"] = config
