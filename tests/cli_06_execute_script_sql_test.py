@@ -21,7 +21,7 @@ def test_cli_execute_script_sql():
     ).absolute()
 
     # Deploy SQL Script
-    destination_path = Path("scripts/step_01__update__13.0")
+    destination_path = Path("scripts/step_01__update__14.0")
     cp([extra_script_path, destination_path])
     ctx = build_ctx_from_config_file()
 

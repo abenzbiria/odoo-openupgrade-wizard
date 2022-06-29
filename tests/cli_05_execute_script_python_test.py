@@ -27,7 +27,7 @@ def test_cli_execute_script_python():
     db_name = "database_test_cli___execute_script_python"
     ensure_database(ctx, db_name, state="absent")
 
-    # Install Odoo on V13 with base installed
+    # Install Odoo on V14 with base installed
     cli_runner_invoke(
         [
             "--log-level=DEBUG",
@@ -40,7 +40,7 @@ def test_cli_execute_script_python():
     )
 
     # Compute partners quantity
-    request = "SELECT count(*)" " FROM res_partner;"
+    request = "SELECT count(*) FROM res_partner;"
     partner_quantity_before = int(
         execute_sql_request(ctx, request, database=db_name)[0][0]
     )
