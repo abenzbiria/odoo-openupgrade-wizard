@@ -68,10 +68,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
     # Define all the folder required by the tools
     env_folder_path = Path(env_folder)
     src_folder_path = env_folder_path / Path("./src/")
-    # Note: postgres folder should be a subfolder, because
-    # the parent folder will contain a .gitignore file
-    # that the postgres docker image doesn't like
-    postgres_folder_path = env_folder_path / Path("./postgres_data/data")
     script_folder_path = env_folder_path / Path("./scripts/")
     log_folder_path = env_folder_path / Path("./log/")
     if not filestore_folder:
@@ -95,7 +91,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
     # Add all global values in the context
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = src_folder_path
-    ctx.obj["postgres_folder_path"] = postgres_folder_path
     ctx.obj["script_folder_path"] = script_folder_path
     ctx.obj["log_folder_path"] = log_folder_path
     ctx.obj["log_prefix"] = log_prefix

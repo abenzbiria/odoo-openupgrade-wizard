@@ -58,7 +58,4 @@ def build_ctx_from_config_file() -> dict:
 
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = env_folder_path / Path("src")
-    ctx.obj["postgres_folder_path"] = env_folder_path / Path(
-        "postgres_data/data"
-    )
     return ctx

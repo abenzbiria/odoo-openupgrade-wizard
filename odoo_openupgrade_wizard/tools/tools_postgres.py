@@ -2,6 +2,7 @@ import os
 import time
 from pathlib import Path
 
+import docker
 from loguru import logger
 
 from odoo_openupgrade_wizard.tools.tools_docker import (
@@ -15,6 +16,9 @@ def get_postgres_container(ctx):
     client = get_docker_client()
     image_name = ctx.obj["config"]["postgres_image_name"]
     container_name = ctx.obj["config"]["postgres_container_name"]
+    volume_name = ctx.obj["config"]["postgres_volume_name"]
+
+    # Check if container exists
     containers = client.containers.list(
         all=True, filters={"name": container_name}
     )
@@ -29,6 +33,14 @@ def get_postgres_container(ctx):
         else:
             return container
 
+    # Check if volume exists
+    try:
+        client.volumes.get(volume_name)
+        logger.debug("Recovering existing postgres volume: %s" % volume_name)
+    except docker.errors.NotFound:
+        logger.info("Creating Postgres volume: %s" % volume_name)
+        client.volumes.create(volume_name)
+
     logger.info("Launching Postgres Container. (Image %s)" % image_name)
     container = run_container(
         image_name,
@@ -41,9 +53,7 @@ def get_postgres_container(ctx):
         },
         volumes={
             ctx.obj["env_folder_path"].absolute(): "/env/",
-            ctx.obj[
-                "postgres_folder_path"
-            ].absolute(): "/var/lib/postgresql/data/pgdata/",
+            volume_name: "/var/lib/postgresql/data/pgdata/",
         },
         detach=True,
     )

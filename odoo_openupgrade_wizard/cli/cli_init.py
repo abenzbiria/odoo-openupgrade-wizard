@@ -68,7 +68,7 @@ def init(
         float(initial_version), float(final_version)
     )
 
-    # 2. Compute Migration Steps
+    # Compute Migration Steps
 
     # Create initial first step
     steps = [
@@ -106,26 +106,15 @@ def init(
             }
         )
 
-    # 3. ensure src folder exists
+    # Ensure src folder exists
     ensure_folder_exists(ctx.obj["src_folder_path"])
 
-    # 4. ensure filestore folder exists
+    # Ensure filestore folder exists
     ensure_folder_exists(
         ctx.obj["filestore_folder_path"], git_ignore_content=True
     )
 
-    # 5. ensure postgres data folder exists
-    ensure_folder_exists(
-        ctx.obj["postgres_folder_path"].parent,
-        mode="777",
-        git_ignore_content=True,
-    )
-    ensure_folder_exists(
-        ctx.obj["postgres_folder_path"],
-        mode="777",
-    )
-
-    # 6. ensure main configuration file exists
+    # Znsure main configuration file exists
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
         "config.yml.j2",
@@ -134,7 +123,7 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 7. Ensure module list file exists
+    # Ensure module list file exists
     ensure_file_exists_from_template(
         ctx.obj["module_file_path"],
         "modules.csv.j2",
@@ -143,7 +132,7 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 8. Create one folder per version and add files
+    # Create one folder per version and add files
     for odoo_version in odoo_versions:
         # Create main path for each version
         path_version = get_odoo_env_path(ctx, odoo_version)
@@ -196,7 +185,7 @@ def init(
             path_version / Path("src"), git_ignore_content=True
         )
 
-    # 9. Create one folder per step and add files
+    # Create one folder per step and add files
     ensure_folder_exists(ctx.obj["script_folder_path"])
 
     for step in steps:
