@@ -91,10 +91,16 @@ def execute_sql_file(ctx, database, sql_file):
     )
     docker_result = container.exec_run(docker_command)
     if docker_result.exit_code != 0:
-        logger.error(docker_result.output)
         raise Exception(
-            "The script '%s' failed on database %s. Exit Code : %d"
-            % (relative_path, database, docker_result.exit_code)
+            "The script '%s' failed on database %s.\n"
+            "- Exit Code : %d\n"
+            "- Output: %s"
+            % (
+                relative_path,
+                database,
+                docker_result.exit_code,
+                docker_result.output,
+            )
         )
 
 
