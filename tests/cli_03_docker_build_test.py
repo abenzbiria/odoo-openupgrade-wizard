@@ -1,16 +1,23 @@
 from odoo_openupgrade_wizard.tools.tools_docker import get_docker_client
 
-from . import cli_runner_invoke, move_to_test_folder
+from . import (
+    build_ctx_from_config_file,
+    cli_runner_invoke,
+    move_to_test_folder,
+)
 
 
 def test_cli_docker_build():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
+
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "docker-build",
             "--versions=14.0,15.0",
-        ]
+        ],
     )
 
     docker_client = get_docker_client()

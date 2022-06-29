@@ -28,16 +28,33 @@ def move_to_test_folder():
     os.chdir(test_folder_path)
 
 
-def cli_runner_invoke(cmd):
-    result = CliRunner().invoke(
-        main,
-        cmd,
-        catch_exceptions=False,
-    )
-    if not result.exit_code == 0:
-        _logger.error("exit_code: %s" % result.exit_code)
-        _logger.error("output: %s" % result.output)
-    assert result.exit_code == 0
+def cli_runner_invoke(ctx, cmd):
+    try:
+        result = CliRunner().invoke(
+            main,
+            cmd,
+            catch_exceptions=False,
+        )
+        if not result.exit_code == 0:
+            _logger.error("exit_code: %s" % result.exit_code)
+            _logger.error("output: %s" % result.output)
+        assert result.exit_code == 0
+    except Exception as exception:
+
+        log_files = [
+            ctx.obj["log_folder_path"] / Path(f)
+            for f in os.listdir(ctx.obj["log_folder_path"])
+            if f[-4:] == ".log"
+        ]
+        for log_file in log_files:
+            print("============================")
+            print(log_file)
+            print("============================")
+            _f = open(log_file)
+            print(_f.read())
+            _f.close()
+            print("============================")
+        raise exception
 
 
 def build_ctx_from_config_file() -> dict:
@@ -58,4 +75,5 @@ def build_ctx_from_config_file() -> dict:
 
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = env_folder_path / Path("src")
+    ctx.obj["log_folder_path"] = env_folder_path / Path("log")
     return ctx

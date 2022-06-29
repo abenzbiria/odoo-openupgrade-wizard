@@ -21,6 +21,7 @@ def test_cli_run():
     ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "run",
@@ -28,7 +29,7 @@ def test_cli_run():
             "--database=%s" % db_name,
             "--init-modules=base",
             "--stop-after-init",
-        ]
+        ],
     )
 
     # Ensure that a subfolder filestore/DB_NAME has been created

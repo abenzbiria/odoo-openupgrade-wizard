@@ -31,6 +31,7 @@ def test_cli_execute_script_python():
 
     # Install Odoo on V14 with base installed
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "run",
@@ -38,7 +39,7 @@ def test_cli_execute_script_python():
             "--database=%s" % db_name,
             "--init-modules=base",
             "--stop-after-init",
-        ]
+        ],
     )
 
     # Compute partners quantity
@@ -49,13 +50,14 @@ def test_cli_execute_script_python():
 
     # Execute Custom Python Script
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "execute-script-python",
             "--step=1",
             "--database=%s" % db_name,
             "--script-file-path=post-migration-custom_test.py",
-        ]
+        ],
     )
     partner_quantity_after = int(
         execute_sql_request(ctx, request, database=db_name)[0][0]

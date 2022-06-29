@@ -28,13 +28,14 @@ def test_cli_generate_module_analysis():
 
     analysis_file_path
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "generate-module-analysis",
             "--step=2",
             "--database=%s" % db_name,
             "--modules=base",
-        ]
+        ],
     )
 
     # The file should has been recreated by the analysis command

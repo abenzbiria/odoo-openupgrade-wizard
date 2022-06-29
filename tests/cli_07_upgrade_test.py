@@ -12,13 +12,14 @@ from . import (
 
 def test_cli_upgrade():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
 
     # Initialize database
     db_name = "database_test_cli___upgrade"
-    ctx = build_ctx_from_config_file()
     ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "run",
@@ -26,7 +27,7 @@ def test_cli_upgrade():
             "--database=%s" % db_name,
             "--init-modules=base",
             "--stop-after-init",
-        ]
+        ],
     )
 
     # Ensure that 'base' module is installed at 14.0
@@ -41,13 +42,14 @@ def test_cli_upgrade():
     assert latest_version[0][0].startswith("14.")
 
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "upgrade",
             "--database=%s" % db_name,
             "--first-step=1",
             "--last-step=3",
-        ]
+        ],
     )
 
     # Ensure that 'base' module is installed at 15.0

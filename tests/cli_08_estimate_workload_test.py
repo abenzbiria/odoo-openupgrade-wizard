@@ -1,14 +1,20 @@
 import unittest
 from pathlib import Path
 
-from . import cli_runner_invoke, move_to_test_folder
+from . import (
+    build_ctx_from_config_file,
+    cli_runner_invoke,
+    move_to_test_folder,
+)
 
 
 class TestCliEstimateWorkload(unittest.TestCase):
     def test_cli_estimate_workload(self):
         move_to_test_folder()
+        ctx = build_ctx_from_config_file()
 
         cli_runner_invoke(
+            ctx,
             [
                 "--log-level=DEBUG",
                 "estimate-workload",
@@ -32,7 +38,7 @@ class TestCliEstimateWorkload(unittest.TestCase):
                 ",web_widget_one2many_tree_line_duplicate"
                 ",web_widget_dropdown_dynamic_example"
                 ",my_module_that_doesnt_exist",
-            ]
+            ],
         )
 
         # We check file has been created

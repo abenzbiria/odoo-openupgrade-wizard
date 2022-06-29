@@ -51,6 +51,7 @@ def init(
     """Initialize OpenUpgrade Wizard Environment based on the initial and
     the final version of Odoo you want to migrate.
     """
+    print(0 / 0)
 
     # Handle arguments
     if extra_repository_list:

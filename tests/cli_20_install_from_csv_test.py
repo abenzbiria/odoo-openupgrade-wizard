@@ -19,11 +19,12 @@ def test_cli_install_from_csv():
     ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
+        ctx,
         [
             "--log-level=DEBUG",
             "install-from-csv",
             "--database=%s" % db_name,
-        ]
+        ],
     )
 
     # Ensure that 'base' is installed
