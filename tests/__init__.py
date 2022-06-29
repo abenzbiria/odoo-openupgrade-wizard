@@ -40,21 +40,21 @@ def cli_runner_invoke(cmd):
             _logger.error("output: %s" % result.output)
         assert result.exit_code == 0
     except Exception as exception:
-
-        log_files = [
-            Path("log") / Path(f)
-            for f in os.listdir(Path("log"))
-            if f[-4:] == ".log"
-        ]
-        for log_file in log_files:
-            print("============================")
-            print(log_file)
-            print("============================")
-            _f = open(log_file)
-            print(_f.read())
-            _f.close()
-            print("============================")
-        raise exception
+        if Path("log").exists():
+            log_files = [
+                Path("log") / Path(f)
+                for f in os.listdir(Path("log"))
+                if f[-4:] == ".log"
+            ]
+            for log_file in log_files:
+                print("============================")
+                print(log_file)
+                print("============================")
+                _f = open(log_file)
+                print(_f.read())
+                _f.close()
+                print("============================")
+            raise exception
 
 
 def build_ctx_from_config_file() -> dict:
