@@ -10,7 +10,6 @@ to contribute to that project.
 * poetry (https://python-poetry.org/)
 * odoorpc (https://github.com/OCA/odoorpc)
 * git-aggregator (https://github.com/acsone/git-aggregator)
-* click-odoo (https://github.com/acsone/click-odoo)
 
 
 # Extra Developper Requirements

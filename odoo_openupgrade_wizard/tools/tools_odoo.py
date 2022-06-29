@@ -5,6 +5,7 @@ import sys
 import traceback
 from pathlib import Path
 
+import docker
 import yaml
 from loguru import logger
 
@@ -208,9 +209,10 @@ def run_container_odoo(
     )
 
     # compute 'log_file'
-    log_file = "/env/log/{}____{}{}.log".format(
+    log_file_name = "{}____{}{}.log".format(
         ctx.obj["log_prefix"], migration_step["complete_name"], log_file_suffix
     )
+    log_file_docker_path = "/env/log/%s" % log_file_name
     host_xmlrpc_port = (
         alternative_xml_rpc_port
         and alternative_xml_rpc_port
@@ -225,7 +227,7 @@ def run_container_odoo(
         "DB_USER": "odoo",
         "DB_PASSWORD": "odoo",
         "DB_NAME": database,
-        "LOGFILE": log_file,
+        "LOGFILE": log_file_docker_path,
         "ADDONS_PATH": addons_path,
         "WORKERS": 0,
         "LOCAL_USER_ID": get_local_user_id(),
@@ -234,22 +236,35 @@ def run_container_odoo(
     if server_wide_modules:
         environments["SERVER_WIDE_MODULES"] = ",".join(server_wide_modules)
 
-    return run_container(
-        get_docker_image_tag(ctx, migration_step["version"]),
-        get_docker_container_name(ctx, migration_step),
-        command=command,
-        ports={
-            host_xmlrpc_port: 8069,
-        },
-        volumes={
-            env_path: "/env/",
-            odoo_env_path: "/odoo_env/",
-        },
-        environments=environments,
-        links=links,
-        detach=detached_container,
-        auto_remove=True,
-    )
+    try:
+        return run_container(
+            get_docker_image_tag(ctx, migration_step["version"]),
+            get_docker_container_name(ctx, migration_step),
+            command=command[:-5],
+            ports={
+                host_xmlrpc_port: 8069,
+            },
+            volumes={
+                env_path: "/env/",
+                odoo_env_path: "/odoo_env/",
+            },
+            environments=environments,
+            links=links,
+            detach=detached_container,
+            auto_remove=True,
+        )
+    except docker.errors.ContainerError as exception:
+        host_log_file_path = ctx.obj["log_folder_path"] / log_file_name
+        if host_log_file_path.exists():
+            with open(host_log_file_path) as _log_file:
+                logger.debug("*" * 50)
+                logger.debug("*" * 50)
+                logger.debug("*" * 50)
+                logger.debug(_log_file.read())
+                logger.debug("*" * 50)
+                logger.debug("*" * 50)
+                logger.debug("*" * 50)
+        raise exception
 
 
 def kill_odoo(ctx, migration_step: dict):

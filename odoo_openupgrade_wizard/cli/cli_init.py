@@ -79,7 +79,6 @@ def init(
             "complete_name": "step_01__update__%s" % (odoo_versions[0]),
         }
     ]
-
     # Add all upgrade steps
     step_nbr = 2
     for odoo_version in odoo_versions[1:]:
