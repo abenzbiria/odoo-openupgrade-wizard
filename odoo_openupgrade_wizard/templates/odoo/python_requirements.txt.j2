@@ -1,5 +1,12 @@
 {%- for python_librairy in python_libraries -%}
 {{ python_librairy }}
 {% endfor %}
+
+# Mandatory library used in all odoo-openupgrade-wizard
 openupgradelib
+
+# Library used to run 'post-migration.py' scripts
 click-odoo
+
+# Library used to run generate-module-analysis command
+odoorpc

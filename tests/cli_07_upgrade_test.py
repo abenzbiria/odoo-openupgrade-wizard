@@ -29,7 +29,7 @@ def test_cli_upgrade():
         ]
     )
 
-    # Ensure that 'base' module is installed at 13.0
+    # Ensure that 'base' module is installed at 14.0
     request = (
         "SELECT latest_version"
         " FROM ir_module_module"
@@ -38,7 +38,7 @@ def test_cli_upgrade():
     )
     latest_version = execute_sql_request(ctx, request, database=db_name)
 
-    assert latest_version[0][0].startswith("13.")
+    assert latest_version[0][0].startswith("14.")
 
     cli_runner_invoke(
         [
@@ -50,7 +50,7 @@ def test_cli_upgrade():
         ]
     )
 
-    # Ensure that 'base' module is installed at 14.0
+    # Ensure that 'base' module is installed at 15.0
     request = (
         "SELECT latest_version"
         " FROM ir_module_module"
@@ -59,4 +59,4 @@ def test_cli_upgrade():
     )
     latest_version = execute_sql_request(ctx, request, database=db_name)
 
-    assert latest_version[0][0].startswith("14.")
+    assert latest_version[0][0].startswith("15.")
