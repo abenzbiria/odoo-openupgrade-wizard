@@ -84,11 +84,11 @@ def generate_odoo_command(
     migration_step: dict,
     execution_context: str,
     database: str,
-    update: str,
-    init: str,
-    stop_after_init: bool,
-    shell: bool,
-    demo: bool,
+    demo: bool = False,
+    update: str = False,
+    init: str = False,
+    stop_after_init: bool = False,
+    shell: bool = False,
 ) -> str:
     database_cmd = database and "--database %s" % database or ""
     update_cmd = update and "--update %s" % update or ""
@@ -150,12 +150,12 @@ def run_odoo(
         ctx,
         migration_step,
         execution_context,
-        database=database,
+        database,
+        demo=demo,
         update=update,
         init=init,
         stop_after_init=stop_after_init,
         shell=shell,
-        demo=demo,
     )
 
     return run_container_odoo(
@@ -274,13 +274,17 @@ def execute_click_odoo_python_files(
         ]
         python_files = sorted(python_files)
 
+    command = generate_odoo_command(
+        ctx,
+        migration_step,
+        execution_context,
+        database,
+        shell=True,
+    )
+
     for python_file in python_files:
-        # TODO, check if we should set python2 for old version of Odoo
-        # or just 'python'
-        command = (
-            "click-odoo" " --database {database}" " /env/{python_file}"
-        ).format(
-            database=database,
+        command = ("/bin/bash -c 'cat /env/{python_file} | {command}'").format(
+            command=command,
             python_file=str(python_file),
         )
         try:

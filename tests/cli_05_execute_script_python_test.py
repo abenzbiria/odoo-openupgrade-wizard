@@ -15,14 +15,15 @@ from . import (
 
 
 def test_cli_execute_script_python():
-    return
     move_to_test_folder()
     ctx = build_ctx_from_config_file()
 
-    extra_script_path = Path("../extra_script/click_odoo_test.py").absolute()
+    extra_script_path = Path(
+        "../extra_script/post-migration-custom_test.py"
+    ).absolute()
     cp(
         extra_script_path,
-        Path("click_odoo_test.py"),
+        Path("post-migration-custom_test.py"),
     )
 
     db_name = "database_test_cli___execute_script_python"
@@ -53,7 +54,7 @@ def test_cli_execute_script_python():
             "execute-script-python",
             "--step=1",
             "--database=%s" % db_name,
-            "--script-file-path=click_odoo_test.py",
+            "--script-file-path=post-migration-custom_test.py",
         ]
     )
     partner_quantity_after = int(
