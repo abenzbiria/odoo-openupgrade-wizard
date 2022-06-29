@@ -1,20 +1,14 @@
 import unittest
 from pathlib import Path
 
-from . import (
-    build_ctx_from_config_file,
-    cli_runner_invoke,
-    move_to_test_folder,
-)
+from . import cli_runner_invoke, move_to_test_folder
 
 
 class TestCliEstimateWorkload(unittest.TestCase):
     def test_cli_estimate_workload(self):
         move_to_test_folder()
-        ctx = build_ctx_from_config_file()
 
         cli_runner_invoke(
-            ctx,
             [
                 "--log-level=DEBUG",
                 "estimate-workload",

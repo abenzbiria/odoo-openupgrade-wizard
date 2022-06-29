@@ -19,7 +19,6 @@ def test_cli_upgrade():
     ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "run",
@@ -42,7 +41,6 @@ def test_cli_upgrade():
     assert latest_version[0][0].startswith("14.")
 
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "upgrade",

@@ -31,7 +31,6 @@ def test_cli_execute_script_python():
 
     # Install Odoo on V14 with base installed
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "run",
@@ -50,7 +49,6 @@ def test_cli_execute_script_python():
 
     # Execute Custom Python Script
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "execute-script-python",

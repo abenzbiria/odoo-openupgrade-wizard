@@ -21,7 +21,6 @@ def test_cli_run():
     ensure_database(ctx, db_name, state="absent")
 
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "run",

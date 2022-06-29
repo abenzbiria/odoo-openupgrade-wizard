@@ -28,7 +28,7 @@ def move_to_test_folder():
     os.chdir(test_folder_path)
 
 
-def cli_runner_invoke(ctx, cmd):
+def cli_runner_invoke(cmd):
     try:
         result = CliRunner().invoke(
             main,
@@ -42,8 +42,8 @@ def cli_runner_invoke(ctx, cmd):
     except Exception as exception:
 
         log_files = [
-            ctx.obj["log_folder_path"] / Path(f)
-            for f in os.listdir(ctx.obj["log_folder_path"])
+            Path("log") / Path(f)
+            for f in os.listdir(Path("log"))
             if f[-4:] == ".log"
         ]
         for log_file in log_files:
@@ -77,5 +77,4 @@ def build_ctx_from_config_file() -> dict:
 
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = env_folder_path / Path("src")
-    ctx.obj["log_folder_path"] = env_folder_path / Path("log")
     return ctx

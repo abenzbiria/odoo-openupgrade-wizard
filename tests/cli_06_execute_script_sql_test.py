@@ -16,6 +16,8 @@ from . import (
 
 def test_cli_execute_script_sql():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
+
     extra_script_path = Path(
         "../extra_script/pre-migration-custom_test.sql"
     ).absolute()
@@ -23,7 +25,6 @@ def test_cli_execute_script_sql():
     # Deploy SQL Script
     destination_path = Path("scripts/step_01__update__14.0")
     cp([extra_script_path, destination_path])
-    ctx = build_ctx_from_config_file()
 
     # Reset database
     db_name = "database_test_cli___execute_script_sql"

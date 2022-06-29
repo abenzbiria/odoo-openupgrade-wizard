@@ -11,9 +11,10 @@ from . import (
 
 def test_cli_generate_module_analysis():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
+
     db_name = "database_test_cli___generate_module_analysis"
 
-    ctx = build_ctx_from_config_file()
     # identify main analysis file of openupgrade
     analysis_file_path = get_odoo_env_path(ctx, 15.0) / Path(
         "src/openupgrade/openupgrade_scripts/scripts"
@@ -28,7 +29,6 @@ def test_cli_generate_module_analysis():
 
     analysis_file_path
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "generate-module-analysis",

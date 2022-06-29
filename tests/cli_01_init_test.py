@@ -1,21 +1,15 @@
 import filecmp
 from pathlib import Path
 
-from . import (
-    build_ctx_from_config_file,
-    cli_runner_invoke,
-    move_to_test_folder,
-)
+from . import cli_runner_invoke, move_to_test_folder
 
 
 def test_cli_init():
     move_to_test_folder()
-    ctx = build_ctx_from_config_file()
 
     expected_folder_path = Path("../output_expected").absolute()
 
     cli_runner_invoke(
-        ctx,
         [
             "--log-level=DEBUG",
             "init",
