@@ -1,8 +1,8 @@
-project_name: test-cli
+project_name: test-cli-2
 
 postgres_image_name: postgres:13
-postgres_container_name: test-cli-container-postgres
-postgres_volume_name: test-cli-volume-postgres
+postgres_container_name: test-cli-2-container-postgres
+postgres_volume_name: test-cli-2-volume-postgres
 
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
