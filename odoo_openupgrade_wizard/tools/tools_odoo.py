@@ -5,7 +5,7 @@ import sys
 import traceback
 from pathlib import Path
 
-import docker
+# import docker
 import yaml
 from loguru import logger
 
@@ -21,10 +21,7 @@ from odoo_openupgrade_wizard.tools.tools_docker import (
     run_container,
 )
 from odoo_openupgrade_wizard.tools.tools_postgres import get_postgres_container
-from odoo_openupgrade_wizard.tools.tools_system import (
-    get_local_user_id,
-    get_script_folder,
-)
+from odoo_openupgrade_wizard.tools.tools_system import get_script_folder
 
 
 def get_odoo_addons_path(
@@ -91,7 +88,44 @@ def generate_odoo_command(
     stop_after_init: bool = False,
     shell: bool = False,
 ) -> str:
+
+    odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
+
+    # Compute 'server_wide_modules'
+    # For that purpose, read the custom odoo.cfg file
+    # to know if server_wide_modules is defined
+    custom_odoo_config_file = odoo_env_path / "odoo.cfg"
+    parser = configparser.RawConfigParser()
+    parser.read(custom_odoo_config_file)
+    server_wide_modules = parser.get(
+        "options", "server_wide_modules", fallback=[]
+    )
+    server_wide_modules += get_server_wide_modules_upgrade(
+        migration_step, execution_context
+    )
+
+    # compute 'addons_path'
+    addons_path = ",".join(
+        [
+            str(x)
+            for x in get_odoo_addons_path(
+                ctx, Path("/odoo_env"), migration_step, execution_context
+            )
+        ]
+    )
+
+    # compute 'log_file'
+    log_file_name = "{}____{}.log".format(
+        ctx.obj["log_prefix"], migration_step["complete_name"]
+    )
+    log_file_docker_path = "/env/log/%s" % log_file_name
+
     database_cmd = database and "--database %s" % database or ""
+    load_cmd = (
+        server_wide_modules
+        and "--load %s" % ",".join(server_wide_modules)
+        or ""
+    )
     update_cmd = update and "--update %s" % update or ""
     init_cmd = init and "--init %s" % init or ""
     stop_after_init_cmd = stop_after_init and "--stop-after-init" or ""
@@ -102,12 +136,21 @@ def generate_odoo_command(
         / Path(get_odoo_folder(migration_step, execution_context))
         / Path(get_odoo_run_command(migration_step))
     )
+
     result = (
         f" {command}"
         f" {shell_cmd}"
-        # f" --config /etc/odoo.cfg"
-        f" --data-dir /env/filestore/"
+        # f" --config=/etc/odoo.cfg"
+        f" --data-dir=/env/filestore/"
+        f" --addons-path={addons_path}"
+        f" --logfile={log_file_docker_path}"
+        f" --db_host=db"
+        f" --db_port=5432"
+        f" --db_user=odoo"
+        f" --db_password=odoo"
+        f" --workers=0"
         f" {demo_cmd}"
+        f" {load_cmd}"
         f" {database_cmd}"
         f" {update_cmd}"
         f" {init_cmd}"
@@ -179,40 +222,11 @@ def run_container_odoo(
     database: str = False,
     alternative_xml_rpc_port: int = False,
     execution_context: str = False,
-    log_file_suffix: str = "",
     links: dict = {},
 ):
     env_path = ctx.obj["env_folder_path"]
     odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
 
-    # Compute 'server_wide_modules'
-    # For that purpose, read the custom odoo.cfg file
-    # to know if server_wide_modules is defined
-    custom_odoo_config_file = odoo_env_path / "odoo.cfg"
-    parser = configparser.RawConfigParser()
-    parser.read(custom_odoo_config_file)
-    server_wide_modules = parser.get(
-        "options", "server_wide_modules", fallback=[]
-    )
-    server_wide_modules += get_server_wide_modules_upgrade(
-        migration_step, execution_context
-    )
-
-    # compute 'addons_path'
-    addons_path = ",".join(
-        [
-            str(x)
-            for x in get_odoo_addons_path(
-                ctx, Path("/odoo_env"), migration_step, execution_context
-            )
-        ]
-    )
-
-    # compute 'log_file'
-    log_file_name = "{}____{}{}.log".format(
-        ctx.obj["log_prefix"], migration_step["complete_name"], log_file_suffix
-    )
-    log_file_docker_path = "/env/log/%s" % log_file_name
     host_xmlrpc_port = (
         alternative_xml_rpc_port
         and alternative_xml_rpc_port
@@ -221,50 +235,34 @@ def run_container_odoo(
 
     links.update({ctx.obj["config"]["postgres_container_name"]: "db"})
 
-    environments = {
-        "DB_HOST": "db",
-        "DB_PORT": 5432,
-        "DB_USER": "odoo",
-        "DB_PASSWORD": "odoo",
-        "DB_NAME": database,
-        "LOGFILE": log_file_docker_path,
-        "ADDONS_PATH": addons_path,
-        "WORKERS": 0,
-        "LOCAL_USER_ID": get_local_user_id(),
-    }
-    # TODO, handle custom config.cfg file
-    if server_wide_modules:
-        environments["SERVER_WIDE_MODULES"] = ",".join(server_wide_modules)
-
-    try:
-        return run_container(
-            get_docker_image_tag(ctx, migration_step["version"]),
-            get_docker_container_name(ctx, migration_step),
-            command=command,
-            ports={
-                host_xmlrpc_port: 8069,
-            },
-            volumes={
-                env_path: "/env/",
-                odoo_env_path: "/odoo_env/",
-            },
-            environments=environments,
-            links=links,
-            detach=detached_container,
-            auto_remove=True,
-        )
-    except docker.errors.ContainerError as exception:
-        host_log_file_path = ctx.obj["log_folder_path"] / log_file_name
-        if host_log_file_path.exists():
-            with open(host_log_file_path) as _log_file:
-                logger.debug("*" * 50)
-                logger.debug("*" * 50)
-                logger.debug("*" * 50)
-                logger.debug(_log_file.read())
-                logger.debug("*" * 50)
-                logger.debug("*" * 50)
-                logger.debug("*" * 50)
-        raise exception
+    # try:
+    return run_container(
+        get_docker_image_tag(ctx, migration_step["version"]),
+        get_docker_container_name(ctx, migration_step),
+        command=command,
+        ports={
+            host_xmlrpc_port: 8069,
+        },
+        volumes={
+            env_path: "/env/",
+            odoo_env_path: "/odoo_env/",
+        },
+        links=links,
+        detach=detached_container,
+        auto_remove=True,
+    )
+    # except docker.errors.ContainerError as exception:
+    #     host_log_file_path = ctx.obj["log_folder_path"] / log_file_name
+    #     if host_log_file_path.exists():
+    #         with open(host_log_file_path) as _log_file:
+    #             logger.debug("*" * 50)
+    #             logger.debug("*" * 50)
+    #             logger.debug("*" * 50)
+    #             logger.debug(_log_file.read())
+    #             logger.debug("*" * 50)
+    #             logger.debug("*" * 50)
+    #             logger.debug("*" * 50)
+    #     raise exception
 
 
 def kill_odoo(ctx, migration_step: dict):
