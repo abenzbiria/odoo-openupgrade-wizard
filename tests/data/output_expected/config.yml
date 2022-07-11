@@ -1,8 +1,8 @@
-project_name: test-cli-2
+project_name: test-cli
 
 postgres_image_name: postgres:13
-postgres_container_name: test-cli-2-container-postgres
-postgres_volume_name: test-cli-2-volume-postgres
+postgres_container_name: test-cli-container-postgres
+postgres_volume_name: test-cli-volume-postgres
 
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
@@ -24,17 +24,17 @@ migration_steps:
   - name: 1
     version: 14.0
     execution_context: regular
-    complete_name: step_01__update__14.0
+    complete_name: step_01__regular__14.0
 
   - name: 2
     version: 15.0
     execution_context: openupgrade
-    complete_name: step_02__upgrade__15.0
+    complete_name: step_02__openupgrade__15.0
 
   - name: 3
     version: 15.0
     execution_context: regular
-    complete_name: step_03__update__15.0
+    complete_name: step_03__regular__15.0
 
 
 workload_settings:

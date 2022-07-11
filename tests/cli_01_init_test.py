@@ -13,7 +13,7 @@ def test_cli_init():
         [
             "--log-level=DEBUG",
             "init",
-            "--project-name=test-cli-2",
+            "--project-name=test-cli",
             "--initial-version=14.0",
             "--final-version=15.0",
             "--extra-repository="
