@@ -1,7 +1,8 @@
 project_name: {{ project_name }}
 
 postgres_image_name: postgres:13
-postgres_container_name: {{project_name}}-db
+postgres_container_name: {{project_name}}-container-postgres
+postgres_volume_name: {{project_name}}-volume-postgres
 
 odoo_host_xmlrpc_port: 9069
 odoo_default_country_code: FR
@@ -11,6 +12,14 @@ odoo_versions:
 {%- for odoo_version in odoo_versions %}
   - {{ odoo_version }}
 {%- endfor %}
+
+
+odoo_version_settings:
+{%- for odoo_version in odoo_versions %}
+  {{odoo_version}}:
+    repo_url: False
+{%- endfor %}
+
 
 migration_steps:
 {%- for step in steps %}

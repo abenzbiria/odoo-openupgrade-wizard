@@ -4,8 +4,6 @@ import click
 
 from odoo_openupgrade_wizard.configuration_version_dependant import (
     get_odoo_versions,
-    get_python_libraries,
-    get_python_major_version,
     get_version_options,
 )
 from odoo_openupgrade_wizard.tools.tools_odoo import get_odoo_env_path
@@ -49,7 +47,7 @@ from odoo_openupgrade_wizard.tools.tools_system import (
 def init(
     ctx, project_name, initial_version, final_version, extra_repository_list
 ):
-    """Initialize OpenUpgrade Wizard Environment based on the initial and
+    """Initialize OOW Environment based on the initial and
     the final version of Odoo you want to migrate.
     """
 
@@ -69,19 +67,18 @@ def init(
         float(initial_version), float(final_version)
     )
 
-    # 2. Compute Migration Steps
+    # Compute Migration Steps
 
-    # Create initial first step
+    # Create initial Regular step
     steps = [
         {
             "name": 1,
             "execution_context": "regular",
             "version": odoo_versions[0],
-            "complete_name": "step_01__update__%s" % (odoo_versions[0]),
+            "complete_name": "step_01__regular__%s" % (odoo_versions[0]),
         }
     ]
-
-    # Add all upgrade steps
+    # Add all Openupgrade steps
     step_nbr = 2
     for odoo_version in odoo_versions[1:]:
         steps.append(
@@ -89,44 +86,33 @@ def init(
                 "name": step_nbr,
                 "execution_context": "openupgrade",
                 "version": odoo_version,
-                "complete_name": "step_%s__upgrade__%s"
+                "complete_name": "step_%s__openupgrade__%s"
                 % (str(step_nbr).rjust(2, "0"), odoo_version),
             }
         )
         step_nbr += 1
 
-    # add final update step
+    # add final Regular step
     if len(odoo_versions) > 1:
         steps.append(
             {
                 "name": step_nbr,
                 "execution_context": "regular",
                 "version": odoo_versions[-1],
-                "complete_name": "step_%s__update__%s"
+                "complete_name": "step_%s__regular__%s"
                 % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]),
             }
         )
 
-    # 3. ensure src folder exists
+    # Ensure src folder exists
     ensure_folder_exists(ctx.obj["src_folder_path"])
 
-    # 4. ensure filestore folder exists
+    # Ensure filestore folder exists
     ensure_folder_exists(
-        ctx.obj["filestore_folder_path"], mode="777", git_ignore_content=True
+        ctx.obj["filestore_folder_path"], git_ignore_content=True
     )
 
-    # 5. ensure postgres data folder exists
-    ensure_folder_exists(
-        ctx.obj["postgres_folder_path"].parent,
-        mode="777",
-        git_ignore_content=True,
-    )
-    ensure_folder_exists(
-        ctx.obj["postgres_folder_path"],
-        mode="777",
-    )
-
-    # 6. ensure main configuration file exists
+    # Znsure main configuration file exists
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
         "config.yml.j2",
@@ -135,7 +121,7 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 7. Ensure module list file exists
+    # Ensure module list file exists
     ensure_file_exists_from_template(
         ctx.obj["module_file_path"],
         "modules.csv.j2",
@@ -144,7 +130,7 @@ def init(
         odoo_versions=odoo_versions,
     )
 
-    # 8. Create one folder per version and add files
+    # Create one folder per version and add files
     for odoo_version in odoo_versions:
         # Create main path for each version
         path_version = get_odoo_env_path(ctx, odoo_version)
@@ -152,15 +138,14 @@ def init(
 
         # Create python requirements file
         ensure_file_exists_from_template(
-            path_version / Path("python_requirements.txt"),
-            "odoo/python_requirements.txt.j2",
-            python_libraries=get_python_libraries(odoo_version),
+            path_version / Path("extra_python_requirements.txt"),
+            "odoo/extra_python_requirements.txt.j2",
         )
 
         # Create debian requirements file
         ensure_file_exists_from_template(
-            path_version / Path("debian_requirements.txt"),
-            "odoo/debian_requirements.txt.j2",
+            path_version / Path("extra_debian_requirements.txt"),
+            "odoo/extra_debian_requirements.txt.j2",
         )
 
         # Create odoo config file
@@ -180,9 +165,7 @@ def init(
         # Create Dockerfile file
         ensure_file_exists_from_template(
             path_version / Path("Dockerfile"),
-            "odoo/Dockerfile.j2",
-            odoo_version=odoo_version,
-            python_major_version=get_python_major_version(odoo_version),
+            f"odoo/{odoo_version}/Dockerfile",
         )
 
         # Create 'src' folder that will contain all the odoo code
@@ -190,7 +173,7 @@ def init(
             path_version / Path("src"), git_ignore_content=True
         )
 
-    # 9. Create one folder per step and add files
+    # Create one folder per step and add files
     ensure_folder_exists(ctx.obj["script_folder_path"])
 
     for step in steps:

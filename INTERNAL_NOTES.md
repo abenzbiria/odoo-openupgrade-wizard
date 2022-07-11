@@ -50,3 +50,8 @@ in modules.csv.j2 :
 # TODO, this value are usefull for test for analyse between 13 and 14.
 # move that values in data/extra_script/modules.csv
 # and let this template with only 'base' module.
+
+
+
+TODO when launching container :
+- install odoo : ``pip install -e /odoo/src/odoo``

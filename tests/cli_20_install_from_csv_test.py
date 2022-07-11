@@ -23,7 +23,7 @@ def test_cli_install_from_csv():
             "--log-level=DEBUG",
             "install-from-csv",
             "--database=%s" % db_name,
-        ]
+        ],
     )
 
     # Ensure that 'base' is installed

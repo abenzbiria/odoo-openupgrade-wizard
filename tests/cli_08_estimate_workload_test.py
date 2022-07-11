@@ -14,16 +14,14 @@ class TestCliEstimateWorkload(unittest.TestCase):
                 "estimate-workload",
                 "--extra-modules="
                 # Done Module
-                "account"
+                "base"
                 # Deleted module (because merged)
                 ",account_analytic_default"
-                # Deleted module (because renamed)
-                ",account_facturx"
                 # Deleted module (because lost merge)
-                ",base_gengo"
+                ",account_edi_extended"
                 # Some modules that are not ported (for the time being)
                 ",l10n_be_invoice_bba,l10n_ch_qriban,l10n_latam_base"
-                # OCA Portted Modules
+                # OCA Ported Modules
                 ",web_responsive"
                 # OCA Unported modules
                 ",web_boolean_button"
@@ -34,7 +32,7 @@ class TestCliEstimateWorkload(unittest.TestCase):
                 ",web_widget_one2many_tree_line_duplicate"
                 ",web_widget_dropdown_dynamic_example"
                 ",my_module_that_doesnt_exist",
-            ]
+            ],
         )
 
         # We check file has been created

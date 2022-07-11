@@ -2,9 +2,11 @@ import os
 import time
 from pathlib import Path
 
+import docker
 from loguru import logger
 
 from odoo_openupgrade_wizard.tools.tools_docker import (
+    exec_container,
     get_docker_client,
     run_container,
 )
@@ -15,9 +17,30 @@ def get_postgres_container(ctx):
     client = get_docker_client()
     image_name = ctx.obj["config"]["postgres_image_name"]
     container_name = ctx.obj["config"]["postgres_container_name"]
-    containers = client.containers.list(filters={"name": container_name})
+    volume_name = ctx.obj["config"]["postgres_volume_name"]
+
+    # Check if container exists
+    containers = client.containers.list(
+        all=True, filters={"name": container_name}
+    )
     if containers:
-        return containers[0]
+        container = containers[0]
+        if container.status == "exited":
+            logger.warning(
+                "Found container %s in a exited status. Removing it..."
+                % container_name
+            )
+            container.remove()
+        else:
+            return container
+
+    # Check if volume exists
+    try:
+        client.volumes.get(volume_name)
+        logger.debug("Recovering existing postgres volume: %s" % volume_name)
+    except docker.errors.NotFound:
+        logger.info("Creating Postgres volume: %s" % volume_name)
+        client.volumes.create(volume_name)
 
     logger.info("Launching Postgres Container. (Image %s)" % image_name)
     container = run_container(
@@ -30,10 +53,8 @@ def get_postgres_container(ctx):
             "PGDATA": "/var/lib/postgresql/data/pgdata",
         },
         volumes={
-            ctx.obj["env_folder_path"]: "/env/",
-            ctx.obj[
-                "postgres_folder_path"
-            ]: "/var/lib/postgresql/data/pgdata/",
+            ctx.obj["env_folder_path"].absolute(): "/env/",
+            volume_name: "/var/lib/postgresql/data/pgdata/",
         },
         detach=True,
     )
@@ -62,24 +83,19 @@ def execute_sql_file(ctx, database, sql_file):
     )
 
     container_path = Path("/env/") / relative_path
-    docker_command = (
-        "psql" " --username=odoo" " --dbname={database}" " --file {file_path}"
+    command = (
+        "psql --username=odoo --dbname={database} --file {file_path}"
     ).format(database=database, file_path=container_path)
     logger.info(
         "Executing the script '%s' in postgres container"
         " on database %s" % (relative_path, database)
     )
-    docker_result = container.exec_run(docker_command)
-    if docker_result.exit_code != 0:
-        raise Exception(
-            "The script '%s' failed on database %s. Exit Code : %d"
-            % (relative_path, database, docker_result.exit_code)
-        )
+    exec_container(container, command)
 
 
 def execute_sql_request(ctx, request, database="postgres"):
     container = get_postgres_container(ctx)
-    docker_command = (
+    command = (
         "psql"
         " --username=odoo"
         " --dbname={database}"
@@ -90,12 +106,8 @@ def execute_sql_request(ctx, request, database="postgres"):
         "Executing the following command in postgres container"
         " on database %s \n %s" % (database, request)
     )
-    docker_result = container.exec_run(docker_command)
-    if docker_result.exit_code != 0:
-        raise Exception(
-            "Request %s failed on database %s. Exit Code : %d"
-            % (request, database, docker_result.exit_code)
-        )
+    docker_result = exec_container(container, command)
+
     lines = docker_result.output.decode("utf-8").split("\n")
     result = []
     for line in lines:

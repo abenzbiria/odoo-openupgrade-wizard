@@ -1,46 +1,15 @@
-# Unused for the time being
+import logging
 
-# def _check_orm_usage(self):
-#     # Classic ORM usage Checks
-#     partners = self.browse_by_search("res.partner")
+_logger = logging.getLogger(__name__)
+_logger.info("post-migration-custom_test.py : Begin of script ...")
 
-#     self.browse_by_create("res.partner", {"name": "New Partner"})
+env = env  # noqa: F821
 
-#     new_partners = self.browse_by_search("res.partner")
+for i in range(0, 10):
+    partner_name = "Partner #%d" % (i)
+    _logger.info("Create Partner %s" % partner_name)
+    env["res.partner"].create({"name": partner_name})
 
-#     if len(partners) + 1 != len(new_partners):
-#         raise Exception("Creation of partner failed.")
+_logger.info("post-migration-custom_test.py : End of script.")
 
-
-# def _check_modules(self):
-#     if self.check_modules_installed("sale"):
-#         self.uninstall_modules("sale")
-
-#     self.install_modules("sale")
-
-#     if not self.check_modules_installed("sale"):
-#         raise Exception("'sale' module should be installed")
-
-#     self.uninstall_modules(["product"])
-
-#     if self.check_modules_installed("sale"):
-#         raise Exception(
-#             "'sale' module should not be installed"
-#             " after uninstallation of product"
-#         )
-
-
-# def _check_models(self):
-#     if not self.check_models_present("res.partner"):
-#         raise Exception("'res.partner' model should be present.")
-
-#     if self.check_models_present("res.partner.unexisting.model"):
-#         raise Exception(
-#             "'res.partner.unexisting.model' model" " should not be present."
-#         )
-
-
-# def main(self):
-#     _check_orm_usage(self)
-#     _check_modules(self)
-#     _check_models(self)
+env.cr.commit()

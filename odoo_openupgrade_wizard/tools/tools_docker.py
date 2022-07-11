@@ -11,17 +11,21 @@ def pull_image(image_name):
     client.images.pull(image_name)
 
 
-def build_image(path, tag):
+def build_image(path, tag, buildargs={}):
     logger.debug(
         "Building image named based on %s/Dockerfile."
         " This can take a big while ..." % (path)
     )
     debug_docker_command = "docker build %s --tag %s" % (path, tag)
-    logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
+    for arg_name, arg_value in buildargs.items():
+        debug_docker_command += f"\\\n --build-arg {arg_name}={arg_value}"
+
+    logger.debug("DOCKER COMMAND:\n\n%s\n" % debug_docker_command)
     docker_client = get_docker_client()
     image = docker_client.images.build(
         path=str(path),
         tag=tag,
+        buildargs=buildargs,
     )
     logger.debug("Image build.")
     return image
@@ -66,7 +70,7 @@ def run_container(
     debug_docker_command += " %s" % (image_name)
     if command:
         debug_docker_command += " \\\n%s" % (command)
-    logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
+    logger.debug("DOCKER COMMAND:\n%s" % debug_docker_command)
 
     container = client.containers.run(
         image_name,
@@ -87,6 +91,27 @@ def run_container(
     return container
 
 
+def exec_container(container, command):
+    debug_docker_command = "docker exec %s" % (container.name)
+    debug_docker_command += " \\\n%s" % (command)
+    logger.debug("DOCKER COMMAND:\n%s" % debug_docker_command)
+    docker_result = container.exec_run(command)
+    if docker_result.exit_code != 0:
+        raise Exception(
+            "The command failed in the container %s.\n"
+            "- Command : %s\n"
+            "- Exit Code : %d\n"
+            "- Output: %s"
+            % (
+                container.name,
+                command,
+                docker_result.exit_code,
+                docker_result.output,
+            )
+        )
+    return docker_result
+
+
 def kill_container(container_name):
     client = get_docker_client()
     containers = client.containers.list(
@@ -94,8 +119,14 @@ def kill_container(container_name):
         filters={"name": container_name},
     )
     for container in containers:
-        logger.debug(
-            "Stop container %s, based on image '%s'."
-            % (container.name, ",".join(container.image.tags))
-        )
-        container.stop()
+        if container.status != "exited":
+            logger.debug(
+                "Stop container %s, based on image '%s'."
+                % (container.name, ",".join(container.image.tags))
+            )
+            container.stop()
+
+        # TODO, we should here filter by name
+        # but filters={"name": container_name}
+        # doesn't work...
+        client.containers.prune()

@@ -29,15 +29,32 @@ def move_to_test_folder():
 
 
 def cli_runner_invoke(cmd):
-    result = CliRunner().invoke(
-        main,
-        cmd,
-        catch_exceptions=False,
-    )
-    if not result.exit_code == 0:
-        _logger.error("exit_code: %s" % result.exit_code)
-        _logger.error("output: %s" % result.output)
-    assert result.exit_code == 0
+    try:
+        result = CliRunner().invoke(
+            main,
+            cmd,
+            catch_exceptions=False,
+        )
+        if not result.exit_code == 0:
+            _logger.error("exit_code: %s" % result.exit_code)
+            _logger.error("output: %s" % result.output)
+        assert result.exit_code == 0
+    except Exception as exception:
+        if Path("log").exists():
+            log_files = [
+                Path("log") / Path(f)
+                for f in os.listdir(Path("log"))
+                if f[-4:] == ".log"
+            ]
+            for log_file in log_files:
+                print("============================")
+                print(log_file)
+                print("============================")
+                _f = open(log_file)
+                print(_f.read())
+                _f.close()
+                print("============================")
+            raise exception
 
 
 def build_ctx_from_config_file() -> dict:
@@ -50,7 +67,9 @@ def build_ctx_from_config_file() -> dict:
     setattr(ctx, "obj", {})
     config_file_path = env_folder_path / "config.yml"
     if not config_file_path.exists():
-        raise Exception("Configuration file not found %s" % config_file_path)
+        raise Exception(
+            "Configuration file not found %s" % config_file_path.absolute()
+        )
     with open(config_file_path) as file:
         config = yaml.safe_load(file)
         ctx.obj["config"] = config
@@ -58,7 +77,4 @@ def build_ctx_from_config_file() -> dict:
 
     ctx.obj["env_folder_path"] = env_folder_path
     ctx.obj["src_folder_path"] = env_folder_path / Path("src")
-    ctx.obj["postgres_folder_path"] = env_folder_path / Path(
-        "postgres_data/data"
-    )
     return ctx

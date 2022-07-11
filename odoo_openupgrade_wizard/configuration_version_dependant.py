@@ -5,70 +5,29 @@ from loguru import logger
 _ODOO_VERSION_TEMPLATES = [
     {
         "version": 8.0,
-        "python_major_version": "python2",
-        "python_libraries": [],
     },
     {
         "version": 9.0,
-        "python_major_version": "python2",
-        "python_libraries": ["openupgradelib==2.0.0"],
     },
     {
         "version": 10.0,
-        "python_major_version": "python2",
-        "python_libraries": ["openupgradelib==2.0.0"],
     },
     {
         "version": 11.0,
-        "python_major_version": "python3",
-        "python_libraries": ["openupgradelib==2.0.0"],
     },
     {
         "version": 12.0,
-        "python_major_version": "python3",
-        "python_libraries": [
-            "git+https://github.com/grap/openupgradelib.git"
-            "@2.0.1#egg=openupgradelib"
-        ],
     },
     {
         "version": 13.0,
-        "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
     },
     {
         "version": 14.0,
-        "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
     },
     {
         "version": 15.0,
-        "python_major_version": "python3",
-        "python_libraries": ["openupgradelib"],
     },
 ]
-
-
-def get_version_template(version: float) -> dict:
-    """return a version template dictionnary according to a version
-    provided"""
-    for version_template in _ODOO_VERSION_TEMPLATES:
-        if version_template["version"] == version:
-            return version_template
-    else:
-        raise ValueError
-
-
-def get_python_libraries(version: float) -> list:
-    """Return a list of python librairies that should be
-    installed in each docker container for a given version"""
-    return get_version_template(version)["python_libraries"]
-
-
-def get_python_major_version(version: float) -> str:
-    """Return the major python version (2.0, 3.0) of Odoo for
-    a given version"""
-    return get_version_template(version)["python_major_version"]
 
 
 def get_version_options(mode: str) -> list:
@@ -151,11 +110,14 @@ def skip_addon_path(migration_step: dict, path: Path) -> bool:
     ) and migration_step["version"] < 14.0
 
 
-def get_server_wide_modules_upgrade(migration_step: dict) -> list:
+def get_server_wide_modules_upgrade(
+    migration_step: dict, execution_context: str = False
+) -> list:
     """return a list of modules to load, depending on the migration step."""
     if (
         migration_step["version"] >= 14.0
         and migration_step["execution_context"] == "openupgrade"
+        and execution_context != "regular"
     ):
         return ["openupgrade_framework"]
     return []

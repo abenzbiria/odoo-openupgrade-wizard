@@ -11,13 +11,14 @@ from . import (
 
 def test_cli_generate_module_analysis():
     move_to_test_folder()
+    ctx = build_ctx_from_config_file()
+
     db_name = "database_test_cli___generate_module_analysis"
 
-    ctx = build_ctx_from_config_file()
     # identify main analysis file of openupgrade
-    analysis_file_path = get_odoo_env_path(ctx, 14.0) / Path(
+    analysis_file_path = get_odoo_env_path(ctx, 15.0) / Path(
         "src/openupgrade/openupgrade_scripts/scripts"
-        "/base/14.0.1.3/upgrade_general_log.txt"
+        "/base/15.0.1.3/upgrade_general_log.txt"
     )
 
     # We remove this file and run the analysis
@@ -34,7 +35,7 @@ def test_cli_generate_module_analysis():
             "--step=2",
             "--database=%s" % db_name,
             "--modules=base",
-        ]
+        ],
     )
 
     # The file should has been recreated by the analysis command

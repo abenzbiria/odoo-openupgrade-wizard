@@ -15,7 +15,7 @@ It works with Openupgrade OCA tools. (https://github.com/oca/openupgrade)
 this tool is useful for complex migrations:
 - migrate several versions
 - take advantage of the migration to install / uninstall modules
-- execute sql requests or click-odoo scripts between each migration
+- execute sql requests or odoo shell scripts between each migration
 - analyse workload
 
 It will create a migration environment (with all the code available)
@@ -113,7 +113,7 @@ modules.csv
     before beginning the step.
   - ``post-migration.py`` can contains extra python command to execute
     after the execution of the step.
-    Script will be executed with ``click-odoo`` command. All the ORM is available
+    Script will be executed with ``odoo shell`` command. All the ORM is available
     via the ``env`` variable.
 
 * ``src`` folder contains a folder per Odoo version. In each environment folder:
