@@ -69,16 +69,16 @@ def init(
 
     # Compute Migration Steps
 
-    # Create initial first step
+    # Create initial Regular step
     steps = [
         {
             "name": 1,
             "execution_context": "regular",
             "version": odoo_versions[0],
-            "complete_name": "step_01__update__%s" % (odoo_versions[0]),
+            "complete_name": "step_01__regular__%s" % (odoo_versions[0]),
         }
     ]
-    # Add all upgrade steps
+    # Add all Openupgrade steps
     step_nbr = 2
     for odoo_version in odoo_versions[1:]:
         steps.append(
@@ -86,20 +86,20 @@ def init(
                 "name": step_nbr,
                 "execution_context": "openupgrade",
                 "version": odoo_version,
-                "complete_name": "step_%s__upgrade__%s"
+                "complete_name": "step_%s__openupgrade__%s"
                 % (str(step_nbr).rjust(2, "0"), odoo_version),
             }
         )
         step_nbr += 1
 
-    # add final update step
+    # add final Regular step
     if len(odoo_versions) > 1:
         steps.append(
             {
                 "name": step_nbr,
                 "execution_context": "regular",
                 "version": odoo_versions[-1],
-                "complete_name": "step_%s__update__%s"
+                "complete_name": "step_%s__regular__%s"
                 % (str(step_nbr).rjust(2, "0"), odoo_versions[-1]),
             }
         )
