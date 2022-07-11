@@ -11,17 +11,21 @@ def pull_image(image_name):
     client.images.pull(image_name)
 
 
-def build_image(path, tag):
+def build_image(path, tag, buildargs={}):
     logger.debug(
         "Building image named based on %s/Dockerfile."
         " This can take a big while ..." % (path)
     )
     debug_docker_command = "docker build %s --tag %s" % (path, tag)
-    logger.debug("DOCKER COMMAND:\n %s" % debug_docker_command)
+    for arg_name, arg_value in buildargs.items():
+        debug_docker_command += f"\\\n --build-arg {arg_name}={arg_value}"
+
+    logger.debug("DOCKER COMMAND:\n\n%s\n" % debug_docker_command)
     docker_client = get_docker_client()
     image = docker_client.images.build(
         path=str(path),
         tag=tag,
+        buildargs=buildargs,
     )
     logger.debug("Image build.")
     return image

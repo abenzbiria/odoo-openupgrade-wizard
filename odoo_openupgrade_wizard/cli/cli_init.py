@@ -47,7 +47,7 @@ from odoo_openupgrade_wizard.tools.tools_system import (
 def init(
     ctx, project_name, initial_version, final_version, extra_repository_list
 ):
-    """Initialize OpenUpgrade Wizard Environment based on the initial and
+    """Initialize OOW Environment based on the initial and
     the final version of Odoo you want to migrate.
     """
 

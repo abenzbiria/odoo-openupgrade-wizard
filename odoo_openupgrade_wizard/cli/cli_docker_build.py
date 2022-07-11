@@ -10,13 +10,14 @@ from odoo_openupgrade_wizard.tools.tools_odoo import (
     get_docker_image_tag,
     get_odoo_env_path,
 )
+from odoo_openupgrade_wizard.tools.tools_system import get_local_user_id
 
 
 @click.command()
 @versions_options
 @click.pass_context
 def docker_build(ctx, versions):
-    """Build Odoo Docker Images. (One image per version)"""
+    """Build Odoo Docker Images and pull Postgres image"""
 
     # Pull DB image
     pull_image(ctx.obj["config"]["postgres_image_name"])
@@ -30,5 +31,6 @@ def docker_build(ctx, versions):
         image = build_image(
             get_odoo_env_path(ctx, odoo_version),
             get_docker_image_tag(ctx, odoo_version),
+            {"LOCAL_USER_ID": str(get_local_user_id())},
         )
         logger.info("Docker Image build. '%s'" % image[0].tags[0])

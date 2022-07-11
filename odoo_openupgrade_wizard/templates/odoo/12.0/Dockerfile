@@ -66,4 +66,9 @@ RUN apt-get update || true \
 RUN python3 -m pip install --no-cache-dir -r /odoo_python_requirements.txt
 RUN python3 -m pip install --no-cache-dir -r /extra_python_requirements.txt
 
-RUN useradd --uid 1000 odoo
+# 5. <OOW> Get local user id and set it to the odoo user
+ARG LOCAL_USER_ID
+
+RUN useradd --uid $LOCAL_USER_ID odoo
+
+USER odoo
