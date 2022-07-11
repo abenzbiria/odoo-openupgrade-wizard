@@ -119,8 +119,14 @@ def kill_container(container_name):
         filters={"name": container_name},
     )
     for container in containers:
-        logger.debug(
-            "Stop container %s, based on image '%s'."
-            % (container.name, ",".join(container.image.tags))
-        )
-        container.stop()
+        if container.status != "exited":
+            logger.debug(
+                "Stop container %s, based on image '%s'."
+                % (container.name, ",".join(container.image.tags))
+            )
+            container.stop()
+
+        # TODO, we should here filter by name
+        # but filters={"name": container_name}
+        # doesn't work...
+        client.containers.prune()
