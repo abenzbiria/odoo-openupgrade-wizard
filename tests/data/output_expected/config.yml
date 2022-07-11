@@ -15,9 +15,7 @@ odoo_versions:
 
 odoo_version_settings:
   14.0:
-    repo_url: False
   15.0:
-    repo_url: False
 
 
 migration_steps:

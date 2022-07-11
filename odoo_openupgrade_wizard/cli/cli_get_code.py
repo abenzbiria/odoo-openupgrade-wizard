@@ -4,7 +4,10 @@ from odoo_openupgrade_wizard.cli.cli_options import (
     get_odoo_versions_from_options,
     versions_options,
 )
-from odoo_openupgrade_wizard.tools.tools_odoo import get_odoo_env_path
+from odoo_openupgrade_wizard.tools.tools_odoo import (
+    get_odoo_env_path,
+    get_repo_file_path,
+)
 from odoo_openupgrade_wizard.tools.tools_system import git_aggregate
 
 
@@ -24,5 +27,5 @@ def get_code(ctx, versions, jobs):
 
     for odoo_version in get_odoo_versions_from_options(ctx, versions):
         folder_path = get_odoo_env_path(ctx, odoo_version)
-        repo_file_path = folder_path / "repos.yml"
+        repo_file_path = get_repo_file_path(ctx, odoo_version)
         git_aggregate(folder_path, repo_file_path, jobs)

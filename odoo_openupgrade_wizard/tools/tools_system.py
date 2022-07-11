@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 from pathlib import Path
 
 import importlib_resources
@@ -104,3 +105,8 @@ def git_aggregate(folder_path: Path, config_path: Path, jobs: int):
 
 def get_local_user_id():
     return os.getuid()
+
+
+def execute_check_output(args_list, working_directory=False):
+    logger.debug("Execute %s" % " ".join(args_list))
+    subprocess.check_output(args_list, cwd=working_directory)
