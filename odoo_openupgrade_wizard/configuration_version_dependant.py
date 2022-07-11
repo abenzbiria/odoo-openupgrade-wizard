@@ -5,72 +5,29 @@ from loguru import logger
 _ODOO_VERSION_TEMPLATES = [
     {
         "version": 8.0,
-        "python_major_version": "python2",
-        "python_minor_version_short": "py27",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux1",
     },
     {
         "version": 9.0,
-        "python_major_version": "python2",
-        "python_minor_version_short": "py27",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux1",
     },
     {
         "version": 10.0,
-        "python_major_version": "python2",
-        "python_minor_version_short": "py27",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux1",
     },
     {
         "version": 11.0,
-        "python_major_version": "python3",
-        "python_minor_version_short": "py36",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
     {
         "version": 12.0,
-        "python_major_version": "python3",
-        # Note: doesn't work with latest available version py37
-        "python_minor_version_short": "py36",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
     },
     {
-        "version": 13.0,  # OK.
-        "python_major_version": "python3",
-        # Note: doesn't work with latest available version py37
-        "python_minor_version_short": "py36",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
+        "version": 13.0,
     },
     {
-        "version": 14.0,  # OK
-        "python_major_version": "python3",
-        "python_minor_version_short": "py39",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
+        "version": 14.0,
     },
     {
-        "version": 15.0,  # OK
-        "python_major_version": "python3",
-        "python_minor_version_short": "py39",
-        "prebuild_wheel_url": "https://wheelhouse.acsone.eu/manylinux2014",
+        "version": 15.0,
     },
 ]
-
-
-def get_odoo_version_template_value(version: float, key: str) -> str:
-    """Return a value depending on a odoo given version and key.
-    Possible key:
-        - python_major_version. (python2, python3)
-        - python_minor_version_short. (py27, py36, ...)
-        - prebuild_wheel_url.
-    """
-    version_template = False
-    for odoo_version_template in _ODOO_VERSION_TEMPLATES:
-        if odoo_version_template["version"] == version:
-            version_template = odoo_version_template
-            break
-    else:
-        raise ValueError
-    return version_template[key]
 
 
 def get_version_options(mode: str) -> list:

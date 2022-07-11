@@ -50,7 +50,16 @@ def ensure_file_exists_from_template(
     template_folder = (
         importlib_resources.files("odoo_openupgrade_wizard") / "templates"
     )
-    text = (template_folder / template_name).read_text()
+    template_path = template_folder / template_name
+    if not template_path.exists():
+        logger.warning(
+            f"Unable to generate {file_path},"
+            f" the template {template_name} has not been found."
+            f" If it's a Dockerfile,"
+            f" you should maybe contribute to that project ;-)"
+        )
+        return
+    text = template_path.read_text()
     template = Template(text)
     output = template.render(args)
 
