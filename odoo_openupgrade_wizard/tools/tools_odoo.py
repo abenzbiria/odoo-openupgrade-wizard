@@ -24,12 +24,32 @@ from odoo_openupgrade_wizard.tools.tools_postgres import get_postgres_container
 from odoo_openupgrade_wizard.tools.tools_system import get_script_folder
 
 
+def get_repo_file_path(ctx, odoo_version: float) -> Path:
+    """return the relative path of the repos.yml file
+    of a given odoo version"""
+    repo_file = False
+    # Check if submodule path exists
+    version_cfg = (
+        ctx.obj["config"]["odoo_version_settings"][odoo_version] or {}
+    )
+    submodule_path = get_odoo_env_path(ctx, odoo_version) / "repo_submodule"
+
+    if submodule_path.exists():
+        repo_file = submodule_path / version_cfg["repo_file_path"]
+        if repo_file.exists():
+            return repo_file
+        else:
+            logger.warning(f"Unable to find the repo file {repo_file}.")
+    repo_file = get_odoo_env_path(ctx, odoo_version) / Path("repos.yml")
+    if not repo_file.exists():
+        raise Exception(f"Unable to find the repo file {repo_file}.")
+    return repo_file
+
+
 def get_odoo_addons_path(
     ctx, root_path: Path, migration_step: dict, execution_context: str = False
 ) -> str:
-    repo_file = get_odoo_env_path(ctx, migration_step["version"]) / Path(
-        "repos.yml"
-    )
+    repo_file = get_repo_file_path(ctx, migration_step["version"])
     base_module_folder = get_base_module_folder(migration_step)
     stream = open(repo_file, "r")
     data = yaml.safe_load(stream)

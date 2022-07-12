@@ -80,10 +80,10 @@ scripts/
         ...
 src/
     env_10.0/
-        debian_requirements.txt
+        extra_debian_requirements.txt
         Dockerfile
         odoo.cfg
-        python_requirements.txt
+        extra_python_requirements.txt
         repos.yml
         src/
     env_11.0/
@@ -124,12 +124,12 @@ modules.csv
       Repo files are pre-generated. You can update them with your custom settings.
       (custom branches, extra PRs, git shallow options, etc...)
 
-    - ``python_requirements.txt`` enumerates the list of extra python librairies
+    - ``extra_python_requirements.txt`` enumerates the list of extra python librairies
       required to run the odoo instance.
       The syntax should respect the ``pip install -r`` command.
       (See : https://pip.pypa.io/en/stable/reference/requirements-file-format/)
 
-    - ``debian_requirements.txt`` enumerates the list of extra system librairies
+    - ``extra_debian_requirements.txt`` enumerates the list of extra system librairies
       required to run the odoo instance.
 
     - ``odoo.cfg`` file. Add here extra configuration required for your custom modules.
@@ -144,6 +144,28 @@ extra repositories, or dependencies...
 - In your repos.yml, preserve ``openupgrade`` and ``server-tools`` repositories
   to have all the features of the librairies available.
 
+## Command: ``pull-submodule``
+
+**Prerequites:** init
+
+if you already have a repos.yml file on github / gitlab, it can be convenient to
+synchronize the repository, instead of copy past the ``repos.yml`` manually.
+
+In that case, you can add extra values, in the ``config.yml`` file in the section
+
+```
+odoo_version_settings:
+  12.0:
+      repo_url: url_of_the_repo_that_contains_a_repos_yml_file
+      repo_branch: 12.0
+      repo_file_path: repos.yml
+```
+
+then run following command :
+
+```
+odoo-openupgrade-wizard pull-submodule
+```
 
 ## Command: ``get-code``
 
@@ -156,7 +178,8 @@ odoo-openupgrade-wizard get-code
 This command will simply get all the Odoo code required to run all the steps
 for your migration with the ``gitaggregate`` tools.
 
-The code is defined in the ``repos.yml`` of each sub folders.
+The code is defined in the ``repos.yml`` of each environment folders. (or in the
+directory ``repo_submodule`` if you use ``pull-submodule`` feature.)
 
 **Note**
 
@@ -177,10 +200,6 @@ odoo-openupgrade-wizard get-code --versions 10.0,11.0
 **Prerequites:** init + get-code
 
 This will build local docker images that will be used in the following steps.
-
-This script will pull official odoo docker images, defined in the ``Dockerfile`` of
-each folder, and build a custom images on top the official one, installing inside
-custom librairies defined in ``debian_requirements.txt``, ``python_requirements.txt``.
 
 At this end of this step executing the following command should show a docker image per version.
 
