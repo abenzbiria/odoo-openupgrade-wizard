@@ -9,6 +9,7 @@ from click_loglevel import LogLevel
 from loguru import logger
 
 import odoo_openupgrade_wizard
+from odoo_openupgrade_wizard.cli.cli_copydb import copydb
 from odoo_openupgrade_wizard.cli.cli_docker_build import docker_build
 from odoo_openupgrade_wizard.cli.cli_estimate_workload import estimate_workload
 from odoo_openupgrade_wizard.cli.cli_execute_script_python import (
@@ -103,6 +104,7 @@ def main(ctx, env_folder, filestore_folder, log_level):
         raise
 
 
+main.add_command(copydb)
 main.add_command(docker_build)
 main.add_command(estimate_workload)
 main.add_command(execute_script_python)

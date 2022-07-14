@@ -29,8 +29,9 @@ and provides helpers to run (and replay) migrations until it works.
 
 **Prerequites:**
 
+* The tools run on debian system
 * You should have docker installed on your system
-* the tools run on debian system
+* Some features require extra packages. To have all the features available run:
 
 **Installation:**
 
