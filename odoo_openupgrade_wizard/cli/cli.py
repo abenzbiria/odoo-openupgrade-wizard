@@ -71,10 +71,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
     src_folder_path = env_folder_path / Path("./src/")
     script_folder_path = env_folder_path / Path("./scripts/")
     log_folder_path = env_folder_path / Path("./log/")
-    if not filestore_folder:
-        filestore_folder_path = env_folder_path / Path("./filestore/")
-    else:
-        filestore_folder_path = Path(filestore_folder)
 
     # ensure log folder exists
     ensure_folder_exists(log_folder_path, git_ignore_content=True)
@@ -95,8 +91,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
     ctx.obj["script_folder_path"] = script_folder_path
     ctx.obj["log_folder_path"] = log_folder_path
     ctx.obj["log_prefix"] = log_prefix
-    ctx.obj["filestore_folder_path"] = filestore_folder_path
-
     ctx.obj["config_file_path"] = config_file_path
     ctx.obj["module_file_path"] = module_file_path
 

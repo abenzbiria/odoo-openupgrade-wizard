@@ -7,9 +7,6 @@ from loguru import logger
 # Wait for the launch of odoo instance 60 seconds
 _ODOO_RPC_MAX_TRY = 60
 
-# Timeout for odoorpc call is 24 hours
-_ODOO_RPC_TIMEOUT = 86400
-
 
 class OdooInstance:
 
@@ -34,7 +31,7 @@ class OdooInstance:
                     "0.0.0.0",
                     "jsonrpc",
                     port=port,
-                    timeout=_ODOO_RPC_TIMEOUT,
+                    timeout=ctx.obj["config"]["odoo_rpc_timeout"],
                 )
                 # connexion is OK
                 break

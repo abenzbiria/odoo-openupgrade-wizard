@@ -107,12 +107,7 @@ def init(
     # Ensure src folder exists
     ensure_folder_exists(ctx.obj["src_folder_path"])
 
-    # Ensure filestore folder exists
-    ensure_folder_exists(
-        ctx.obj["filestore_folder_path"], git_ignore_content=True
-    )
-
-    # Znsure main configuration file exists
+    # Ensure main configuration file exists
     ensure_file_exists_from_template(
         ctx.obj["config_file_path"],
         "config.yml.j2",

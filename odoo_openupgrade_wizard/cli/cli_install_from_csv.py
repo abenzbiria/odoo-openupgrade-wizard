@@ -37,11 +37,10 @@ def install_from_csv(ctx, database):
             init="base",
         )
         odoo_instance = OdooInstance(ctx, database)
-
-        default_country_code = ctx.obj["config"].get(
-            "odoo_default_country_code", False
+        odoo_default_company = ctx.obj["config"].get(
+            "odoo_default_company", False
         )
-        if "account" in module_names and default_country_code:
+        if odoo_default_company:
             # Then, set correct country to the company of the current user
             # Otherwise, due to poor design of Odoo, when installing account
             # the US localization will be installed.
@@ -49,22 +48,29 @@ def install_from_csv(ctx, database):
 
             countries = odoo_instance.browse_by_search(
                 "res.country",
-                [("code", "=", default_country_code)],
+                [("code", "=", odoo_default_company["country_code"])],
             )
             if len(countries) != 1:
                 raise Exception(
                     "Unable to find a country, based on the code %s."
                     " countries found : %s "
                     % (
-                        default_country_code,
+                        odoo_default_company["country_code"],
                         ", ".join([x.name for x in countries]),
                     )
                 )
+            vals = {
+                "country_id": countries[0].id,
+                "currency_id": countries[0].currency_id.id,
+                "phone": odoo_default_company.get("phone"),
+                "email": odoo_default_company.get("email"),
+            }
             logger.info(
-                "Configuring country of the main company with #%d - %s"
-                % (countries[0].id, countries[0].name)
+                f"Configuring main company with values {vals}"
+                f" (country {countries[0].name}"
             )
-            odoo_instance.env.user.company_id.country_id = countries[0].id
+
+            odoo_instance.env.user.company_id.write(vals)
 
         # Install modules
         odoo_instance.install_modules(module_names)

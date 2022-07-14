@@ -160,7 +160,7 @@ def generate_odoo_command(
     result = (
         f" {command}"
         f" {shell_cmd}"
-        # f" --config=/etc/odoo.cfg"
+        f" --config=/odoo_env/odoo.cfg"
         f" --data-dir=/env/filestore/"
         f" --addons-path={addons_path}"
         f" --logfile={log_file_docker_path}"
