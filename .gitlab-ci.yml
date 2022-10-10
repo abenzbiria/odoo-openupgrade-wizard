@@ -17,6 +17,7 @@ pytest:
     - shell
   only:
     - merge_requests
+    - "main"
   script:
     - python3 -m venv ./.gitlab-ci-venv
     - source ./.gitlab-ci-venv/bin/activate
