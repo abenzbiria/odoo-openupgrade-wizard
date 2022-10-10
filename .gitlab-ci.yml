@@ -18,6 +18,7 @@ pytest:
   only:
     - merge_requests
     - "main"
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+)\%/'
   script:
     - python3 -m venv ./.gitlab-ci-venv
     - source ./.gitlab-ci-venv/bin/activate
