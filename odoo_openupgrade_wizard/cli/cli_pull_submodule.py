@@ -36,12 +36,18 @@ def pull_submodule(ctx, versions):
                         "-b",
                         str(version_cfg["repo_branch"]),
                         version_cfg["repo_url"],
-                        submodule_path,
+                        str(submodule_path),
                     ]
                 )
             else:
                 execute_check_output(
-                    ["git", "pull", "origin", str(version_cfg["repo_branch"])],
+                    [
+                        "git",
+                        "pull",
+                        "origin",
+                        str(version_cfg["repo_branch"]),
+                        "--rebase",
+                    ],
                     working_directory=submodule_path,
                 )
         else:
