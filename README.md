@@ -1,7 +1,5 @@
 [![Gitlab CI](https://gitlab.com/odoo-openupgrade-wizard/odoo-openupgrade-wizard/badges/main/pipeline.svg)](https://gitlab.com/odoo-openupgrade-wizard/odoo-openupgrade-wizard/-/pipelines)
-
-[![codecov](https://codecov.io/gl/odoo-openupgrade-wizard/odoo-openupgrade-wizard/branch/main/graph/badge.svg)](https://codecov.io/gl/odoo-openupgrade-wizard/odoo-openupgrade-wizard)
-
+[![codecov](https://gitlab.com/odoo-openupgrade-wizard/odoo-openupgrade-wizard/badges/main/coverage.svg)](https://gitlab.com/odoo-openupgrade-wizard/odoo-openupgrade-wizard/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 
