@@ -145,8 +145,8 @@ def init(
 
         # Create odoo config file
         ensure_file_exists_from_template(
-            path_version / Path("odoo.cfg"),
-            "odoo/odoo.cfg.j2",
+            path_version / Path("odoo.conf"),
+            "odoo/odoo.conf.j2",
         )
 
         # Create repos.yml file for gitaggregate tools
