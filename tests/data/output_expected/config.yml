@@ -1,11 +1,16 @@
 project_name: test-cli
 
+
 postgres_image_name: postgres:13
 postgres_container_name: test-cli-container-postgres
 postgres_volume_name: test-cli-volume-postgres
+postgres_extra_settings:
 
+
+odoo_rpc_timeout: 3600
 odoo_host_xmlrpc_port: 9069
-odoo_default_country_code: FR
+odoo_default_company:
+  country_code: FR
 
 
 odoo_versions:

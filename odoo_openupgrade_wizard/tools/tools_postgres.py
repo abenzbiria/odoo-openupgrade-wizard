@@ -42,10 +42,18 @@ def get_postgres_container(ctx):
         logger.info("Creating Postgres volume: %s" % volume_name)
         client.volumes.create(volume_name)
 
+    command = None
+    postgres_extra_settings = ctx.obj["config"].get("postgres_extra_settings")
+    if postgres_extra_settings:
+        command = "postgres"
+        for key, value in postgres_extra_settings.items():
+            command += f" -c {key}={value}"
+
     logger.info("Launching Postgres Container. (Image %s)" % image_name)
     container = run_container(
         image_name,
         container_name,
+        command=command,
         environments={
             "POSTGRES_USER": "odoo",
             "POSTGRES_PASSWORD": "odoo",
@@ -53,8 +61,10 @@ def get_postgres_container(ctx):
             "PGDATA": "/var/lib/postgresql/data/pgdata",
         },
         volumes={
-            ctx.obj["env_folder_path"].absolute(): "/env/",
+            # Data volume
             volume_name: "/var/lib/postgresql/data/pgdata/",
+            # main folder path (to pass files)
+            ctx.obj["env_folder_path"].absolute(): "/env/",
         },
         detach=True,
     )

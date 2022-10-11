@@ -37,7 +37,6 @@ from odoo_openupgrade_wizard.tools.tools_postgres import ensure_database
 )
 @click.pass_context
 def run(ctx, step, database, stop_after_init, init_modules, execution_context):
-
     migration_step = get_migration_step_from_options(ctx, step)
     ensure_database(ctx, database, state="present")
     try:

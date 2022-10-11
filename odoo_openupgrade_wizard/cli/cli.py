@@ -9,6 +9,7 @@ from click_loglevel import LogLevel
 from loguru import logger
 
 import odoo_openupgrade_wizard
+from odoo_openupgrade_wizard.cli.cli_copydb import copydb
 from odoo_openupgrade_wizard.cli.cli_docker_build import docker_build
 from odoo_openupgrade_wizard.cli.cli_estimate_workload import estimate_workload
 from odoo_openupgrade_wizard.cli.cli_execute_script_python import (
@@ -71,10 +72,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
     src_folder_path = env_folder_path / Path("./src/")
     script_folder_path = env_folder_path / Path("./scripts/")
     log_folder_path = env_folder_path / Path("./log/")
-    if not filestore_folder:
-        filestore_folder_path = env_folder_path / Path("./filestore/")
-    else:
-        filestore_folder_path = Path(filestore_folder)
 
     # ensure log folder exists
     ensure_folder_exists(log_folder_path, git_ignore_content=True)
@@ -95,8 +92,6 @@ def main(ctx, env_folder, filestore_folder, log_level):
     ctx.obj["script_folder_path"] = script_folder_path
     ctx.obj["log_folder_path"] = log_folder_path
     ctx.obj["log_prefix"] = log_prefix
-    ctx.obj["filestore_folder_path"] = filestore_folder_path
-
     ctx.obj["config_file_path"] = config_file_path
     ctx.obj["module_file_path"] = module_file_path
 
@@ -109,6 +104,7 @@ def main(ctx, env_folder, filestore_folder, log_level):
         raise
 
 
+main.add_command(copydb)
 main.add_command(docker_build)
 main.add_command(estimate_workload)
 main.add_command(execute_script_python)

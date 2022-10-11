@@ -53,5 +53,17 @@ in modules.csv.j2 :
 
 
 
-TODO when launching container :
-- install odoo : ``pip install -e /odoo/src/odoo``
+## Without postgres optimization
+2022-07-13 19:42
+2022-07-13 21:20
+
+Duration : 1:37 (107)
+
+## With postgres optimization
+
+2022-07-13 21:52
+2022-07-14 23:11
+
+duration : 1:19 (79)
+
+16%
