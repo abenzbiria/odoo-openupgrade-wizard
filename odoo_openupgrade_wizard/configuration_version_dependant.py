@@ -27,6 +27,9 @@ _ODOO_VERSION_TEMPLATES = [
     {
         "version": 15.0,
     },
+    {
+        "version": 16.0,
+    },
 ]
 
 
