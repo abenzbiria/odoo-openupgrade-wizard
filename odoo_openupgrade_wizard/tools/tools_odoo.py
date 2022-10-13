@@ -112,9 +112,9 @@ def generate_odoo_command(
     odoo_env_path = get_odoo_env_path(ctx, migration_step["version"])
 
     # Compute 'server_wide_modules'
-    # For that purpose, read the custom odoo.cfg file
+    # For that purpose, read the custom odoo.conf file
     # to know if server_wide_modules is defined
-    custom_odoo_config_file = odoo_env_path / "odoo.cfg"
+    custom_odoo_config_file = odoo_env_path / "odoo.conf"
     parser = configparser.RawConfigParser()
     parser.read(custom_odoo_config_file)
     server_wide_modules = parser.get(
@@ -160,7 +160,7 @@ def generate_odoo_command(
     result = (
         f" {command}"
         f" {shell_cmd}"
-        f" --config=/odoo_env/odoo.cfg"
+        f" --config=/odoo_env/odoo.conf"
         f" --data-dir=/env/filestore/"
         f" --addons-path={addons_path}"
         f" --logfile={log_file_docker_path}"
