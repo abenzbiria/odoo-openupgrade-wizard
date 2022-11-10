@@ -140,8 +140,11 @@ You can use default files, if you have a very simple odoo instance without custo
 extra repositories, or dependencies...
 
 **Note:**
+
 - In your repos.yml, preserve ``openupgrade`` and ``server-tools`` repositories
   to have all the features of the librairies available.
+- In your repos.yml file, the odoo project should be in ``./src/odoo``
+  and the openupgrade project should be in ``./src/openupgrade/`` folder.
 
 ## Command: ``pull-submodule``
 
