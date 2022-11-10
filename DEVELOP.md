@@ -158,7 +158,7 @@ See (https://github.com/odoo/odoo/blob/ODOO_VERSION/setup/package.dfdebian)
 - First release : 06/07/2019
 - End LTS : Undefined.
 
-## debian:bullseye (15.0)
+## debian:bullseye (15.0, 16.0)
 - Ubuntu release : 20.04 focal, 20.10 groovy, 21.04 hirsute, 21.10 impish
 - python3.9
 - First release : 14/07/2021
