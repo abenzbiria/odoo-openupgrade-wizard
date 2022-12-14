@@ -56,11 +56,10 @@ def get_odoo_addons_path(
     data = data
 
     addons_path = []
+    odoo_folder = get_odoo_folder(migration_step, execution_context)
     for key in data.keys():
         path = root_path / Path(key)
-        if str(path).endswith(
-            get_odoo_folder(migration_step, execution_context)
-        ):
+        if str(path).endswith(odoo_folder):
             # Add two folder for odoo folder
             addons_path.append(path / Path("addons"))
             addons_path.append(
