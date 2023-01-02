@@ -5,6 +5,7 @@ from pathlib import Path
 
 import requests
 from git import Repo
+from git.exc import InvalidGitRepositoryError
 from loguru import logger
 from pygount import SourceAnalysis
 
@@ -381,17 +382,27 @@ class OdooModule(object):
         # - github url set with git+http...
         # - gitlab url
         # - if odoo code is not in a odoo folder in the repos.yml file...
-        if str(addon_path).endswith("odoo/odoo/addons") or str(
-            addon_path
-        ).endswith("openupgrade/odoo/addons"):
+        odoo_odoo_addons = (
+            "odoo/odoo/addons",
+            "odoo/openerp/addons",
+            "openupgrade/odoo/addons",
+            "openupgrade/openerp/addons",
+        )
+        odoo_addons = (
+            "odoo/addons",
+            "openupgrade/addons",
+        )
+        if str(addon_path).endswith(odoo_odoo_addons):
             path = addon_path.parent.parent
-        elif str(addon_path).endswith("odoo/addons") or str(
-            addon_path
-        ).endswith("openupgrade/addons"):
+        elif str(addon_path).endswith(odoo_addons):
             path = addon_path.parent
         else:
             path = addon_path
-        repo = Repo(str(path))
+        try:
+            repo = Repo(str(path))
+        except InvalidGitRepositoryError as err:
+            logger.critical(f"{path} is not a Git Repository.")
+            raise err
         repository_name = repo.remotes[0].url.replace(
             "https://github.com/", ""
         )
