@@ -26,25 +26,22 @@ RUN apt-get update -qq &&  \
         python3 -y && \
     rm -rf /var/lib/apt/lists/*
 
-# 2. <OOW> Add 2 python dependency files and 1 debian dependency file
-
-COPY ./src/odoo/requirements.txt /odoo_python_requirements.txt
-COPY extra_python_requirements.txt /extra_python_requirements.txt
+# <OOW> Install Debian packages
 COPY extra_debian_requirements.txt /extra_debian_requirements.txt
-
-# 3. <OOW> Install Debian packages
 RUN apt-get update -qq \
     && apt-get install -y git \
     && xargs apt-get install -y --no-install-recommends <extra_debian_requirements.txt \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. <OOW> Install Python librairies
+# <OOW> Install Python librairies
+COPY ./src/odoo/requirements.txt /odoo_python_requirements.txt
+COPY extra_python_requirements.txt /extra_python_requirements.txt
 RUN pip3 install --upgrade pip \
     && python3 -m pip install --no-cache-dir setuptools-scm \
     && python3 -m pip install --no-cache-dir -r /odoo_python_requirements.txt \
     && python3 -m pip install --no-cache-dir -r /extra_python_requirements.txt
 
-# 5. <OOW> Get local user id and set it to the odoo user
+# <OOW> Get local user id and set it to the odoo user
 ARG LOCAL_USER_ID
 
 RUN useradd --uid $LOCAL_USER_ID odoo
