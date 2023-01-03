@@ -1,5 +1,5 @@
-# <OOW> : Copy of https://github.com/odoo/odoo/blob/13.0/setup/package.dfsrc
-FROM debian:buster
+# <OOW> : Copy of https://github.com/odoo/odoo/blob/11.0/setup/package.dfsrc
+FROM debian:stretch
 
 RUN apt-get update && \
     apt-get install -y locales && \
@@ -18,7 +18,7 @@ RUN apt-get update -qq &&  \
         postgresql-server-dev-all \
         postgresql-client \
         adduser \
-        libsass1 \
+        node-less \
         libxml2-dev \
         libxslt1-dev \
         libldap2-dev \
