@@ -138,7 +138,7 @@ The Dockerfile of the version 11 to the lastest version of Odoo are written this
 - Copy the content of https://github.com/odoo/odoo/blob/ODOO_VERSION/setup/package.dfsrc
 - remove all the part after the big ``apt-get install``
 - install debian package ``git`` to have the possibility to pip install from git url.
-- install debian custom debian
+- install custom debian packages
 - install python odoo requirements
 - install python ``setuptools-scm`` lib to have the possibility to pip install ``openupgradelib`` from git url.
 - install python custom requirements
