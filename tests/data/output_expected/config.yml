@@ -51,7 +51,7 @@ workload_settings:
     # Porting 120 lines of Python code costs 1 hour
     port_per_python_line_time: 0.5
 
-    # Porting 120 lines of Python code costs 1 hour
+    # Porting 120 lines of Javascript code costs 1 hour
     port_per_javascript_line_time: 0.5
 
     # Porting 10 lines of XML costs 1 minute
