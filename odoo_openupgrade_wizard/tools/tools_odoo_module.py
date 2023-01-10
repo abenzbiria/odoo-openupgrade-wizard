@@ -328,6 +328,13 @@ class OdooModule(object):
         else:
             self.module_type = "custom"
 
+    @property
+    def workload(self):
+        return sum(
+            round(module_version.workload)
+            for _, module_version in self.module_versions.items()
+        )
+
     def get_module_version(self, current_version):
         res = self.module_versions.get(current_version, False)
         return res

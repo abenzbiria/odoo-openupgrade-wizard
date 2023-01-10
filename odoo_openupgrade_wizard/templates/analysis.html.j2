@@ -65,6 +65,7 @@
       <thead>
         <tr>
           <th>&nbsp;</th>
+          <th>Estimated time (min)</th>
 {%- for odoo_version in ctx.obj['config']['odoo_versions'] -%}
           <th>{{ odoo_version }}</th>
 {% endfor %}
@@ -87,7 +88,7 @@
     and odoo_module.module_type != 'odoo') %}
     {% set ns.current_module_type = odoo_module.module_type %}
         <tr>
-          <th colspan="{{1 + ctx.obj['config']['odoo_versions']|length}}">
+          <th colspan="{{2 + ctx.obj['config']['odoo_versions']|length}}">
             {{ ns.current_module_type}}
           </th>
         <tr>
@@ -102,7 +103,7 @@
 
     {% if ns.current_repository %}
         <tr>
-          <th colspan="{{1 + ctx.obj['config']['odoo_versions']|length}}">
+          <th colspan="{{2 + ctx.obj['config']['odoo_versions']|length}}">
             {{ ns.current_repository}}
           </th>
         <tr>
@@ -130,6 +131,9 @@
   {% endif %}
 
           </td>
+
+          <td>{{odoo_module.workload}}</td>
+
   {% for version in odoo_module.analyse.all_versions %}
     {% set module_version = odoo_module.get_module_version(version) %}
     {% if module_version %}
