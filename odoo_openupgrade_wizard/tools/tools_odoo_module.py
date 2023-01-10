@@ -403,15 +403,36 @@ class OdooModule(object):
         except InvalidGitRepositoryError as err:
             logger.critical(f"{path} is not a Git Repository.")
             raise err
-        repository_name = repo.remotes[0].url.replace(
-            "https://github.com/", ""
+        github_url_prefixes = (
+            "https://github.com/",
+            "git@github.com:",
         )
-        # Standardize all repository_name to lower case
-        repository_name = repository_name.lower()
-        if repository_name == "oca/openupgrade":
+        repository_names = []
+        for remote in repo.remotes:
+            # Standardize all repository_name to lower case
+            repository_name = remote.url.lower()
+            for github_url_prefix in github_url_prefixes:
+                repository_name = repository_name.replace(
+                    github_url_prefix, ""
+                )
+            if repository_name.endswith(".git"):
+                repository_name = repository_name[: -len(".git")]
+            repository_names.append(repository_name)
+        # find main repository_name
+        main_repository_name = next(
+            (
+                repo_name
+                for repo_name in repository_names
+                if repo_name.startswith("oca")
+            ),
+            None,
+        )
+        if not main_repository_name:
+            main_repository_name = repository_names[0]
+        if main_repository_name == "oca/openupgrade":
             return "odoo/odoo"
         else:
-            return repository_name
+            return main_repository_name
 
     def __eq__(self, other):
         if isinstance(other, str):
