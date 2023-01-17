@@ -323,8 +323,8 @@ class OdooModule(object):
             self.module_type = "not_found"
         elif repository_name == "odoo/odoo":
             self.module_type = "odoo"
-        elif repository_name.startswith("OCA"):
-            self.module_type = "OCA"
+        elif repository_name.startswith("oca"):
+            self.module_type = "oca"
         else:
             self.module_type = "custom"
 
@@ -355,7 +355,7 @@ class OdooModule(object):
         """Search the module in all the addons path of a given version
         and return the addon path of the module, or False if not found.
         For exemple find_repository(ctx, 'web_responsive', 12.0)
-        '/PATH_TO_LOCAL_ENV/src/OCA/web'
+        '/PATH_TO_LOCAL_ENV/src/oca/web'
         """
         # Try to find the repository that contains the module
         main_path = get_odoo_env_path(ctx, current_version)
@@ -375,7 +375,7 @@ class OdooModule(object):
         """Given an addons path that contains odoo modules in a folder
         that has been checkouted via git, return a repository name with the
         following format org_name/repo_name.
-        For exemple 'OCA/web' or 'odoo/odoo'
+        For exemple 'oca/web' or 'odoo/odoo'
         """
         # TODO, make the code cleaner and more resiliant
         # for the time being, the code will fail for
@@ -403,13 +403,36 @@ class OdooModule(object):
         except InvalidGitRepositoryError as err:
             logger.critical(f"{path} is not a Git Repository.")
             raise err
-        repository_name = repo.remotes[0].url.replace(
-            "https://github.com/", ""
+        github_url_prefixes = (
+            "https://github.com/",
+            "git@github.com:",
         )
-        if repository_name.lower() == "oca/openupgrade":
+        repository_names = []
+        for remote in repo.remotes:
+            # Standardize all repository_name to lower case
+            repository_name = remote.url.lower()
+            for github_url_prefix in github_url_prefixes:
+                repository_name = repository_name.replace(
+                    github_url_prefix, ""
+                )
+            if repository_name.endswith(".git"):
+                repository_name = repository_name[: -len(".git")]
+            repository_names.append(repository_name)
+        # find main repository_name
+        main_repository_name = next(
+            (
+                repo_name
+                for repo_name in repository_names
+                if repo_name.startswith("oca")
+            ),
+            None,
+        )
+        if not main_repository_name:
+            main_repository_name = repository_names[0]
+        if main_repository_name == "oca/openupgrade":
             return "odoo/odoo"
         else:
-            return repository_name
+            return main_repository_name
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -421,7 +444,7 @@ class OdooModule(object):
         if self.module_type != other.module_type:
             if self.module_type == "odoo":
                 return True
-            elif self.module_type == "OCA" and other.module_type in [
+            elif self.module_type == "oca" and other.module_type in [
                 "custom",
                 "not_found",
             ]:
