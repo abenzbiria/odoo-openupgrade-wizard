@@ -328,6 +328,13 @@ class OdooModule(object):
         else:
             self.module_type = "custom"
 
+    @property
+    def workload(self):
+        return sum(
+            round(module_version.workload)
+            for _, module_version in self.module_versions.items()
+        )
+
     def get_module_version(self, current_version):
         res = self.module_versions.get(current_version, False)
         return res
@@ -493,11 +500,19 @@ class OdooModuleVersion(object):
         self.python_code = 0
         self.xml_code = 0
         self.javascript_code = 0
-        self.workload = 0
+        self._workload = 0
         self.analysis_file = False
         self.openupgrade_model_lines = 0
         self.openupgrade_field_lines = 0
         self.openupgrade_xml_lines = 0
+
+    @property
+    def workload(self):
+        return int(round(self._workload))
+
+    @workload.setter
+    def workload(self, value):
+        self._workload = int(round(value))
 
     def get_last_existing_version(self):
         if self.odoo_module.module_type != "not_found":
