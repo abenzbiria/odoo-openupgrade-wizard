@@ -12,6 +12,9 @@ from odoo_openupgrade_wizard.tools.tools_odoo import (
     kill_odoo,
     run_odoo,
 )
+from odoo_openupgrade_wizard.tools.tools_postgres import (
+    execute_sql_files_pre_migration,
+)
 
 
 @click.command()
@@ -25,6 +28,7 @@ def upgrade(ctx, first_step, last_step, database):
         ctx, first_step, last_step
     )
     for migration_step in migration_steps:
+        execute_sql_files_pre_migration(ctx, database, migration_step)
         try:
             run_odoo(
                 ctx,

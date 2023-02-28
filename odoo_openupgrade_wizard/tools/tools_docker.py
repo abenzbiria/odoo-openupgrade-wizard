@@ -114,17 +114,28 @@ def exec_container(container, command):
 
 def kill_container(container_name):
     client = get_docker_client()
-    containers = client.containers.list(
-        all=True,
-        filters={"name": container_name},
-    )
+
+    try:
+        containers = client.containers.list(
+            all=True,
+            filters={"name": container_name},
+        )
+    except docker.errors.NotFound as err:
+        logger.debug(f"Cannot kill container {container_name}: " + str(err))
+        containers = []
+
     for container in containers:
         if container.status != "exited":
             logger.debug(
                 "Stop container %s, based on image '%s'."
                 % (container.name, ",".join(container.image.tags))
             )
-            container.stop()
+            try:
+                container.stop()
+            except docker.errors.NotFound as err:
+                logger.debug(
+                    f"Cannot kill container {container.name}: " + str(err)
+                )
 
         # TODO, we should here filter by name
         # but filters={"name": container_name}
