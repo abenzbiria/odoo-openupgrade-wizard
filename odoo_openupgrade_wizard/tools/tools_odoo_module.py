@@ -318,6 +318,7 @@ class OdooModule(object):
         self.name = module_name
         self.repository = repository_name
         self.unique_name = "%s.%s" % (repository_name, module_name)
+        self.ignored = self.is_ignored(ctx, module_name)
         self.module_versions = {}
         if not repository_name:
             self.module_type = "not_found"
@@ -334,6 +335,11 @@ class OdooModule(object):
             round(module_version.workload)
             for _, module_version in self.module_versions.items()
         )
+
+    def is_ignored(self, ctx, module_name):
+        """Return true if module should be ignored"""
+        settings = ctx.obj["config"]["workload_settings"]
+        return module_name in settings["ignored_module_list"]
 
     def get_module_version(self, current_version):
         res = self.module_versions.get(current_version, False)
@@ -494,7 +500,7 @@ class OdooModuleVersion(object):
         self.version = version
         self.odoo_module = odoo_module
         self.addon_path = addon_path
-        self.state = state
+        self.state = "ignored" if odoo_module.ignored else state
         self.target_module = target_module
         self.openupgrade_state = ""
         self.python_code = 0
@@ -535,7 +541,7 @@ class OdooModuleVersion(object):
         openupgrade_field_line_time = settings["openupgrade_field_line_time"]
         openupgrade_xml_line_time = settings["openupgrade_xml_line_time"]
 
-        if self.state in ["merged", "renamed", "normal_loss"]:
+        if self.state in ["merged", "renamed", "normal_loss", "ignored"]:
             # The module has been moved, nothing to do
             return
 
@@ -734,7 +740,7 @@ class OdooModuleVersion(object):
             return "lightgreen"
         else:
             # The module doesn't exist in the current version
-            if self.state in ["merged", "renamed", "normal_loss"]:
+            if self.state in ["merged", "renamed", "normal_loss", "ignored"]:
                 # Normal case, the previous version has been renamed
                 # or merged
                 return "lightgray"
@@ -765,6 +771,8 @@ class OdooModuleVersion(object):
                 return "Merged into %s" % self.target_module
             elif self.state == "renamed":
                 return "Renamed into %s" % self.target_module
+            elif self.state == "ignored":
+                return "Ignored"
             elif self.state == "normal_loss":
                 return ""
 
