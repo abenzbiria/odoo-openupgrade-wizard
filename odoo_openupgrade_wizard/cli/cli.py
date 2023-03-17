@@ -24,6 +24,7 @@ from odoo_openupgrade_wizard.cli.cli_generate_module_analysis import (
 from odoo_openupgrade_wizard.cli.cli_get_code import get_code
 from odoo_openupgrade_wizard.cli.cli_init import init
 from odoo_openupgrade_wizard.cli.cli_install_from_csv import install_from_csv
+from odoo_openupgrade_wizard.cli.cli_psql import psql
 from odoo_openupgrade_wizard.cli.cli_pull_submodule import pull_submodule
 from odoo_openupgrade_wizard.cli.cli_run import run
 from odoo_openupgrade_wizard.cli.cli_upgrade import upgrade
@@ -113,6 +114,7 @@ main.add_command(generate_module_analysis)
 main.add_command(get_code)
 main.add_command(init)
 main.add_command(install_from_csv)
+main.add_command(psql)
 main.add_command(pull_submodule)
 main.add_command(run)
 main.add_command(upgrade)

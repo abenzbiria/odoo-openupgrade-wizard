@@ -104,27 +104,37 @@ def execute_sql_file(ctx, database, sql_file):
 
 
 def execute_sql_request(ctx, request, database="postgres"):
-    container = get_postgres_container(ctx)
-    command = (
-        "psql"
-        " --username=odoo"
-        " --dbname={database}"
-        " --tuples-only"
-        ' --command "{request}"'
-    ).format(database=database, request=request)
-    logger.debug(
-        "Executing the following command in postgres container"
-        " on database %s \n %s" % (database, request)
-    )
-    docker_result = exec_container(container, command)
-
-    lines = docker_result.output.decode("utf-8").split("\n")
+    psql_args = ("--tuples-only",)
+    output = execute_psql_command(ctx, request, database, psql_args)
+    lines = output.split("\n")
     result = []
     for line in lines:
         if not line:
             continue
         result.append([x.strip() for x in line.split("|")])
     return result
+
+
+def execute_psql_command(
+    ctx, request: str, database: str = "postgres", psql_args=None
+):
+    """Execute psql request in postgres container with psql_args on database"""
+    if psql_args and not isinstance(psql_args, str):
+        psql_args = " ".join(psql_args)
+    container = get_postgres_container(ctx)
+    command = (
+        "psql"
+        " --username=odoo"
+        " --dbname={database}"
+        ' --command "{request}"'
+        " {psql_args}"
+    ).format(database=database, request=request, psql_args=psql_args)
+    logger.debug(
+        "Executing the following command in postgres container\n"
+        "%s" % (command)
+    )
+    docker_result = exec_container(container, command)
+    return docker_result.output.decode("utf-8")
 
 
 def ensure_database(ctx, database: str, state="present"):
