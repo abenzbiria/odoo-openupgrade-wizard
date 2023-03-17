@@ -78,8 +78,7 @@ def ensure_file_exists_from_template(
 
     with open(file_path, "w") as f:
         logger.info(log_text)
-        f.write(output)
-        f.close()
+        print(output, file=f)
 
 
 def git_aggregate(folder_path: Path, config_path: Path, jobs: int):

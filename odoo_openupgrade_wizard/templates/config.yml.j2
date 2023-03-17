@@ -35,29 +35,32 @@ migration_steps:
 
 workload_settings:
 
-    # porting a module requires 45 minutes minimaly
-    port_minimal_time: 45
+  # Ignored module list
+  ignored_module_list: []
 
-    # a migration cost more for each version
-    port_per_version: 15
+  # porting a module requires 45 minutes minimaly
+  port_minimal_time: 45
 
-    # Porting 120 lines of Python code costs 1 hour
-    port_per_python_line_time: 0.5
+  # a migration cost more for each version
+  port_per_version: 15
 
-    # Porting 120 lines of Javascript code costs 1 hour
-    port_per_javascript_line_time: 0.5
+  # Porting 120 lines of Python code costs 1 hour
+  port_per_python_line_time: 0.5
 
-    # Porting 10 lines of XML costs 1 minute
-    port_per_xml_line_time: 0.10
+  # Porting 120 lines of Javascript code costs 1 hour
+  port_per_javascript_line_time: 0.5
 
-    # Minimal time for Openupgrade PR
-    open_upgrade_minimal_time: 10
+  # Porting 10 lines of XML costs 1 minute
+  port_per_xml_line_time: 0.10
 
-    # time for a line of model in the openupgrade_analysis.txt
-    openupgrade_model_line_time: 10
+  # Minimal time for Openupgrade PR
+  open_upgrade_minimal_time: 10
 
-    # Time for a line of field in the openupgrade_analysis.txt
-    openupgrade_field_line_time: 5
+  # time for a line of model in the openupgrade_analysis.txt
+  openupgrade_model_line_time: 10
 
-    # Time for a line of XML in the openupgrade_analysis.txt
-    openupgrade_xml_line_time: 0.1
+  # Time for a line of field in the openupgrade_analysis.txt
+  openupgrade_field_line_time: 5
+
+  # Time for a line of XML in the openupgrade_analysis.txt
+  openupgrade_xml_line_time: 0.1
