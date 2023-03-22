@@ -1,6 +1,8 @@
 import argparse
 import os
+import shutil
 import subprocess
+import tarfile
 from pathlib import Path
 
 import importlib_resources
@@ -109,3 +111,36 @@ def get_local_user_id():
 def execute_check_output(args_list, working_directory=False):
     logger.debug("Execute %s" % " ".join(args_list))
     subprocess.check_output(args_list, cwd=working_directory)
+
+
+def copy_filestore(
+    ctx,
+    database: str,
+    destpath: os.PathLike,
+    copyformat: str = "d",
+):
+    """Copy filestore of database to destpath using copyformat.
+    copyformat can be 'd' for directory, a normal copy, or 't' for a
+    copy into a tar achive, or 'tgz' to copy to a compressed tar file.
+    """
+    valid_format = ("d", "t", "tgz", "txz")
+    if copyformat not in valid_format:
+        raise ValueError(
+            f"copyformat should be one of the following {valid_format}"
+        )
+
+    filestore_folder_path = ctx.obj["env_folder_path"] / "filestore/filestore"
+    filestore_path = filestore_folder_path / database
+
+    if copyformat == "d":
+        shutil.copytree(filestore_path, destpath)
+
+    elif copyformat.startswith("t"):
+        wmode = "w"
+        if copyformat.endswith("gz"):
+            wmode += ":gz"
+        elif copyformat.endswith("xz"):
+            wmode += ":xz"
+
+        with tarfile.open(destpath, wmode) as tar:
+            tar.add(filestore_path, arcname="filestore")

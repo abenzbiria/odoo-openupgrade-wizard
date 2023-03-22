@@ -172,3 +172,58 @@ def execute_sql_files_pre_migration(
 
     for sql_file in sql_files:
         execute_sql_file(ctx, database, sql_file)
+
+
+def chown_to_local_user(ctx, filepath: os.PathLike):
+    """Chown a filepath in the postgres container to the local user"""
+    container = get_postgres_container(ctx)
+    user_uid = os.getuid()
+    command = "chown -R {uid}:{uid} {filepath}".format(
+        uid=user_uid, filepath=filepath
+    )
+    logger.debug(
+        "Executing the following command in postgres container: %s"
+        % (command,)
+    )
+    chown_result = exec_container(container, command)
+    return chown_result.output.decode("utf8")
+
+
+def execute_pg_dump(
+    ctx,
+    database: str,
+    dumpformat: str,
+    filename: str,
+    pg_dump_args="--no-owner",
+):
+    """Execute pg_dump command on the postgres container and dump the
+    result to dumpfile.
+    """
+    if pg_dump_args and not isinstance(pg_dump_args, str):
+        pg_dump_args = " ".join(pg_dump_args)
+    container = get_postgres_container(ctx)
+    # Generate path for the output file
+    filepath = Path("/env") / Path(filename)
+    # Generate pg_dump command
+    command = (
+        "pg_dump"
+        " --username=odoo"
+        " --format {dumpformat}"
+        " --file {filepath}"
+        " {pg_dump_args}"
+        " {database}"
+    ).format(
+        dumpformat=dumpformat,
+        filepath=filepath,
+        database=database,
+        pg_dump_args=pg_dump_args,
+    )
+    logger.debug(
+        "Executing the following command in postgres container: %s"
+        % (command,)
+    )
+    pg_dump_result = exec_container(container, command)
+
+    chown_to_local_user(ctx, filepath)
+
+    return pg_dump_result.output.decode("utf8")
